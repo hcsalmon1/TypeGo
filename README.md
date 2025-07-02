@@ -75,7 +75,7 @@ Features:
 
 **Q. How Do I use TypeGo?**
 
-Simply install it on the path, so you can call it from the command prompt.
+Simply install it on the path, so you can call it from the command prompt.  
 You then call it with the command: **tgo**
 
 There are four commands:
@@ -85,9 +85,9 @@ There are four commands:
   	tgo convertfile file.tgo
    	tgo convertdir
 
-Basically you create a file with the extension .tgo in a new or existing Go project.
-Write the code in that .tgo file and then run the command 'convertfile' with the file name or 'convertdir'.
-Convert directory will find any .tgo files in this folder, and all subfolders, and create .go conversions of each file.
+Basically you create a file with the extension .tgo in a new or existing Go project.  
+Write the code in that .tgo file and then run the command 'convertfile' with the file name or 'convertdir'.  
+Convert directory will find any .tgo files in this folder, and all subfolders, and create .go conversions of each file.  
 
 **Q. Will TypeGo cause conflicts in my project?**
 
