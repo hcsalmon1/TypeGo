@@ -51,12 +51,12 @@ Questions and Answers:
 
 **Q. What is TypeGo?**
 
-  A. TypeGo is simply a transpiler. It converts .tgo into duplicated .go files.
-  Features:
-  -No inferred types outside of ifs and fors
-  -Return to C style: type name = value
-  -Improved enums with two options
-  -Improved method syntax
+  A. TypeGo is simply a transpiler. It converts .tgo into duplicated .go files.__
+  Features:__
+  -No inferred types outside of ifs and fors__
+  -Return to C style: type name = value__
+  -Improved enums with two options__
+  -Improved method syntax__
 
 **Q. Why did you make TypeGo?**
 
