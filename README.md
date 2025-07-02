@@ -117,16 +117,17 @@ Features:
 **Q. Why did you make TypeGo?**
   
 
-  Believe it or not, this actually started as a joke project and then became feasible the more I worked on it.  
-  Go uses ':=' style inferred types all the time, so it may as well not even be a statically typed language, as it removes most of the benefits.  
-  I joked about making 'TypeGo', to actually make it statically typed. Like Typescript and Javascript.  
-  I also decided to decided to fix other problems in the language too.  
+Believe it or not, this actually started as a joke project and then became feasible the more I worked on it.  
+Go uses ':=' style inferred types all the time, so it may as well not even be a statically typed language, as it removes most of the benefits.  
+I joked about making 'TypeGo', to actually make it statically typed. Like Typescript and Javascript.  
+I also decided to decided to fix other problems in the language too.  
   
-  From my experience in the language, I found Go has 3 main problems:  
-  1. Inferred types 99% of the time and the language punishes specifying types or makes it impossible  
-  2. Enums are terrible  
-  3. Many things are unintuitive and verbose: append, struct methods, make.  
-  The goal was to try and fix these 3 things.  
+From my experience in the language, I found Go has 3 main problems:  
+1. Inferred types 99% of the time and the language punishes specifying types or makes it impossible  
+2. Enums are terrible  
+3. Many things are unintuitive and verbose: append, struct methods, make.   
+  
+The goal was to try and fix these 3 things.  
 
   
 **Q. How Do I use TypeGo?**
