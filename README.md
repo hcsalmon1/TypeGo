@@ -27,9 +27,7 @@ TypeGo:
 			return fmt.Sprintf("Hi, I'm %s, I'm %d years old, and my role is %s.", Name, Age, RoleToString(Role))
 		}
 	}
-	
-	
-	
+		
 	fn main() {
 	
 		[]Person people = make(0) 
