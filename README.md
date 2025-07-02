@@ -103,7 +103,7 @@ A. You can't find any Go code that doesn't include ':=', anywhere, except if you
 Just let the compiler work out the type. What could go wrong, right?
 This is literally the worst feature in Go and I would remove it entirely if I could. I'll explain why:
 
-**1. It makes code very hard to read**
+**1. It makes code very hard to read**  
 Example:
 
 ```go
