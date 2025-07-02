@@ -183,8 +183,49 @@ Firstly TypeGo reverses the order of declarations back to C style.
 
 TypeGo:
 ``` 
-	index := getIndex()  𝕏 - not allowed
-	var index int = getIndex() 𝕏 - not allowed
-	int index = getIndex() ✓ - Correct
+	index := getIndex()  		𝕏 - not allowed
+	var index int = getIndex() 	𝕏 - not allowed
+	int index = getIndex() 		✓ - Correct
 ```
+The converted Go code will never use ':=' with two exceptions. This is to actually have the compiler check your code, rather than guess you are thinking.
+
+The exceptions are the situations where it is impossible or not needed.
+
+**Constants**
+```
+	const PI = 3.14159
+```
+
+It's obvious this is a float, so you don't need to specify here. You can if you want though:
+
+```
+	const float32 PI = 3.14159
+
+converts to:
+
+	const PI float32 = 3.14159
+```
+The other exceptions are in if statements and for loops. Why? Because Go doesn't allow you to use the long form in those.
+```
+	for var i int = 0; i < 10; i++ { //error
+	for i := 0; i < 10; i++ { //Only way
+```
+So, as you literally can't specify the type in an if statement or for loop, Go and TypeGo use the same syntax here.
+In theory I could do this in the conversion to Go:
+```
+	TypeGo:
+	for int i = 0; i < 10; i++ {
+
+	Converted Go:
+	var i int
+	for i = 0; i < 10; i++ {
+```
+The problem with doing this is that 'i' is now not just local to the scope of the for loop and could cause conflicts. TypeGo doesn't track declared variables at all, 
+so for simplicity, for loops and if statements are unchanged.
+
+
+
+
+
+
 
