@@ -107,59 +107,21 @@ This is literally the worst feature in Go and I would remove it entirely if I co
 Example:
 
 ```go
-func main() {
-	data := getData()
-	fs := getFuncs()
 
-	ch := extractChan(data)
-
-        createGoRoutine(ch)
-
-	time.Sleep(100 * time.Millisecond)
-
-	select {
-		case msg := <-ch:
-			for k, v := range msg {
-				fmt.Printf("Key: %d, Value: %v\n", k, v)
-			}
-		default:
-			fmt.Println("No message")
-	}
-
-	for _, f := range fs {
-		fmt.Println("Func result:", f())
-	}
-}
+data := getData()
+fs := getFuncs()
+ch := extractChan(data)
+createGoRoutine(ch)
 
 ```
 
 Good luck reading this without an IDE. Compare this to this version:
 
 ```go
-func main() {
-	var data []interface{} = getData()
-	var fs []func() int = getFuncs()
 
-	var ch chan map[int][]string = extractChan(data)
-
-        createGoRoutine(ch)
-
-	time.Sleep(100 * time.Millisecond)
-
-	select {
-                case msg := <-ch:
-                        for k, v := range msg {
-                                fmt.Printf("Key: %d, Value: %v\n", k, v)
-                        }
-                default:
-                        fmt.Println("No message")
-	}
-
-	for _, f := range fs {
-                var f func() int = f
-		fmt.Println("Func result:", f())
-	}
-}
+var data []interface{} = getData()
+var fs []func() int = getFuncs()
+var ch chan map[int][]string = extractChan(data)
 
 ```
 
@@ -384,4 +346,8 @@ Issue with enums that can't be fixed:
 
 There's nothing that can stop this, as the Go compiler doesn't bother checking these things and it's too complicated to make for me.
 
-But either way, this is a big quality of life improvement for enums. 
+But either way, this is a big quality of life improvement for enums.
+
+**Q. How does TypeGo Improve Structs and Methods?**
+
+
