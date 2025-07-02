@@ -27,7 +27,7 @@ TypeGo:
 
 Converts to Go:
 
-```
+```go
   package main
   
   import "fmt"
@@ -104,7 +104,7 @@ This is literally the worst feature in Go and I would remove it entirely if I co
 **1. It makes code very hard to read**
 Example:
 
-```
+```go
 func main() {
 	data := getData()
 	fs := getFuncs()
@@ -133,7 +133,7 @@ func main() {
 
 Good luck reading this without an IDE. Compare this to this version:
 
-```
+```go
 func main() {
 	var data []interface{} = getData()
 	var fs []func() int = getFuncs()
@@ -170,7 +170,7 @@ You basically need to use an IDE to make anything readable at all.
 
 Let's say you make a mistake and forget to dereference a pointer:
 
-```
+```go
 	func foo(index *int) {
 		...
 		index_before := index
@@ -184,7 +184,7 @@ You get minimal compile time checks when you code this way. No warning, no hint 
 
 Compare this to:
 
-```
+```go
 	func foo(index *int) {
 		...
 		var index_before int := index  //error
@@ -195,7 +195,7 @@ Compare this to:
 You now get a compiler error and it tells you that the type is incompatible.
 Summary:
 
-```
+```go
 	index_before := index   	𝕏 - zero compile time checks, infers a pointer
 	var index_before = index 	𝕏 - zero compile time checks, infers a pointer
 	var index_before int = index	✓ - compiler actually catches the error
@@ -211,7 +211,7 @@ Yes, it's more concise to write ':=', but this comes at the cost of the compiler
 Firstly TypeGo reverses the order of declarations back to C style.
 
 TypeGo:
-``` 
+```go
 	index := getIndex()  		𝕏 - not allowed
 	var index int = getIndex() 	𝕏 - not allowed
 	int index = getIndex() 		✓ - Correct
@@ -225,13 +225,13 @@ The converted Go code will never use ':=' with two exceptions. This is to actual
 The exceptions are the situations where it is impossible or not needed.
 
 **Constants**
-```
+```go
 	const PI = 3.14159
 ```
 
 It's obvious this is a float, so you don't need to specify here. You can if you want though:
 
-```
+```go
 	const float32 PI = 3.14159
 
 converts to:
@@ -239,13 +239,13 @@ converts to:
 	const PI float32 = 3.14159
 ```
 The other exceptions are in if statements and for loops. Why? Because Go doesn't allow you to use the long form in those.
-```
+```go
 	for var i int = 0; i < 10; i++ { //error
 	for i := 0; i < 10; i++ { //Only way
 ```
 So, as you literally can't specify the type in an if statement or for loop, Go and TypeGo use the same syntax here.
 In theory I could do this in the conversion to Go:
-```
+```go
 	TypeGo:
 	for int i = 0; i < 10; i++ {
 
@@ -260,7 +260,7 @@ so for simplicity, for loops and if statements are unchanged.
 
 Let's start with the problems of Enums.
 
-```
+```go
 	type UserType int
 
 	const (
@@ -280,7 +280,7 @@ TypeGo tries to address these issues by giving you two options.
 **1. enum**
 
 TypeGo:
-```
+```go
 	enum UserType {
 		Regular
 		Guest
@@ -289,7 +289,7 @@ TypeGo:
 
 ```
 This will convert to:
-```
+```go
 	type UserType int
 
 	const (
@@ -320,7 +320,7 @@ This is the first option, to keep the iota way still possible.
 
 The other option is 'enumstruct', taken as an idea from 'enumclass' in C++.
 
-```
+```go
 	enumstruct UserType {
 		Regular
 		Guest
@@ -330,7 +330,7 @@ The other option is 'enumstruct', taken as an idea from 'enumclass' in C++.
 
 This will generate the following Go code:
 
-```
+```go
 	var UserType = struct {
 	        Regular int
 	        Guest int
@@ -357,7 +357,7 @@ This will generate the following Go code:
 
 You then access these values like so:
 
-```
+```go
 
 	func main() {
 		int user_type = UserType.Regular
@@ -374,7 +374,7 @@ All custom enum types are just ints anyway and there is no difference when the c
 Issue with enums that can't be fixed:
 **Incompatible values being set to enums**
 
-```
+```go
 	int user_type = 99999999
 	or:
 	var user_type UserType = 9999999
