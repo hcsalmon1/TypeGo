@@ -92,8 +92,8 @@ Converts to Go:
 	    people = append(people, Person{Name:"Bob",Age:25,Role:Role.Member})
 	    people = append(people, Person{Name:"Charlie",Age:40,Role:Role.Guest})
 		
-		for i := 0;i < len(people);i ++ {
-			fmt.Println(people[i].Greet())
+            for i := 0;i < len(people);i ++ {
+		fmt.Println(people[i].Greet())
 	    }
 	}
 ```
