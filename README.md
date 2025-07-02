@@ -167,8 +167,8 @@ You now get a compiler error and it tells you that the type is incompatible.
 Summary:
 
 ```
-	index_before := index   	𝕏 - zero compile time checks
-	var index_before = index 	𝕏 - zero compile time checks
+	index_before := index   	𝕏 - zero compile time checks, infers a pointer
+	var index_before = index 	𝕏 - zero compile time checks, infers a pointer
 	var index_before int = index	✓ - compiler actually catches the error
 	var index_before int = *index	✓ - compiler checks and finds no error
 
