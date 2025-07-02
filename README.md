@@ -49,9 +49,9 @@ Converts to Go:
 
 Questions and Answers:
 
-
+  
 **What is TypeGo?**
-
+  
 
 TypeGo is a transpiler that converts .tgo files into .go files.
 
@@ -62,9 +62,9 @@ Features:
 -Improved enum syntax  
 -Simplified struct methods  
 
-
+  
 **Q. Why did you make TypeGo?**
-
+  
 
   Believe it or not, this actually started as a joke project and then became feasible the more I worked on it.  
   Go uses ':=' style inferred types all the time, so it may as well not even be a statically typed language, as it removes most of the benefits.  
@@ -77,9 +77,9 @@ Features:
   3. Many things are unintuitive and verbose: append, struct methods, make.  
   The goal was to try and fix these 3 things.  
 
-
+  
 **Q. How Do I use TypeGo?**
-
+  
 
 Simply install it on the path, so you can call it from the command prompt.  
 You then call it with the command: **tgo**
