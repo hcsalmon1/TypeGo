@@ -191,7 +191,7 @@ converts to:
 
 	var index int = getIndex()
 ```
-The converted Go code will never use ':=' with two exceptions. This is to actually have the compiler check your code, rather than guess you are thinking.
+The converted Go code will never use ':=' with two exceptions. This is to actually have the compiler check your code, rather than guess what you are thinking.
 
 The exceptions are the situations where it is impossible or not needed.
 
