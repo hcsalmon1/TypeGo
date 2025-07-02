@@ -152,7 +152,7 @@ Compare this to:
 ```go
 	func foo(index *int) {
 		...
-		var index_before int := index  //error
+		var index_before int = index  //error
 		...
 	}
 ```
