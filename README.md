@@ -1,11 +1,12 @@
 # TypeGo
 
-A tool to help 
+A tool to help improve and give Go some quality of life improvements.
+It converts to Go code, similar to Typescript and Javascript.
 
 Example:
 
 TypeGo:
-
+```
   package main
 
   import "fmt"
@@ -22,9 +23,11 @@ TypeGo:
       Person p = {Name: "Alice", Age: 30}
       fmt.Println(p.Greet())
   }
+```
 
 Converts to Go:
 
+```
   package main
   
   import "fmt"
@@ -42,3 +45,4 @@ Converts to Go:
           var p Person = Person{ Name : "Alice" , Age : 30 }
           fmt.Println(p.Greet())
   }
+```
