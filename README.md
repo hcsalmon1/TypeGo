@@ -447,7 +447,7 @@ The TypeGo way:
         int Age
         string Name
         fn Greet() {
-            fmt.Println(""My name is"", Name, ""and I am "", Age, ""years old"");
+            fmt.Println("My name is", Name, "and I am ", Age, "years old");
         }
     }
 
