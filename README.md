@@ -7,44 +7,97 @@ Example:
 
 TypeGo:
 ```go
-  package main
-
-  import "fmt"
-  
-  struct Person {
-      string Name
-      int Age
-      fn string Greet() {
-          return fmt.Sprintf("Hi, I'm %s and I'm %d years old.", Name, Age)
-      }
-  }
-    
-  fn main() {
-      Person p = {Name: "Alice", Age: 30}
-      fmt.Println(p.Greet())
-  }
+	package main
+	
+	import "fmt"
+	
+	// Converted Go:
+	enumstruct Role {
+		Admin
+		Guest
+		Member
+	}
+	
+	struct Person {
+		string Name
+		int Age
+		int Role
+		
+		fn string Greet() {
+			return fmt.Sprintf("Hi, I'm %s, I'm %d years old, and my role is %s.", Name, Age, RoleToString(Role))
+		}
+	}
+	
+	
+	
+	fn main() {
+	
+		[]Person people = make(0) 
+	
+		// Add more people
+		people.append(Person{ Name: "Alice", Age: 30, Role: Role.Admin })
+		people.append(Person{ Name: "Bob", Age: 25, Role: Role.Member })
+		people.append(Person{ Name: "Charlie", Age: 40, Role: Role.Guest })
+	
+		// Greet all of them
+		for i := 0; i < len(people); i++ {
+			fmt.Println(people[i].Greet())
+		}
+	}
 ```
 
 Converts to Go:
 
 ```go
-  package main
-  
-  import "fmt"
-  
-  type Person struct {
-          Name string
-          Age int
-  }
-  
-  func (p *Person) Greet() string {
-          return fmt.Sprintf("Hi, I'm %s and I'm %d years old." , p.Name , p.Age)
-  }
-  
-  func main() {
-          var p Person = Person{ Name : "Alice" , Age : 30 }
-          fmt.Println(p.Greet())
-  }
+	package main
+	
+	import "fmt"
+	
+	var Role = struct {
+	    Admin int
+	    Guest int
+	    Member int
+	}{
+	    Admin: 0,
+	    Guest: 1,
+	    Member: 2,
+	}
+	
+	func RoleToString(role int) string {
+	        switch role {
+		case Role.Admin:
+			return "Admin"
+		case Role.Guest:
+			return "Guest"
+		case Role.Member:
+			return "Member"
+		default:
+			return "Unknown"
+		}
+	}
+	
+	type Person struct {
+	    Name string
+	    Age int
+	    Role int
+	}
+	
+	func (p *Person) Greet() string {
+	    return fmt.Sprintf("Hi, I'm %s, I'm %d years old, and my role is %s." , p.Name , p.Age , RoleToString(p.Role))
+	}
+	
+	func main() {
+	    
+	    var people []Person = make([]Person, 0)
+		
+	    people = append(people, Person{Name:"Alice",Age:30,Role:Role.Admin})
+	    people = append(people, Person{Name:"Bob",Age:25,Role:Role.Member})
+	    people = append(people, Person{Name:"Charlie",Age:40,Role:Role.Guest})
+		
+		for i := 0;i < len(people);i ++ {
+			fmt.Println(people[i].Greet())
+	    }
+	}
 ```
 
 Questions and Answers:
