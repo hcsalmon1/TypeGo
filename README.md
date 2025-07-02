@@ -51,8 +51,7 @@ Questions and Answers:
 
 **Q. What is TypeGo?**
 
-  A. TypeGo is simply a transpiler. I got frustrated with certain aspects of the Go language and decided to make this tool to fix those shortcomings.
-  It converts .tgo into duplicated .go files.
+  A. TypeGo is simply a transpiler. It converts .tgo into duplicated .go files.
   Features:
   -No inferred types outside of ifs and fors
   -Return to C style: type name = value
@@ -61,17 +60,18 @@ Questions and Answers:
 
 **Q. Why did you make TypeGo?**
 
-  A. From my experience in the language, Go has 3 main problems:
-  1. Inferred types 99% of the time that punishes specifying types or makes it impossible
+  A. From my experience in the language, I found Go has 3 main problems:
+  1. Inferred types 99% of the time and the language punishes specifying types or makes it impossible
   2. Enums are terrible
   3. Many things are unintuitive and verbose: append, struct methods, make.
   The goal was to try and fix these 3 things.
 
 **Q. What's wrong with ':=' and inferred types?**
 
-A. You can't read any Go code that doesn't include ':=', anywhere. It is basically everywhere and considered idiomatic.
+A. You can't read any Go code that doesn't include ':=', anywhere, except if you read Go code. It is basically everywhere and considered idiomatic.
 Just let the compiler work out the type. What could go wrong, right?
 This is literally the worst feature in Go and I would remove it entirely if I could. I'll explain why:
+
 **1. It makes code very hard to read**
 Example:
 
@@ -137,7 +137,7 @@ Now you don't have to hold these var types in your head or use the crutch of an 
 If you think that ':=' doesn't make code harder to read, then try writing a whole Go project in notepad and then see how easy it is to read and write.
 You basically need to use an IDE to make anything readable at all.
 
-2. It creates silent bugs
+**2. It creates silent bugs**
 
 Let's say you make a mistake and forget to dereference a pointer:
 
@@ -168,14 +168,23 @@ Summary:
 
 ```
 	index_before := index   	𝕏 - zero compile time checks
-	var index_before = index 	𝕏 - zero compiler time checks
-	var index_before int = index	✓ - compiler actually catched the error
-	var index_before int = *index	✓ - compiler checks and find no error
+	var index_before = index 	𝕏 - zero compile time checks
+	var index_before int = index	✓ - compiler actually catches the error
+	var index_before int = *index	✓ - compiler checks and finds no error
 
 ```
 
 So the default and idiomatic style in Go makes code harder to read and introduces silent bugs? This is good how?
 Yes, it's more concise to write ':=' but this comes at the cost of the compiler not actually checking your code and just guessing what you want.
 
+**Q. How does TypeGo change inferred types?**
 
+Firstly TypeGo reverses the order of declarations back to C style.
+
+TypeGo:
+``` 
+	index := getIndex()  𝕏 - not allowed
+	var index int = getIndex() 𝕏 - not allowed
+	int index = getIndex() ✓ - Correct
+```
 
