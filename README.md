@@ -122,6 +122,7 @@ Good luck reading this without an IDE. Compare this to this version:
 var data []interface{} = getData()
 var fs []func() int = getFuncs()
 var ch chan map[int][]string = extractChan(data)
+createGoRoutine(ch)
 
 ```
 
@@ -424,11 +425,11 @@ Example:
 	[5]*int array;
 ```
 
-This is now crystal clear. 
--[5] - an array with 5 elements.
--* int - of pointers to integers
+This is now crystal clear.  
+-[5] - an array with 5 elements.  
+-* int - of pointers to integers  
 
-This is basically how Go's syntax is if you go back to: type name = value  
+This is basically how Go's syntax is, if you go back to: type name = value  
 
 A comparison:
 
