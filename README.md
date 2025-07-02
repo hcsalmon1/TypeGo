@@ -68,7 +68,7 @@ Questions and Answers:
 
 **Q. What's wrong with ':=' and inferred types?**
 
-A. You can't read any Go code that doesn't include ':=', anywhere, except if you read Go code. It is basically everywhere and considered idiomatic.
+A. You can't find any Go code that doesn't include ':=', anywhere, except if you read my Go code. It is basically everywhere and considered idiomatic.
 Just let the compiler work out the type. What could go wrong, right?
 This is literally the worst feature in Go and I would remove it entirely if I could. I'll explain why:
 
