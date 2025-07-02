@@ -63,7 +63,7 @@ Questions and Answers:
   A. From my experience in the language, I found Go has 3 main problems:
   1. Inferred types 99% of the time and the language punishes specifying types or makes it impossible
   2. Enums are terrible
-  3. Many things are unintuitive and verbose: append, struct methods, make.
+  3. Many things are unintuitive and verbose: append, struct methods, make.  
   The goal was to try and fix these 3 things.
 
 **Q. What's wrong with ':=' and inferred types?**
