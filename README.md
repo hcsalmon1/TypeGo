@@ -244,6 +244,7 @@ Let's start with the problems of Enums.
 1. They have weird syntax
 2. They are global constants that conflict with other globals
 3. You can't print their names without manually creating string arrays or using 'stringer'
+4. There is no value checking and you can set any value
 
 TypeGo tries to address these issues by giving you two options.
 
