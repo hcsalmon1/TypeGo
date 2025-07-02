@@ -51,14 +51,14 @@ Questions and Answers:
 
 **What is TypeGo?**
 
-TypeGo is a transpiler that converts .tgo files into .go files.
-
-Features:
-
--No inferred types (except in limited cases)  
--C-style declaration syntax: type name = value  
--Improved enum syntax  
--Simplified struct methods  
+	TypeGo is a transpiler that converts .tgo files into .go files.
+	
+	Features:
+	
+	-No inferred types (except in limited cases)  
+	-C-style declaration syntax: type name = value  
+	-Improved enum syntax  
+	-Simplified struct methods  
 
 **Q. Why did you make TypeGo?**
 
