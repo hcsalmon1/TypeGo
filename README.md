@@ -370,8 +370,8 @@ You then access these values like so:
 
 So enumstructs will never conflict with any other global variable.
 
-The one downside is that you can't give the type a custom name, but that doesn't even do anything anyway and is only for the programmer.
-All custom enum types are just ints anyway and there is no difference when the compiler processes them.
+The one downside is that you can't give the type a custom name, but that doesn't even do anything anyway and is only for the programmer.  
+All custom enum types are just ints anyway. There is no difference when the compiler processes them, so you don't lose much.
 
 Issue with enums that can't be fixed:
 **Incompatible values being set to enums**
