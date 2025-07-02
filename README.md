@@ -174,7 +174,7 @@ Summary:
 
 ```
 
-So the default and idiomatic style in Go makes code harder to read and introduces silent bugs? This is good how?
+So the default and idiomatic style in Go makes code harder to read and introduces silent bugs? This is good how?  
 Yes, it's more concise to write ':=' but this comes at the cost of the compiler not actually checking your code and just guessing what you want.
 
 **Q. How does TypeGo change inferred types?**
