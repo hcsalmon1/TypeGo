@@ -14,12 +14,12 @@ TypeGo:
   struct Person {
       string Name
       int Age
-      func string Greet() {
+      fn string Greet() {
           return fmt.Sprintf("Hi, I'm %s and I'm %d years old.", Name, Age)
       }
   }
     
-  func main() {
+  fn main() {
       Person p = {Name: "Alice", Age: 30}
       fmt.Println(p.Greet())
   }
