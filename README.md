@@ -186,6 +186,10 @@ TypeGo:
 	index := getIndex()  		𝕏 - not allowed
 	var index int = getIndex() 	𝕏 - not allowed
 	int index = getIndex() 		✓ - Correct
+
+converts to:
+
+	var index int = getIndex()
 ```
 The converted Go code will never use ':=' with two exceptions. This is to actually have the compiler check your code, rather than guess you are thinking.
 
@@ -223,9 +227,129 @@ In theory I could do this in the conversion to Go:
 The problem with doing this is that 'i' is now not just local to the scope of the for loop and could cause conflicts. TypeGo doesn't track declared variables at all, 
 so for simplicity, for loops and if statements are unchanged.
 
+**Q. How does TypeGo improve enums?**
 
+Let's start with the problems of Enums.
 
+```
+	type UserType int
 
+	const (
+		Regular = UserType iota
+		Guest
+		Admin
+	)
+```
 
+1. They have weird syntax
+2. They are global constants that conflict with other globals
+3. You can't print their names without manually creating string arrays or using 'stringer'
 
+TypeGo tries to address these issues by giving you two options.
 
+**1. enum**
+
+TypeGo:
+```
+	enum UserType {
+		Regular
+		Guest
+		Admin
+	}
+
+```
+This will convert to:
+```
+	type UserType int
+
+	const (
+		UserTypeRegular = UserType iota
+		UserTypeGuest
+		UserTypeAdmin
+	)
+
+	func UserTypeToString(user_type int) string {
+		switch user_type {
+    			case UserTypeRegular:
+        			return "Regular"
+    			case UserTypeGuest:
+        			return "Guest"
+    			case UserTypeAdmin:
+        			return "Admin"
+    			default:
+        			return "Unknown"
+    		}
+	}
+
+```
+
+The name of the enum will be placed before each name to avoid conflicts and a function called NameToString will be auto generated.
+This is the first option, to keep the iota way still an option.
+
+**2. enumstruct**
+
+The other option is 'enumstruct', taken as an idea from 'enumclass' in C++.
+
+```
+	enumstruct UserType {
+		Regular
+		Guest
+		Admin
+	}
+```
+
+This will generate the following Go code:
+
+```
+	var UserType = struct {
+	        Regular int
+	        Guest int
+	        Admin int
+	}{
+	        Regular: 0,
+	        Guest: 1,
+	        Admin: 2,
+	}
+
+	func UserTypeToString(user_type int) string {
+		switch user_type {
+    			case UserType.Regular:
+        			return "Regular"
+    			case UserType.Guest:
+        			return "Guest"
+    			case UserType.Admin:
+        			return "Admin"
+    			default:
+        			return "Unknown"
+    		}
+	}
+```
+
+You then access these values like so:
+
+```
+
+	func main() {
+		int user_type = UserType.Regular
+		fmt.Println("user_type:", UserTypeToString(user_type));
+	}
+
+```
+
+So enumstructs will never conflict with any other global variable.
+
+The one downside is that you can't give the type a custom name, but that doesn't even do anything anyway and is only for the programmer.
+All custom enum types are just ints anyway and there is no difference when the compiler processes them.
+
+Issue with enums that can't be fixed:
+**Incompatible values being set to enums**
+
+```
+	int user_type = 99999999
+	or:
+	var user_type UserType = 9999999
+```
+
+There's nothing that can stop this, as the Go compiler doesn't bother checking these things and it's too complicated to make for me.
+
+But either way, this is a big quality of life improvement for enums. 
