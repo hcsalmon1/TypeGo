@@ -284,8 +284,8 @@ This will convert to:
 
 ```
 
-The name of the enum will be placed before each name to avoid conflicts and a function called NameToString will be auto generated.
-This is the first option, to keep the iota way still an option.
+The name of the enum will be placed before each name to avoid conflicts and a function called NameToString will be auto generated.  
+This is the first option, to keep the iota way still possible.
 
 **2. enumstruct**
 
