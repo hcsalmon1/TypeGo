@@ -350,4 +350,94 @@ But either way, this is a big quality of life improvement for enums.
 
 **Q. How does TypeGo Improve Structs and Methods?**
 
+The Go way to do it:
+
+```go
+
+	type Person struct {
+	        Age int
+	        Name string
+	}
+	
+	func (p *Person) Greet() {
+	        fmt.Println("My name is" , p.Name , "and I am " , p.Age , "years old");
+	}
+
+```
+
+The TypeGo way:
+
+```go
+
+    struct Person {
+        int Age
+        string Name
+        fn Greet() {
+            fmt.Println(""My name is"", Name, ""and I am "", Age, ""years old"");
+        }
+    }
+
+```
+
+Methods now go inside of structs directly and the struct name will be inserted automatically.  
+This TypeGo code will generate the above Go code.
+
+You then declare structs like this:  
+
+```go
+	Person person = {
+		Age: 20,
+		Name: "john",
+	}
+```
+
+There's no need to write 'Person' twice as it will be inserted for you in the converted code:  
+
+Converted Go:
+```go
+        var person Person = Person{
+                Age: 20,
+                Name: "John",
+        }
+```
+
+
+
+**Q. Why revert back to C-style declarations?**
+
+C syntax definitely wasn't perfect and had some problems. For example:  
+
+```C
+	int *array[5];
+```
+
+Is this a pointer to an array of integers or an array of 5 pointers to integers?
+The syntax order made this completely unclear.  
+
+The problem was not that you put the type first, but that type order made things unclear.  
+Go fixes this problem but also flips the order, for some reason.  
+
+I argue that it's unnecessary to flip the order to fix it and you can simply fix C's syntax by putting the types in order.  
+Example:
+
+```c
+	[5]*int array;
+```
+
+This is now crystal clear. 
+-[5] - an array with 5 elements.
+-* int - of pointers to integers
+
+This is basically how Go's syntax is if you go back to: type name = value  
+
+A comparison:
+
+```go
+
+	value := getValue() 		//short but harder to read and no type checking
+	var value int = getValue() 	//long but easier to read and has compile time checks
+	int value = getValue()		//not too long, easy to read and has compile time checks. The perfect middle ground
+```
+
+
 
