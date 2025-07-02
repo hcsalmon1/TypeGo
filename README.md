@@ -51,7 +51,7 @@ Questions and Answers:
 
 **What is TypeGo?**
 
-A: TypeGo is a transpiler that converts .tgo files into .go files.
+TypeGo is a transpiler that converts .tgo files into .go files.
 
 Features:
 
@@ -62,7 +62,7 @@ Features:
 
 **Q. Why did you make TypeGo?**
 
-  A. Believe it or not, this actually started as a joke project and then became feasible the more I worked on it.  
+  Believe it or not, this actually started as a joke project and then became feasible the more I worked on it.  
   Go uses ':=' style inferred types all the time, so it may as well not even be a statically typed language, as it removes most of the benefits.  
   I joked about making 'TypeGo', to actually make it statically typed. Like Typescript and Javascript.  
   I also decided to decided to fix other problems in the language too.  
@@ -99,7 +99,7 @@ The rest of your project will be untouched.
 
 **Q. What's wrong with ':=' and inferred types?**
 
-A. You can't find any Go code that doesn't include ':=', anywhere, except if you read my Go code. It is basically everywhere and considered idiomatic.
+You can't find any Go code that doesn't include ':=', anywhere, except if you read my Go code. It is basically everywhere and considered idiomatic.
 Just let the compiler work out the type. What could go wrong, right?
 This is literally the worst feature in Go and I would remove it entirely if I could. I'll explain why:
 
@@ -401,8 +401,6 @@ Converted Go:
                 Name: "John",
         }
 ```
-
-
 
 **Q. Why revert back to C-style declarations?**
 
