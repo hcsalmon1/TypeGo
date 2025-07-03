@@ -163,44 +163,6 @@ It only has basic syntax highlighting in VSCode. I would probably never finish t
 Just convert the file to Go and open that to see errors highlighted in VSCode.
 
 
-**Examples**
-
-**Enums:**
-
-```go
-
-TypeGo:
-	enum Result {
-        	Ok,
-                OutOfRange,
-                InvalidInput,
-	}
-
-Go:
-	type Result int
-
-	const (
-	        ResultOk = iota
-	        ResultOutOfRange
-	        ResultInvalidInput
-	)
-	
-	func ResultToString(result int) string {
-	        switch result {
-	        case Ok:
-	                return "Ok"
-	        case OutOfRange:
-	                return "OutOfRange"
-	        case InvalidInput:
-	                return "InvalidInput"
-	        default::
-	                return "Unknown"
-	        }
-	}
-```	
-
-
-
 **Q. What's wrong with ':=' and inferred types?**
 
 
