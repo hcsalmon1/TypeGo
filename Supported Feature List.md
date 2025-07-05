@@ -61,7 +61,7 @@ make - simplified syntax ✅
     chan int ch = make()
     []int slice = make(1)
 ```
-copy ✅    
+copy() ✅    
 len() ✅  
 cap() ✅  
 delete() ✅  
