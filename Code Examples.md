@@ -37,7 +37,7 @@
     }
 
 ```
-The type is optional in constants.
+The type is optional in constants.  
 ':=' is only allowed in for loops, if statements and switch statements.
 
 ```go
