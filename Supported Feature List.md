@@ -7,6 +7,7 @@
   Channels ✅  
   local var interfaces ✅  
   local var Interfaces with methods ❌  
+  
   Same type multiple declaration ❌  
   ```go
       int a, b
@@ -25,7 +26,7 @@
   ```go
      fn foo(int a, b, c)
   ```
-  Variadic parameters ❌  
+  Variadic parameters ✅  
   Anonymous Functions ❌  
   Closures ❌ 
 
@@ -34,7 +35,7 @@
   For loops ✅  
   If statements ✅  
   Switch statements ✅  
-  goto ❌  
+  goto ✅  
   go routines ✅
 
 **Interfaces**
@@ -55,13 +56,13 @@ make - simplified syntax ✅
     chan int ch = make()
     []int slice = make(1)
 ```
-copy ❌  
+copy ✅    
 len() ✅  
-cap() ❌  
-delete() ❌  
-panic() ❌  
-recover() ❌  
-new() ❌  
+cap() ✅  
+delete() ✅  
+panic() ✅  
+recover() ✅  
+new() ✅    
 
 **Enums**
 enum (iota-style) ✅
@@ -76,8 +77,8 @@ Struct declarations ✅
 Struct literal initialization ✅
 Embedded structs ✅
 Method declarations inside structs ✅
-Method receivers (pointer/value) ✅
-Struct methods with receiver access to fields ✅
+Method receivers (pointer/value) ❌  
+Struct methods with receiver access to fields ✅  
 Embedded struct field access in methods ❌
 Struct embedding with method promotion ❌
 Struct tags ❌
