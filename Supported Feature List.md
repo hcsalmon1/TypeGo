@@ -70,9 +70,10 @@ panic() ✅
 recover() ✅  
 new() ✅    
 
-**Enums**
-enum (iota-style) ✅
-enumstruct ✅
+**Enums**  
+
+enum (iota-style) ✅  
+enumstruct ✅  
 ToString functions ✅  
 Custom integer values in enum ❌  
 Using enums in switch statements ✅  
