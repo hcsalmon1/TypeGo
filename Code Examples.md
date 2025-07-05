@@ -100,7 +100,7 @@ Again the Struct name can be omitted after '='
     }
 
     fn main() {
-        OperatingSystem os = OsTypeWindows
+        OsType os = OsTypeWindows
     }
 
     //Option 2
