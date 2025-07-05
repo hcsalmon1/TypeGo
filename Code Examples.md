@@ -126,10 +126,10 @@ Again the Struct name can be omitted after '='
 
 ```
 
-**Unchanged List:**
--Switches
--For loops
--If/else statements
--Imports
--Defer
--
+**Unchanged List:**  
+-Switches  
+-For loops  
+-If/else statements  
+-Imports  
+-Defer  
+
