@@ -26,7 +26,7 @@
      fn foo(int a, b, c)
   ```
   Variadic parameters ❌  
-  Anonymous Functions ❌
+  Anonymous Functions ❌  
   Closures ❌ 
 
 **Control flow**
