@@ -31,7 +31,8 @@
     *int pointer = &number
     *pointer = 11
 
-    for i := 0; i < 10; i++ {
+    //:= only allowed in certain situations
+    for i := 0; i < 10; i++ { 
 
     }
 
