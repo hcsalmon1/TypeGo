@@ -8,6 +8,7 @@
   local var interfaces ✅  
   local var Interfaces with methods ❌  
   Same type multiple declaration - eg: int a, b ❌  
+  Multiple value declarations - eg: int value, bool ok = getValue() ✅  
 
 
 **Functions:**
