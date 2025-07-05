@@ -10,13 +10,15 @@
   Same type multiple declaration - eg: int a, b ❌  
   Multiple value declarations - eg: int value, bool ok = getValue() ✅  
 
-
 **Functions:**
 
   Basic functions ✅   
+  Parameters ✅  
   Multiple return types ✅  
+  Multiple parameters with one type eg: (int a, b, c) ❌  
   Variadic parameters ❌  
   Anonymous Functions ❌
+  Closures ❌ 
 
 **Control flow**
 
@@ -25,3 +27,14 @@
   Switch statements ✅  
   goto ❌  
   go routines ✅
+
+**Interfaces**
+
+  Interface declarations ✅  
+  Interface methods ✅  
+  Anonymous interface declaration ✅  
+  Anonymous interface declaration with methods ❌  
+
+
+
+
