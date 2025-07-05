@@ -11,7 +11,10 @@
   ```go
       int a, b
   ```
-  Multiple value declarations - eg: int value, bool ok = getValue() ✅  
+  Multiple value declarations ✅  
+  ```go
+      int value, bool ok = getValue()
+  ```
 
 **Functions:**
 
