@@ -10,6 +10,10 @@
         int result = add(10, 10)
     }
 
+    fn (int, bool) getValue() {
+        return 10, true
+    }
+
 ```
 
 'fn' or 'func' are both allowed
@@ -22,6 +26,10 @@
     string message = "Hello World!"
     bool condition = false
     const MAX_INDEX = 100
+    const float32 PI = 3.14159
+
+    *int pointer = &number
+    *pointer = 11
 
     for i := 0; i < 10; i++ {
 
@@ -31,9 +39,10 @@
 The type is optional in constants.
 ':=' is only allowed in for loops, if statements and switch statements.
 
-**Advanced variables:**
-
 ```go
+
+    []int numbers = make(0)
+    numbers.append(10)
 
     map[string]int scores = {
         "alice": 100,
@@ -105,6 +114,8 @@ Again the Struct name can be omitted after '='
     }
 
 ```
+'enum' creates an iota based integer.  
+'enumstruct' creates a struct with those members as integers.  
 
 **Interfaces**
 
