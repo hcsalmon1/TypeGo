@@ -28,6 +28,12 @@
   ```
   Variadic parameters ✅  
   Anonymous Functions ❌  
+  ```go
+      fn main() {
+          fn int double(int a) = { return a * 2 }
+          int result = double(10)
+      }
+  ```
   Closures ❌ 
 
 **Control flow**
