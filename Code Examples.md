@@ -23,8 +23,13 @@
     bool condition = false
     const MAX_INDEX = 100
 
+    for i := 0; i < 10; i++ {
+
+    }
+
 ```
-The type is optional in constants 
+The type is optional in constants.
+':=' is only allowed in for loops, if statements and switch statements.
 
 **Advanced variables:**
 
@@ -101,3 +106,30 @@ Again the Struct name can be omitted after '='
 
 ```
 
+**Interfaces**
+
+```go
+
+    interface Logger {
+        string Log()
+    }
+
+    struct FileLogger {
+        fn string Log() {
+            //implementation
+        }
+    }
+
+    fn LogMessage(Logger logger) {
+        logger.Log()
+    }
+
+```
+
+**Unchanged List:**
+-Switches
+-For loops
+-If/else statements
+-Imports
+-Defer
+-
