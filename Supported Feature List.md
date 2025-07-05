@@ -12,8 +12,8 @@ Same type multiple declaration - eg: int a, b ❌
 
 **Functions:**
 
-Basic functions
-Multiple return types
+Basic functions ✅   
+Multiple return types ✅  
 Variadic parameters ❌  
 Anonymous Functions ❌
 
