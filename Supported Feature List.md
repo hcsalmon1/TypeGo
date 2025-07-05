@@ -68,17 +68,17 @@ new() ✅
 enum (iota-style) ✅
 enumstruct ✅
 ToString functions ✅  
-Custom integer values in enum ❌
-Using enums in switch statements ✅
-Enum method support ❌
+Custom integer values in enum ❌  
+Using enums in switch statements ✅  
+Enum method support ❌  
 
 **Structs** 
-Struct declarations ✅
-Struct literal initialization ✅
-Embedded structs ✅
-Method declarations inside structs ✅
+Struct declarations ✅  
+Struct literal initialization ✅  
+Embedded structs ✅  
+Method declarations inside structs ✅  
 Method receivers (pointer/value) ❌  
 Struct methods with receiver access to fields ✅  
-Embedded struct field access in methods ❌
-Struct embedding with method promotion ❌
-Struct tags ❌
+Embedded struct field access in methods ❌  
+Struct embedding with method promotion ❌  
+Struct tags ❌  
