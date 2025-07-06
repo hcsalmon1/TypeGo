@@ -68,12 +68,12 @@ Structs:
         int game_result
 
         fn StartGame(int _player_count) {
-            game_started = true
-            player_count = _player_count
+            g.game_started = true
+            g.player_count = _player_count
         }
         fn EndGame() {
-            game_started = false
-            player_count = 0
+            g.game_started = false
+            g.player_count = 0
         }
     }
 
@@ -85,8 +85,11 @@ Structs:
 
 ```
 
-Methods are written in inside the struct.
-Again the Struct name can be omitted after '='
+Methods are written in inside the struct.  
+Again the Struct name can be omitted after '='  
+Structs object names will be based on the first letter of the struct.  
+So: Person -> p, Game -> g, Settings -> s  
+You are still required to write this before member variables. I originally made it automatic but it created a lot of bugs.  
 
 **Enums:**
 
@@ -144,4 +147,7 @@ Again the Struct name can be omitted after '='
 -If/else statements  
 -Imports  
 -Defer  
+-Go routines
+-Goto
 
+Basically anything that isn't a declaration of some kind is the same.
