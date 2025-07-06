@@ -37,43 +37,10 @@ For now you can simply write:
 	}
 ```
 This will fix the problem but requires you to write the type twice.
+I will try to fix this in future releases.
 
-**Nested Structs and Methods**
+**Spacing Problems:**
 
-If you nest another struct inside a struct and try to use it with a method, it won't work.
-
-```go
-
-	struct User {
-		string UserName
-		string Email
-	}
-
-	struct Account {
-		User
-
-		func PrintUser() {
-			fmt.Println("Username: ", UserName, "Email: ", Email);
-		}
-	}
-```
-
-If you try convert this, it will do this:
-
-Converted Go:
-```go
-
-	type Account struct {
-	        User
-	}
-	
-	func (a *Account) PrintUser() {
-	        fmt.Println("Username: ", UserName, "Email: ", Email);
-	}
-
-```
-
-The way I detect and insert names before struct members is to simply use a list of varnames from this struct.  
-However the struct 'Account' has no variable names. They are all inside 'User', which I don't track at all.
-
-I'm not sure the best way to fix this. The simple workaround is just to generate the methods and then manually type 'a.User.Username' and 'a.User.Email' where needed.
+The spacing isn't always perfect. I'll try to adjust it in future.
+For now a workaround is to run the command: go fmt ./...
+Just run that in the directory and it will format all the files in a Go style.
