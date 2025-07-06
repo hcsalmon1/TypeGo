@@ -24,7 +24,7 @@ TypeGo:
 		int Role
 		
 		fn string Greet() {
-			return fmt.Sprintf("Hi, I'm %s, I'm %d years old, and my role is %s.", Name, Age, RoleToString(Role))
+			return fmt.Sprintf("Hi, I'm %s, I'm %d years old, and my role is %s.", p.Name, p.Age, RoleToString(p.Role))
 		}
 	}
 		
