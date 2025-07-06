@@ -280,6 +280,8 @@ The other exceptions are in if statements and for loops. Why? Because Go doesn't
 So, as you literally can't specify the type in an if statement or for loop, Go and TypeGo use the same syntax here.
 In theory I could do this in the conversion to Go:
 ```go
+!Hypothetical change!
+
 	TypeGo:
 	for int i = 0; i < 10; i++ {
 
