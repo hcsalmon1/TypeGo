@@ -86,7 +86,7 @@ namespace TypeGo
                     break;
                 }
             }
-            convertData.AppendString($"default::\n\t\t");
+            convertData.AppendString($"default:\n\t\t");
             convertData.AppendString($"return \"Unknown\"\n\t");
             convertData.AppendChar('}');
             convertData.AppendChar('\n');
