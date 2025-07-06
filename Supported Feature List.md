@@ -84,7 +84,8 @@ Struct literal initialization ✅
 Embedded structs ✅  
 Method declarations inside structs ✅  
 Method receivers (pointer/value) ❌  
+  For simplicity all methods will use a pointer by default.
 Struct methods with receiver access to fields ✅  
-Embedded struct field access in methods ❌  
+Embedded struct field access in methods ✅    
 Struct embedding with method promotion ❌  
 Struct tags ❌  
