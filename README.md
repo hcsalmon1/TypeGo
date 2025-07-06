@@ -228,10 +228,10 @@ You now get a compiler error and it tells you that the type is incompatible.
 Summary:
 
 ```go
-	index_before := index   	𝕏 - zero compile time checks, infers a pointer
-	var index_before = index 	𝕏 - zero compile time checks, infers a pointer
-	var index_before int = index	✓ - compiler actually catches the error
-	var index_before int = *index	✓ - compiler checks and finds no error
+	index_before := index   	❌ - zero compile time checks, infers a pointer
+	var index_before = index 	❌ - zero compile time checks, infers a pointer
+	var index_before int = index	✅ - compiler actually catches the error
+	var index_before int = *index	✅ - compiler checks and finds no error
 
 ```
 
@@ -246,9 +246,9 @@ Firstly TypeGo reverses the order of declarations back to C style.
 
 TypeGo:
 ```go
-	index := getIndex()  		𝕏 - not allowed
-	var index int = getIndex() 	𝕏 - not allowed
-	int index = getIndex() 		✓ - Correct
+	index := getIndex()  		❌ - not allowed
+	var index int = getIndex() 	❌ - not allowed
+	int index = getIndex() 		✅ - Correct
 
 converts to:
 
