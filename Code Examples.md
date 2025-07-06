@@ -147,7 +147,7 @@ You are still required to write this before member variables. I originally made 
 -If/else statements  
 -Imports  
 -Defer  
--Go routines
--Goto
+-Go routines  
+-Goto  
 
 Basically anything that isn't a declaration of some kind is the same.
