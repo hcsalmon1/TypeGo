@@ -452,7 +452,8 @@ The TypeGo way:
 
 ```
 
-Methods now go inside of structs directly and the struct name will be inserted automatically.  
+Methods now go inside of structs directly. The name of the object will be the first letter of the struct name.
+Person - object name = p
 This TypeGo code will generate the above Go code.
 
 You then declare structs like this:  
