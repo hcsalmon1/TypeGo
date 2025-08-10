@@ -74,7 +74,7 @@ new() ✅
 enum (iota-style) ✅  
 enumstruct ✅  
 ToString functions ✅  
-Custom integer values in enum ❌  
+Custom integer values in enum ✅ 
 Using enums in switch statements ✅  
 Enum method support ❌  
 
