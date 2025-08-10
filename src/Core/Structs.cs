@@ -20,6 +20,16 @@ namespace TypeGo
                 function.PrintData();
             }
         }
+
+        public void PrintNodeType()
+        {
+            Fmt.PrintlnColor("Printing Functions:", ConsoleColor.Cyan);
+
+            foreach (Function function in Functions) {
+
+                function.PrintNodeTypes();
+            }
+        }
     }
 
     public readonly struct ConstInt
@@ -36,6 +46,7 @@ namespace TypeGo
         public string Name = "";
         public List<Variable> Parameters = new List<Variable>();
         public CodeBlock? InnerBlock = null;
+        public Token? startingToken;
 
         public void PrintData()
         {
@@ -49,6 +60,26 @@ namespace TypeGo
             Fmt.Println(')');
             if (InnerBlock != null) {
                 InnerBlock.PrintData();
+            }
+        }
+
+        public void PrintNodeTypes()
+        {
+            Fmt.Println("Printing Node Types:");
+            if (InnerBlock == null) {
+                Fmt.Println("\tinner block is null!:");
+                return;
+            }
+            CodeBlock block = InnerBlock;
+
+            if (block.BlockDataList.Count == 0) {
+                Fmt.Println("\tblock data list is 0!");
+                return;
+            }
+
+            for (int i = 0; i < block.BlockDataList.Count; i++) {
+                BlockData blockData = block.BlockDataList[i];
+                Fmt.Println($"\t{blockData.NodeType}");
             }
         }
     }
@@ -629,7 +660,7 @@ namespace TypeGo
     public class Variable
     {
         public List<Token> TypeList = new List<Token>(); //types can be many tokens *[]int = 3 tokens
-        public Token? NameToken;
+        public List<Token> NameToken = new List<Token>();
 
         public void SetToDefaults()
         {
@@ -639,7 +670,11 @@ namespace TypeGo
                 TypeList.Clear();
             }
 
-            NameToken = null;
+            if (NameToken == null) {
+                NameToken = new List<Token>();
+            } else {
+                NameToken.Clear();
+            }
         }
         public void PrintTypeList()
         {
@@ -665,8 +700,13 @@ namespace TypeGo
                 Fmt.PrintlnColor(" null", ConsoleColor.Red);
                 return;
             }
+            if (NameToken.Count == 0)
+            {
+                Fmt.PrintlnColor(" zero", ConsoleColor.Red);
+                return;
+            }
             Fmt.PrintColor("varname: ", ConsoleColor.DarkGray);
-            Fmt.PrintColor($"{NameToken.Value.Text} ", ConsoleColor.Cyan);
+            Fmt.PrintColor($"{NameToken[0].Text} ", ConsoleColor.Cyan);
         }
         public void Print()
         {
@@ -693,12 +733,26 @@ namespace TypeGo
             if (NameToken == null) {
                 sb.Append("NULL");
             } else {
-                sb.Append(NameToken.Value.Text);
+                sb.Append(NameToken[0].Text);
             }
 
             return sb.ToString();
         }
     
+        public void MoveTypeToName()
+        {
+            if (TypeList == null) {
+                TypeList = new List<Token>();
+            }
+            if (NameToken == null) {
+                NameToken = new List<Token>();
+            }
+            if (TypeList.Count == 0) {
+                return;
+            }
+            NameToken.Add(TypeList[0]);
+            TypeList.Clear();
+        }
     }
 
 }

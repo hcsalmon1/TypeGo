@@ -139,6 +139,8 @@ namespace TypeGo
                 case TokenType.Rune:
                 case TokenType.Bool:
                 case TokenType.Error:
+                case TokenType.Struct:
+                case TokenType.Map:
                     return true;
                 default:
                     return false;
@@ -166,6 +168,8 @@ namespace TypeGo
                 case TokenType.Bool:
                 case TokenType.Error:
                 case TokenType.Map:
+                case TokenType.Struct:
+                case TokenType.Interface:
                     return true;
                 default:
                     return false;

@@ -1,5 +1,4 @@
 ﻿
-using System.IO;
 
 namespace TypeGo
 {
@@ -25,6 +24,8 @@ namespace TypeGo
             if (formatResult != FormatResult.Ok) {
                 return null;
             }
+
+            //codeFormat.PrintNodeType();
 
             ConvertResult convertResult = ConvertResult.Ok;
             string? goCode = ConvertCode.ConvertToGo(codeFormat, ref convertResult, code);
@@ -143,27 +144,39 @@ namespace TypeGo
 
         static void TestingInput()
         {
-            const string CODE = @"
 
-package main
+            string CODE = @"
 
 import ""fmt""
 
-fn main() {
-
+enumstruct ErrorType {
+    A = 0
+    B = 10
+    C
+    D
+    E
 }
-    ";
+
+fn main() {
+    
+}
+";
 
             Fmt.Println($"Inputted code:\n{CODE}");
+            try {
 
-            string? goCode = ConvertToGo(CODE, "none");
-            if (goCode == null) {
-                return;
+                string? goCode = ConvertToGo(CODE, "none");
+                if (goCode == null) {
+                    return;
+                }
+
+                Fmt.PrintlnColor($"Done", ConsoleColor.DarkCyan);
+
+                Fmt.Println($"\nConverted Go code: \n{goCode}");
             }
-
-            Fmt.PrintlnColor($"Done", ConsoleColor.DarkCyan);
-
-            Fmt.Println($"\nConverted Go code: \n{goCode}");
+            catch (Exception e) {
+                   Fmt.Println($"Internal error: {e.GetType()}");
+            }
         }
 
         static void Main(string[] args)

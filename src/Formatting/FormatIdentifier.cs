@@ -70,6 +70,11 @@ namespace TypeGo
 
         static IdentifierLoopAction IdentifierLoopCode(FormatData formatData, Token thisToken, TokenType lastTokenType)
         {
+
+            if (TokenUtils.IsVarType(thisToken.Type)) {
+                return IdentifierLoopAction.Declaration;
+            }
+
             switch (thisToken.Type)
             {
                 case TokenType.Identifier: //custom type     Object object = ...
@@ -81,6 +86,9 @@ namespace TypeGo
                     return IdentifierLoopAction.Continue;
 
                 case TokenType.FullStop:
+                    return IdentifierLoopAction.Continue;
+
+                case TokenType.Comma:
                     return IdentifierLoopAction.Continue;
 
                 case TokenType.Equals:
@@ -96,7 +104,6 @@ namespace TypeGo
                 case TokenType.LeftSquareBracket:
                 case TokenType.RightBrace:
                 case TokenType.NewLine:
-                case TokenType.Comma:
                 case TokenType.Channel_Setter:
                 case TokenType.Colon:
                     return IdentifierLoopAction.Other;
@@ -167,7 +174,7 @@ namespace TypeGo
 
             }
 
-            nameVariable.NameToken = new Token(nameTextBuilder.ToString(), TokenType.Identifier, 0, 0);
+            nameVariable.NameToken.Add(new Token(nameTextBuilder.ToString(), TokenType.Identifier, 0, 0));
 
             blockData.Variables.Add(nameVariable);
 

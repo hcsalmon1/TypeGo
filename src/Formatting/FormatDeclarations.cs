@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace TypeGo
@@ -57,6 +58,13 @@ namespace TypeGo
                 return WhileLoopAction.Continue;
             }
 
+            if (token.Type == TokenType.Interface) {
+                lastType = LastTokenType.Interface;
+                tempVariable.TypeList.Add(token);
+
+                return WhileLoopAction.Continue;
+            }
+
             formatData.UnexpectedTypeError(token, $"unexpected type: {token.Type} in declaration", "ProcessAfterNull");
             return WhileLoopAction.Error;
 
@@ -71,9 +79,9 @@ namespace TypeGo
 
             if (token.Type == TokenType.Identifier) {
 
-                tempVariable.NameToken = token;
+                tempVariable.NameToken.Add(token);
                 blockData.Variables.Add(new Variable {
-                    NameToken = tempVariable.NameToken,
+                    NameToken = TokenUtils.CopyTokenList(tempVariable.NameToken),
                     TypeList = TokenUtils.CopyTokenList(tempVariable.TypeList),
                 });
                 lastType = LastTokenType.Identifier;
@@ -84,6 +92,12 @@ namespace TypeGo
 
             if (token.Type == TokenType.RightSquareBracket) {
                 lastType = LastTokenType.RightSqBracket;
+                tempVariable.TypeList.Add(token);
+                return WhileLoopAction.Continue;
+            }
+            if (token.Type == TokenType.LeftSquareBracket)
+            {
+                lastType = LastTokenType.LeftSqBracket;
                 tempVariable.TypeList.Add(token);
                 return WhileLoopAction.Continue;
             }
@@ -99,25 +113,55 @@ namespace TypeGo
             }
 
             if (token.Type == TokenType.Equals) {
+
                 ConvertToNodetypeWithValue(blockData);
+
+                if (tempVariable.TypeList.Count != 0) {
+
+                    blockData.Variables.Add(new Variable {
+                        NameToken = TokenUtils.CopyTokenList(tempVariable.TypeList),
+                        TypeList = new List<Token>()
+                    });
+                    tempVariable.TypeList.Clear();
+                    blockData.NodeType = NodeType.Multiple_Declarations_One_Type_One_Set_Value;
+                }
                 return WhileLoopAction.Break;
             }
 
             if (token.Type == TokenType.Comma) {
+
+                if (tempVariable.NameToken.Count == 0 && tempVariable.TypeList.Count != 0) {
+                    blockData.Variables.Add(new Variable {
+                        NameToken = TokenUtils.CopyTokenList(tempVariable.TypeList),
+                        TypeList = new List<Token>(),
+                    });
+                    tempVariable.SetToDefaults();
+                }
+
                 blockData.NodeType = NodeType.Multiple_Declarations_No_Value;
                 lastType = LastTokenType.Comma;
                 return WhileLoopAction.Continue;
             }
 
             if (token.Type == TokenType.NewLine) {
+
+                if (tempVariable.TypeList.Count != 0 && tempVariable.NameToken.Count == 0) {
+
+                    if (blockData.Variables.Count != 0) {
+
+                        blockData.Variables[0].NameToken.Add(tempVariable.TypeList[0]);
+                    }
+
+                    tempVariable.TypeList.Clear();
+                }
                 return WhileLoopAction.Break;
             }
 
             if (token.Type == TokenType.Identifier) {
-                tempVariable.NameToken = token;
+                tempVariable.NameToken.Add(token);
                 blockData.Variables.Add(new Variable
                 {
-                    NameToken = tempVariable.NameToken,
+                    NameToken = TokenUtils.CopyTokenList(tempVariable.NameToken),
                     TypeList = TokenUtils.CopyTokenList(tempVariable.TypeList),
                 });
                 lastType = LastTokenType.Identifier;
@@ -223,6 +267,11 @@ namespace TypeGo
                 tempVariable.TypeList.Add(token);
                 return WhileLoopAction.Continue;
             }
+            if (token.Type == TokenType.Interface) {
+                lastType = LastTokenType.Interface;
+                tempVariable.TypeList.Add(token);
+                return WhileLoopAction.Continue;
+            }
             formatData.UnexpectedTypeError(token, $"unsupported type: {token.Type} after ']'", "ProcessAfterRightSqBracket");
             return WhileLoopAction.Error;
         }
@@ -283,32 +332,83 @@ namespace TypeGo
             return WhileLoopAction.Error;
         }
 
+        public static WhileLoopAction ProcessAfterInterface(FormatData formatData, BlockData blockData, Token token, ref LastTokenType lastType, ref Variable tempVariable)
+        {
+            if (token.Type == TokenType.LeftBrace) {
+                lastType = LastTokenType.LeftBrace;
+                tempVariable.TypeList.Add(token);
+                return WhileLoopAction.Continue;
+            }
+            formatData.UnexpectedTypeError(token, $"unsupported type: {token.Type} after 'interface'", "ProcessToken");
+            return WhileLoopAction.Error;
+        }
+
+        public static WhileLoopAction ProcessAfterLeftBrace(FormatData formatData, BlockData blockData, Token token, ref LastTokenType lastType, ref Variable tempVariable)
+        {
+            if (token.Type == TokenType.RightBrace)
+            {
+                lastType = LastTokenType.RightBrace;
+                tempVariable.TypeList.Add(token);
+                return WhileLoopAction.Continue;
+            }
+            formatData.UnexpectedTypeError(token, $"unsupported type: {token.Type} after 'interface'", "ProcessToken");
+            return WhileLoopAction.Error;
+        }
+
+        public static WhileLoopAction ProcessAfterRightBrace(FormatData formatData, BlockData blockData, Token token, ref LastTokenType lastType, ref Variable tempVariable)
+        {
+            if (token.Type == TokenType.Identifier)
+            {
+                tempVariable.NameToken.Add(token);
+                blockData.Variables.Add(new Variable
+                {
+                    NameToken = TokenUtils.CopyTokenList(tempVariable.NameToken),
+                    TypeList = TokenUtils.CopyTokenList(tempVariable.TypeList),
+                });
+                lastType = LastTokenType.Identifier;
+                tempVariable.SetToDefaults();
+                formatData.Increment();
+                return WhileLoopAction.Continue;
+            }
+            formatData.UnexpectedTypeError(token, $"unsupported type: {token.Type} after 'interface'", "ProcessToken");
+            return WhileLoopAction.Error;
+        }
+
         public static WhileLoopAction ProcessToken(FormatData formatData, BlockData blockData, Token token, ref LastTokenType lastType, ref Variable tempVariable, string thisFunctionName)
         {
             switch (lastType)
             {
                 case LastTokenType.Null:
-                    return DeclarationUtils.ProcessAfterNull(formatData, token, ref lastType, ref tempVariable);
+                    return ProcessAfterNull(formatData, token, ref lastType, ref tempVariable);
                 case LastTokenType.Identifier:
-                    return DeclarationUtils.ProcessAfterIdentifier(formatData, blockData, token, ref lastType, ref tempVariable);
+                    return ProcessAfterIdentifier(formatData, blockData, token, ref lastType, ref tempVariable);
                 case LastTokenType.Vartype:
-                    return DeclarationUtils.ProcessAfterVarType(formatData, blockData, token, ref lastType, ref tempVariable, thisFunctionName);
+                    return ProcessAfterVarType(formatData, blockData, token, ref lastType, ref tempVariable, thisFunctionName);
                 case LastTokenType.Pointer:
-                    return DeclarationUtils.ProcessAfterPointer(formatData, blockData, token, ref lastType, ref tempVariable);
+                    return ProcessAfterPointer(formatData, blockData, token, ref lastType, ref tempVariable);
 
                 case LastTokenType.LeftSqBracket:
-                    return DeclarationUtils.ProcessAfterLeftSqBracket(formatData, blockData, token, ref lastType, ref tempVariable);
+                    return ProcessAfterLeftSqBracket(formatData, blockData, token, ref lastType, ref tempVariable);
                 case LastTokenType.RightSqBracket:
-                    return DeclarationUtils.ProcessAfterRightSqBracket(formatData, blockData, token, ref lastType, ref tempVariable);
+                    return ProcessAfterRightSqBracket(formatData, blockData, token, ref lastType, ref tempVariable);
                 case LastTokenType.Comma:
-                    return DeclarationUtils.ProcessAfterComma(formatData, blockData, token, ref lastType, ref tempVariable);
+                    return ProcessAfterComma(formatData, blockData, token, ref lastType, ref tempVariable);
                 case LastTokenType.IntegerValue:
-                    return DeclarationUtils.ProcessAfterIntegerValue(formatData, blockData, token, ref lastType, ref tempVariable);
+                    return ProcessAfterIntegerValue(formatData, blockData, token, ref lastType, ref tempVariable);
                 case LastTokenType.FullStop:
-                    return DeclarationUtils.ProcessAfterFullStop(formatData, blockData, token, ref lastType, ref tempVariable);
+                    return ProcessAfterFullStop(formatData, blockData, token, ref lastType, ref tempVariable);
 
                 case LastTokenType.Map:
-                    return DeclarationUtils.ProcessAfterMap(formatData, blockData, token, ref lastType, ref tempVariable);
+                    return ProcessAfterMap(formatData, blockData, token, ref lastType, ref tempVariable);
+
+                case LastTokenType.Interface:
+                    return ProcessAfterInterface(formatData, blockData, token, ref lastType, ref tempVariable);
+
+                case LastTokenType.LeftBrace:
+                    return ProcessAfterLeftBrace(formatData, blockData, token, ref lastType, ref tempVariable);
+
+                case LastTokenType.RightBrace:
+                    return ProcessAfterRightBrace(formatData, blockData, token, ref lastType, ref tempVariable);
 
                 default:
                     formatData.UnexpectedTypeError(token, $"unsupported last type: {lastType}, this type: {token.Type}", "ProcessToken");
@@ -323,16 +423,19 @@ namespace TypeGo
                 case NodeType.Invalid:
                     break;
                 case NodeType.Single_Declaration_With_Value:
-
                     FormatUtils.LoopTokensUntilLineEnd(formatData, blockData, stopAtSemicolon: true);
                     break;
                 case NodeType.Single_Declaration_No_Value:
                     FormatUtils.LoopTokensUntilLineEnd(formatData, blockData, stopAtSemicolon: true);
                     break;
+                case NodeType.Multiple_Declarations_One_Type_One_Set_Value:
+                    FormatUtils.LoopTokensUntilLineEnd(formatData, blockData, stopAtSemicolon: true);
+                    break;
+
 
                 case NodeType.Multiple_Declarations_No_Value:
-
-                    formatData.UnsupportedFeatureError(blockData.StartingToken, "Multiple declarations with no value, not supported yet", "WriteTokens");
+                    FormatUtils.LoopTokensUntilLineEnd(formatData, blockData, stopAtSemicolon: true);
+                    //formatData.UnsupportedFeatureError(blockData.StartingToken, "Multiple declarations with no value, not supported yet", "WriteTokens");
                     return;
 
                 case NodeType.Multiple_Declarations_With_Value:
@@ -346,6 +449,8 @@ namespace TypeGo
                 case NodeType.Multiple_Declarations_Same_Type_With_Value:
                     FormatUtils.LoopTokensUntilLineEnd(formatData, blockData, stopAtSemicolon: true);
                     break;
+
+
 
                 default:
                     break;
@@ -375,7 +480,7 @@ namespace TypeGo
                 Variables = new List<Variable>(),
             };
             Variable tempVariable = new Variable {
-                NameToken = null,
+                NameToken = new List<Token>(),
                 TypeList = new List<Token>(),
             };
             LastTokenType lastType = LastTokenType.Null;

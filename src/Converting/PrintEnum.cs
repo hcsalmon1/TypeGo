@@ -46,22 +46,55 @@ namespace TypeGo
 
             convertData.AppendString("const (\n\t");
 
+            int enumCount = 0;
+
             for (int blockIndex = 0; blockIndex < blockDataList.Count; blockIndex++)
             {
 
                 BlockData varBlock = blockDataList[blockIndex];
 
-                for (int i = 0; i < varBlock.Tokens.Count; i++)
-                {
-                    Token token = varBlock.Tokens[i];
+                int tokenCount = varBlock.Tokens.Count;
 
-                    convertData.AppendString($"{enumNameText}");
-                    convertData.AppendString(token.Text);
-                    if (blockIndex == 0) {
-                        convertData.AppendString(" = iota");
-                    }
+                if (tokenCount == 0) {
+                    continue;
+                }
+
+                if (tokenCount == 1 || tokenCount == 2) {
+
+                    Token onlyToken = varBlock.Tokens[0];
+
+                    convertData.AppendString(enumNameText);
+                    convertData.AppendString(onlyToken.Text);
+                    convertData.AppendString($" = {enumCount}");
+                    enumCount += 1;
                     convertData.NewLineWithTabs(nestCount + 1);
-                    break;
+                    continue;
+                }
+
+                if (tokenCount == 3)
+                {
+
+                    Token firstToken = varBlock.Tokens[0];
+                    Token secondToken = varBlock.Tokens[1];
+                    Token thirdToken = varBlock.Tokens[2];
+
+                    if (secondToken.Text != "=")
+                    {
+                        convertData.MissingTypeError(secondToken, "missing expect '=' in enumstruct", "ProcessEnumstruct");
+                        return;
+                    }
+
+                    if (!int.TryParse(thirdToken.Text, out int value))
+                    {
+                        convertData.MissingTypeError(secondToken, "missing expected integer in enumstruct", "ProcessEnumstruct");
+                        return;
+                    }
+
+                    convertData.AppendString(enumNameText);
+                    convertData.AppendString(firstToken.Text);
+                    convertData.AppendString($" = {value}");
+                    enumCount = value + 1;
+                    convertData.NewLineWithTabs(nestCount + 1);
                 }
             }
 
@@ -128,8 +161,7 @@ namespace TypeGo
 
             List<BlockData> blockDataList = enumVariableBlock.BlockDataList;
 
-            if (blockDataList.Count == 0)
-            {
+            if (blockDataList.Count == 0) {
                 convertData.AppendChar('\n');
                 EndEnum(convertData);
                 return;
@@ -158,19 +190,51 @@ namespace TypeGo
             convertData.AppendChar('{');
             convertData.NewLineWithTabs(nestCount + 1);
 
+            int enumCount = 0;
+
             for (int blockIndex = 0; blockIndex < blockDataList.Count; blockIndex++)
             {
 
                 BlockData varBlock = blockDataList[blockIndex];
 
-                for (int i = 0; i < varBlock.Tokens.Count; i++)
-                {
-                    Token token = varBlock.Tokens[i];
+                int tokenCount = varBlock.Tokens.Count;
 
-                    convertData.AppendString(token.Text);
-                    convertData.AppendString($": {blockIndex},");
+                if (tokenCount == 0) {
+                    continue;
+                }
+
+                if (tokenCount == 1 || tokenCount == 2) {
+
+                    Token onlyToken = varBlock.Tokens[0];
+
+                    convertData.AppendString(onlyToken.Text);
+                    convertData.AppendString($": {enumCount},");
+                    enumCount += 1;
                     convertData.NewLineWithTabs(nestCount + 1);
-                    break;
+                    continue;
+                }
+
+                if (tokenCount == 3) {
+
+                    Token firstToken = varBlock.Tokens[0];
+                    Token secondToken = varBlock.Tokens[1];
+                    Token thirdToken = varBlock.Tokens[2];
+
+                    if (secondToken.Text != "=") {
+                        convertData.MissingTypeError(secondToken, "missing expect '=' in enumstruct", "ProcessEnumstruct");
+                        return;
+                    }
+
+                    if (!int.TryParse(thirdToken.Text, out int value))
+                    {
+                        convertData.MissingTypeError(secondToken, "missing expected integer in enumstruct", "ProcessEnumstruct");
+                        return;
+                    }
+
+                    convertData.AppendString(firstToken.Text);
+                    convertData.AppendString($": {value},");
+                    enumCount = value + 1;
+                    convertData.NewLineWithTabs(nestCount + 1);
                 }
             }
 

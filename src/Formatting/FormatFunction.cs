@@ -35,6 +35,8 @@ namespace TypeGo
         {
             const string thisFunctionName = "TypeAndNameIdentifier";
 
+
+
             List<Token> returnTypeTokenList = new List<Token>();
             FormatUtils.FillVarType(formatData, returnTypeTokenList);
 
@@ -57,7 +59,9 @@ namespace TypeGo
         {
             const string thisFunctionName = "TypeAndNameIdentifier";
 
+            int index = formatData.TokenIndex;
             Token? tempToken = formatData.GetNextToken();
+
             if (tempToken == null)
             {
                 formatData.EndOfFileError(tempToken, thisFunctionName);
@@ -71,7 +75,7 @@ namespace TypeGo
                 functionName = firstToken.Text;
                 return;
             }
-            if (nextToken.Type == TokenType.Identifier)
+            if (nextToken.Type == TokenType.Identifier) 
             {
                 tempToken = formatData.GetNextToken();
                 if (tempToken == null)
@@ -89,6 +93,8 @@ namespace TypeGo
                 functionName = nextToken.Text;
                 return;
             }
+            formatData.TokenIndex = index;
+            TypeAndNameOther(formatData, ref ReturnType, ref functionName, firstToken);
         }
 
         static void GetFunctionTypeAndName(FormatData formatData, ref string? returnType, ref string functionName)
@@ -102,6 +108,7 @@ namespace TypeGo
                 return;
             }
             Token firstToken = tempToken.Value;
+            
             switch (firstToken.Type)
             {
                 case TokenType.Identifier:
@@ -192,6 +199,7 @@ namespace TypeGo
                 Parameters = parameters,
                 Name = functionName,
                 ReturnType = returnType,
+                startingToken = fnToken,
             };
             functions.Add(function);
         }

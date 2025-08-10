@@ -29,6 +29,7 @@ namespace TypeGo
         Unexpected_Value,
         Unterminated_Char,
         Unterminated_String,
+        Unterminated_Comment,
     }
 
     public enum FormatResult

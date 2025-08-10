@@ -1,6 +1,8 @@
 ﻿
 
 
+using System.Text;
+
 namespace TypeGo
 {
     public static class ConvertBlock
@@ -17,7 +19,7 @@ namespace TypeGo
             if (wasIfOrElseIf)
             {
                 if (nodeType != NodeType.Else_Statement) {
-                    convertData.NewLineWithTabs(nestCount);
+                    //convertData.NewLineWithTabs(nestCount);
                 }
                 convertData.lastNodeType = NodeType.Invalid;
             }
@@ -39,6 +41,9 @@ namespace TypeGo
                     break;
 
                 case NodeType.Multiple_Declarations_No_Value:
+                    ProcessMultipleDeclarationNoValue(convertData, blockData, nestCount);
+                    break;
+
                 case NodeType.Multiple_Declarations_With_Value:
                 case NodeType.Multiple_Declarations_Same_Type_No_Value:
                     convertData.ConvertResult = ConvertResult.Unsupported_Type;
@@ -47,7 +52,8 @@ namespace TypeGo
                     return;
 
                 case NodeType.Multiple_Declarations_Same_Type_With_Value:
-                    ProcessMultipleDeclarationWithValue(convertData, blockData, nestCount);
+                case NodeType.Multiple_Declarations_One_Type_One_Set_Value:
+                    ProcessMultipleDeclarationWithSetValue(convertData, blockData, nestCount);
                     break;
 
                 case NodeType.If_Statement:
@@ -113,6 +119,10 @@ namespace TypeGo
                     convertData.NewLineWithTabs(nestCount);
                     break;
 
+                case NodeType.Err_Return:
+                    ConvertErrReturn.Process(convertData, blockData, nestCount);
+                    break;
+
                 default:
                     convertData.ConvertResult = ConvertResult.Unexpected_Type;
                     convertData.ErrorDetail = $"unexpected node type '{nodeType}' in block data";
@@ -137,7 +147,7 @@ namespace TypeGo
                 convertData.ErrorToken = blockData.StartingToken;
                 return;
             }
-            convertData.AppendToken(variable.NameToken.Value);
+            convertData.AppendToken(variable.NameToken[0]);
             convertData.AppendChar(' ');
             if (variable.TypeList.Count == 0) {
                 convertData.ConvertResult = ConvertResult.No_Token_In_Node;
@@ -151,43 +161,49 @@ namespace TypeGo
 
         private static void ProcessSingleDeclarationNoValue(ConvertData convertData, BlockData blockData, int nestCount)
         {
+            StringBuilder sb = new();
+
             List<Variable> variables = blockData.Variables;
-            if (variables.Count == 0)
-            {
+            if (variables.Count == 0) {
                 convertData.ConvertResult = ConvertResult.No_Token_In_Node;
                 convertData.ErrorDetail = "no variables in single declaration";
                 convertData.ErrorToken = blockData.StartingToken;
                 return;
             }
-            for (int i = 0; i < variables.Count; i++)
+            for (int varIndex = 0; varIndex < variables.Count; varIndex++)
             {
 
-                List<Token> varTypeTokenList = variables[i].TypeList;
+                List<Token> varTypeTokenList = variables[varIndex].TypeList;
 
                 if (varTypeTokenList == null) {
-                    convertData.ConvertResult = ConvertResult.Unexpected_Type;
-                    convertData.ErrorDetail = "Type is invalid in single declaration";
-                    convertData.ErrorToken = blockData.StartingToken;
+                    convertData.UnexpectedTypeError(blockData.StartingToken, "Type is invalid in single declaration", "ProcessSingleDeclarationNoValue");
                     return;
                 }
 
                 string? varTypeAsText = TokenUtils.JoinTextInListOfTokens(varTypeTokenList);
                 if (varTypeAsText == null) {
-                    convertData.ConvertResult = ConvertResult.Unexpected_Type;
-                    convertData.ErrorDetail = "Type is invalid in single declaration";
-                    convertData.ErrorToken = blockData.StartingToken;
+                    convertData.UnexpectedTypeError(blockData.StartingToken, "Type is invalid in single declaration", "ProcessSingleDeclarationNoValue");
                     return;
                 }
 
-                Token? nameToken = variables[i].NameToken;
-                if (nameToken == null) {
-                    convertData.ConvertResult = ConvertResult.Unexpected_Type;
-                    convertData.ErrorDetail = "Variable name is invalid in single declaration";
-                    convertData.ErrorToken = blockData.StartingToken;
-                    return;
+                List<Token> varNameList = variables[varIndex].NameToken;
+
+                for (int nameTokenIndex = 0; nameTokenIndex < varNameList.Count; nameTokenIndex++)
+                {
+                    Token? nameToken = variables[varIndex].NameToken[nameTokenIndex];
+                    if (nameToken == null) {
+                        convertData.UnexpectedTypeError(blockData.StartingToken, "Variable name is invalid in single declaration", "ProcessSingleDeclarationNoValue");
+                        return;
+                    }
+
+                    if (nameTokenIndex != 0) {
+                        sb.Append(',');
+                        sb.Append(' ');
+                    }
+                    sb.Append(nameToken.Value.Text);
                 }
 
-                convertData.AppendString($"var {nameToken.Value.Text} {varTypeAsText}");
+                convertData.AppendString($"var {sb.ToString()} {varTypeAsText}");
                 convertData.NewLineWithTabs(nestCount);
             }
         }
@@ -224,7 +240,7 @@ namespace TypeGo
                     return;
                 }
 
-                Token? nameToken = variables[i].NameToken;
+                Token? nameToken = variables[i].NameToken[0];
                 if (nameToken == null)
                 {
                     convertData.ConvertResult = ConvertResult.Unexpected_Type;
@@ -278,7 +294,7 @@ namespace TypeGo
                     return;
                 }
 
-                Token? nameToken = variables[i].NameToken;
+                Token? nameToken = variables[i].NameToken[0];
                 if (nameToken == null)
                 {
                     convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
@@ -327,7 +343,7 @@ namespace TypeGo
                     return;
                 }
 
-                Token? nameToken = variables[i].NameToken;
+                Token? nameToken = variables[i].NameToken[0];
                 if (nameToken == null) {
                     convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
                     convertData.ErrorDetail = "No variable name in single declaration with value";
@@ -339,6 +355,80 @@ namespace TypeGo
                 PrintTokensDeclaration(convertData, blockData, nestCount, newLine: false, varTypeAsText);
             }
         }
+
+        private static void ProcessMultipleDeclarationNoValue(ConvertData convertData, BlockData blockData, int nestCount)
+        {
+            List<Token> tokens = blockData.Tokens;
+            List<Variable> variables = blockData.Variables;
+            if (variables.Count == 0)
+            {
+                convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                convertData.ErrorDetail = "No variables in multiple declaration with value";
+                convertData.ErrorToken = blockData.StartingToken;
+                return;
+            }
+            if (tokens.Count == 0)
+            {
+                convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                convertData.ErrorDetail = "No Tokens in multiple declaration with value";
+                convertData.ErrorToken = blockData.StartingToken;
+                return;
+            }
+            for (int i = 0; i < variables.Count; i++)
+            {
+
+                List<Token> varTypeTokenList = variables[i].TypeList;
+
+                if (varTypeTokenList == null)
+                {
+                    convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                    convertData.ErrorDetail = " var type is invalid in multiple declaration with value";
+                    convertData.ErrorToken = blockData.StartingToken;
+                    return;
+                }
+
+                string? varTypeAsText = TokenUtils.JoinTextInListOfTokens(varTypeTokenList);
+                if (varTypeAsText == null)
+                {
+                    convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                    convertData.ErrorDetail = "var type text is invalid in multiple declaration with value";
+                    convertData.ErrorToken = blockData.StartingToken;
+                    return;
+                }
+
+                List<Token> varNameTokenList = variables[i].NameToken;
+
+                convertData.AppendChar('v');
+                convertData.AppendChar('a');
+                convertData.AppendChar('r');
+                convertData.AppendChar(' ');
+
+                for (int varNameIndex = 0; varNameIndex < varNameTokenList.Count; varNameIndex++)
+                {
+                    Token? nameToken = varNameTokenList[varNameIndex];
+                    if (nameToken == null)
+                    {
+                        convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                        convertData.ErrorDetail = "name Token is null in multiple declaration with value";
+                        convertData.ErrorToken = blockData.StartingToken;
+                        return;
+                    }
+
+                    if (varNameIndex != 0) {
+                        convertData.AppendChar(',');
+                        convertData.AppendChar(' ');
+                    }
+                    convertData.AppendString($"{nameToken.Value.Text}");
+                }
+
+                convertData.AppendString($" {varTypeAsText}\n\t");
+            }
+
+
+            convertData.AppendChar(' ');
+            PrintTokensDeclaration(convertData, blockData, nestCount, newLine: false, "");
+        }
+
 
         private static void ProcessMultipleDeclarationWithValue(ConvertData convertData, BlockData blockData, int nestCount)
         {
@@ -370,13 +460,13 @@ namespace TypeGo
 
                 string? varTypeAsText = TokenUtils.JoinTextInListOfTokens(varTypeTokenList);
                 if (varTypeAsText == null) {
-                    convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
-                    convertData.ErrorDetail = "var type text is invalid in multiple declaration with value";
-                    convertData.ErrorToken = blockData.StartingToken;
-                    return;
+                    //convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                    //convertData.ErrorDetail = "var type text is invalid in multiple declaration with value";
+                    //convertData.ErrorToken = blockData.StartingToken;
+                    continue;
                 }
 
-                Token? nameToken = variables[i].NameToken;
+                Token? nameToken = variables[i].NameToken[0];
                 if (nameToken == null) {
                     convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
                     convertData.ErrorDetail = "name Token is null in multiple declaration with value";
@@ -389,7 +479,11 @@ namespace TypeGo
 
             for (int i = 0; i < variables.Count; i++)
             {
-                Token? nameToken = variables[i].NameToken;
+                if (variables[i].NameToken.Count == 0)
+                {
+                    continue;
+                }
+                Token? nameToken = variables[i].NameToken[0];
                 if (nameToken == null) {
                     convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
                     convertData.ErrorDetail = "name Token is null in multiple declaration with value";
@@ -405,6 +499,111 @@ namespace TypeGo
             }
             convertData.AppendChar(' ');
             PrintTokensDeclaration(convertData, blockData, nestCount, newLine: false, "");
+        }
+
+        private static void ProcessMultipleDeclarationWithSetValue(ConvertData convertData, BlockData blockData, int nestCount)
+        {
+            List<Token> tokens = blockData.Tokens;
+            List<Variable> variables = blockData.Variables;
+            if (variables.Count == 0) {
+                convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                convertData.ErrorDetail = "No variables in multiple declaration with value";
+                convertData.ErrorToken = blockData.StartingToken;
+                return;
+            }
+            if (tokens.Count == 0) {
+                convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                convertData.ErrorDetail = "No Tokens in multiple declaration with value";
+                convertData.ErrorToken = blockData.StartingToken;
+                return;
+            }
+            for (int i = 0; i < variables.Count; i++)
+            {
+
+                List<Token> varTypeTokenList = variables[i].TypeList;
+
+                if (varTypeTokenList == null) {
+                    convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                    convertData.ErrorDetail = " var type is invalid in multiple declaration with value";
+                    convertData.ErrorToken = blockData.StartingToken;
+                    return;
+                }
+
+                string? varTypeAsText = TokenUtils.JoinTextInListOfTokens(varTypeTokenList);
+
+                if (variables[i].NameToken.Count == 0) {
+                    continue;
+                }
+
+                Token? nameToken = variables[i].NameToken[0]; 
+                if (nameToken == null) {
+                    convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                    convertData.ErrorDetail = "name Token is null in multiple declaration with value";
+                    convertData.ErrorToken = blockData.StartingToken;
+                    return;
+                }
+
+                if (varTypeAsText == null) {
+                    continue;
+                }
+
+                convertData.AppendString($"var {nameToken.Value.Text} {varTypeAsText}\n\t");
+            }
+
+            for (int i = 0; i < variables.Count; i++)
+            {
+                Token? nameToken = null;
+
+                if (variables[i].NameToken.Count == 0) {
+
+                    List<Token> varTypeTokenList = variables[i].TypeList;
+                    string? varTypeAsText = TokenUtils.JoinTextInListOfTokens(varTypeTokenList);
+
+                    if (varTypeAsText == null) {
+                        convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                        convertData.ErrorDetail = "name Token is null in multiple declaration with value";
+                        convertData.ErrorToken = blockData.StartingToken;
+                        return;
+                    }
+
+                } else {
+
+                    nameToken = variables[i].NameToken[0];
+                }
+
+
+                if (nameToken == null)
+                {
+                    convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                    convertData.ErrorDetail = "name Token is null in multiple declaration with value";
+                    convertData.ErrorToken = blockData.StartingToken;
+                    return;
+                }
+
+                if (i != 0)
+                {
+                    convertData.AppendChar(',');
+                    convertData.AppendChar(' ');
+                }
+                convertData.AppendString($"{nameToken.Value.Text}");
+            }
+            convertData.AppendChar(' ');
+            PrintTokensDeclaration(convertData, blockData, nestCount, newLine: false, "");
+        }
+
+
+        static void WriteVarTypeText(ConvertData convertData, string varTypeAsText)
+        {
+            char firstChar = varTypeAsText[0];
+
+            if (firstChar == '*') {
+
+                char[] charArray = varTypeAsText.ToCharArray();
+                charArray[0] = '&';
+                convertData.AppendString(new string(charArray));
+                return;
+            }
+            convertData.AppendString(varTypeAsText);
         }
 
         private static void PrintTokensDeclaration(ConvertData convertData, BlockData blockData, int nestCount, bool newLine, string varTypeAsText)
@@ -428,7 +627,7 @@ namespace TypeGo
                 }
                 if (i == 2 || i == 1) {
                     if (token.Type == TokenType.LeftBrace) {
-                        convertData.AppendString(varTypeAsText);
+                        WriteVarTypeText(convertData, varTypeAsText);
                     }
                     if (lastType == TokenType.Make) {
                         if (token.Type == TokenType.LeftParenthesis) {
@@ -558,7 +757,7 @@ namespace TypeGo
                         convertData.GeneratedCode.Append(',');
                         convertData.GeneratedCode.Append(' ');
                     }
-                    convertData.GeneratedCode.Append($"{parameter.NameToken.Value.Text} {typeAsText}");
+                    convertData.GeneratedCode.Append($"{parameter.NameToken[0].Text} {typeAsText}");
                 }
             }
         }
@@ -604,17 +803,19 @@ namespace TypeGo
             TokenType lastType = TokenType.NA;
             bool addedSpace = false;
 
-            for (int i = 0; i < blockData.Tokens.Count; i++) {
+            for (int i = 0; i < blockData.Tokens.Count; i++)
+            {
 
                 Token token = blockData.Tokens[i];
 
-                if (token.Type == TokenType.NewLine) {
+                if (token.Type == TokenType.NewLine)
+                {
                     convertData.NewLineWithTabs(nestCount);
                     lastType = token.Type;
                     continue;
                 }
                 AddSpaceBefore(convertData, token.Type, lastType, i, addedSpace);
-                convertData.AppendString(token.Text);
+                HandleToken(convertData, token);
                 addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i);
                 lastType = token.Type;
             }
@@ -624,6 +825,20 @@ namespace TypeGo
             }
             if (newLine == true) {
                 convertData.NewLineWithTabs(nestCount);
+            }
+
+            static void HandleToken(ConvertData convertData, Token token)
+            {
+                if (token.Type == TokenType.Semicolon) {
+
+                    int codeLength = convertData.GeneratedCode.Length;
+                    char lastChar = convertData.GeneratedCode[codeLength - 1];
+                    if (lastChar == ' ') {
+                        convertData.GeneratedCode[codeLength - 1] = ';';
+                        return;
+                    }
+                }
+                convertData.AppendString(token.Text);
             }
         }
 
@@ -678,6 +893,7 @@ namespace TypeGo
 
             switch (thisType)
             {
+                case TokenType.NotEquals:
                 case TokenType.And:
                 case TokenType.AndAnd:
                 case TokenType.Or:
@@ -695,6 +911,8 @@ namespace TypeGo
                 case TokenType.ModulusEquals:
                 case TokenType.ColonEquals:
                 case TokenType.Equals:
+                case TokenType.LeftBrace:
+                case TokenType.Comment:
                     addSpace = true;
                     break;
 
@@ -800,6 +1018,11 @@ namespace TypeGo
                 case TokenType.LessThan:
                 case TokenType.MultiplyEquals:
                 case TokenType.GreaterThan:
+                case TokenType.Defer:
+                case TokenType.ErrReturn:
+                case TokenType.Case:
+                case TokenType.Break:
+                case TokenType.Continue:
                     addSpace = true;
                     break;
 
@@ -853,7 +1076,11 @@ namespace TypeGo
 
             for (int i = 0; i < blockDataList.Count; i++)
             {
-                ProcessBlockData(convertData, blockDataList[i], nestCount);
+                BlockData blockData = blockDataList[i];
+                if (blockData.NodeType == NodeType.NewLine && i == 0) {
+                    continue;
+                }
+                ProcessBlockData(convertData, blockData, nestCount);
             }
         }
     }

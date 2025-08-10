@@ -29,6 +29,8 @@ namespace TypeGo
         public const string GOTO = "goto";
         public const string MINUS_MINUS = "--";
         public const string NOT = "!";
+        public const string ERRRETURN = "errreturn";
+        public const string CASE = "case";
 
         // Types
         public const string INT = "int";

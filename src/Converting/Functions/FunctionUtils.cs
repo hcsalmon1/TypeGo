@@ -17,27 +17,26 @@ namespace TypeGo
             }
             Variable parameterCopy = new();
             parameterCopy.TypeList = new List<Token>();
-            for (int i = 0; i < tempParameter.TypeList.Count; i++)
-            {
+            for (int i = 0; i < tempParameter.TypeList.Count; i++) {
                 parameterCopy.TypeList.Add(tempParameter.TypeList[i]);
             }
-            parameterCopy.NameToken = tempParameter.NameToken;
+            parameterCopy.NameToken = TokenUtils.CopyTokenList(tempParameter.NameToken);
 
             parameters.Add(parameterCopy);
             tempParameter.SetToDefaults();
         }
 
-        static void HandleToken(ref FormatData formatData, Token? token, ref Variable tempParameter, ref TokenType lastType)
+        static void HandleToken(ref FormatData formatData, Token token, ref Variable tempParameter, ref TokenType lastType)
         {
-            if (token.Value.Type == TokenType.Identifier)
+            if (token.Type == TokenType.Identifier)
             {
-                if (lastType == TokenType.Identifier) {
-                    tempParameter.NameToken = token;
+                if (lastType == TokenType.Identifier || lastType == TokenType.RightBrace) {
+                    tempParameter.NameToken.Add(token);
                     return;
                 }
                 if (TokenUtils.IsVarType(lastType))
                 {
-                    tempParameter.NameToken = token;
+                    tempParameter.NameToken.Add(token);
                     return;
                 }
 
@@ -48,7 +47,7 @@ namespace TypeGo
                     lastType == TokenType.LeftParenthesis;
 
                 if (wasPartOfType) {
-                    tempParameter.TypeList.Add(token.Value);
+                    tempParameter.TypeList.Add(token);
                     return;
                 }
 
@@ -56,15 +55,15 @@ namespace TypeGo
                 return;
             }
             bool isSkippableToken =
-                token.Value.Type == TokenType.Tab ||
-                token.Value.Type == TokenType.NewLine ||
-                token.Value.Type == TokenType.RightParenthesis ||
-                token.Value.Type == TokenType.Comma;
+                token.Type == TokenType.Tab ||
+                token.Type == TokenType.NewLine ||
+                token.Type == TokenType.RightParenthesis ||
+                token.Type == TokenType.Comma;
 
             if (isSkippableToken) {
                 return;
             }
-            tempParameter.TypeList.Add(token.Value);
+            tempParameter.TypeList.Add(token);
         }
 
         static WhileLoopAction ParameterInnerLoop(ref FormatData formatData, List<Variable> parameters, ref Variable tempParameter, ref int whileCount, ref TokenType lastType)
@@ -85,7 +84,7 @@ namespace TypeGo
                 return WhileLoopAction.Return;
             }
 
-            HandleToken(ref formatData, token, ref tempParameter, ref lastType);
+            HandleToken(ref formatData, token.Value, ref tempParameter, ref lastType);
 
             if (token.Value.Type == TokenType.Comma) {
                 AddParameter(parameters, ref tempParameter);

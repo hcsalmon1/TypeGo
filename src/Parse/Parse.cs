@@ -10,7 +10,6 @@ namespace TypeGo
     {
         public List<Token> TokenList = new();
         public Token? LastToken = null;
-        public bool WasComment = false;
         public int CharacterIndex = 0;
         public string Code = "";
         public int LineCount = 0; //for token position
@@ -25,23 +24,13 @@ namespace TypeGo
         static bool ShouldSkip(ref ParseData parseData)
         {
             parseData.CharCount += 1;
-            if (parseData.LastToken.HasValue) {
-
-                if (parseData.LastToken.Value.Type == TokenType.Comment) {
-                    parseData.WasComment = true;
-                }
-            }
 
             char currentChar = parseData.Code[parseData.CharacterIndex];
 
             if (currentChar == '\n') {
 
-                if (parseData.WasComment == true) {
-                    parseData.TokenList.Add(new Token("\\n", TokenType.EndComment, parseData.LineCount, parseData.CharCount));
-                    parseData.WasComment = false;
-                } else {
-                    parseData.TokenList.Add(new Token("\\n", TokenType.NewLine, parseData.LineCount, parseData.CharCount));
-                }
+                parseData.TokenList.Add(new Token("\\n", TokenType.NewLine, parseData.LineCount, parseData.CharCount));
+                
                 parseData.LineCount += 1;
                 parseData.CharCount = 0;
                 parseData.CharacterIndex += 1;
@@ -127,26 +116,31 @@ namespace TypeGo
         static Token? GetToken(ref ParseData parseData)
         {
 
+            if (parseData.CharacterIndex + 1 < parseData.Code.Length) {
+
+                char c1 = parseData.Code[parseData.CharacterIndex];
+                char c2 = parseData.Code[parseData.CharacterIndex + 1];
+
+                if (c1 == '/' && c2 == '/') {
+                    return ReadLineComment(ref parseData);
+                }
+                if (c1 == '/' && c2 == '*') {
+                    return ReadBlockComment(ref parseData);
+                }
+            }
+
             char currentChar = parseData.Code[parseData.CharacterIndex];
 
-            if (currentChar == '"')
-            {
+            if (currentChar == '"') {
                 return ReadString(ref parseData);
             }
-            if (currentChar == '\'')
-            {
+            if (currentChar == '\'') {
                 return ReadChar(ref parseData);
             }
-            if (ParseUtils.IsOperator(currentChar))
-            {
+            if (ParseUtils.IsOperator(currentChar)) {
                 return ReadOperator(ref parseData);
             }
-            if (ParseUtils.IsSeparator(currentChar))
-            {
-                if (currentChar == '\n')
-                {
-                    parseData.WasComment = false;
-                }
+            if (ParseUtils.IsSeparator(currentChar)) {
 
                 return ReadSeparator(ref parseData);
             }
@@ -187,10 +181,6 @@ namespace TypeGo
 
         static Token? ReadChar(ref ParseData parseData)
         {
-            if (parseData.WasComment) {
-                return new Token("'", TokenType.Comma, parseData.LineCount, parseData.CharCount);
-            }
-
             int start = parseData.CharacterIndex;
             parseData.CharacterIndex += 1;
             if (parseData.CharacterIndex >= parseData.Code.Length)
@@ -265,6 +255,57 @@ namespace TypeGo
             string word = sb.ToString();
             return new Token(word, ParseUtils.GetTokenType(parseData, word), parseData.LineCount, parseData.CharCount);
         }
+
+        static Token? ReadLineComment(ref ParseData parseData)
+        {
+            StringBuilder sb = new();
+            int start = parseData.CharacterIndex;
+
+            sb.Append("//");
+            parseData.CharacterIndex += 2;
+
+            while (parseData.CharacterIndex < parseData.Code.Length)
+            {
+                char c = parseData.Code[parseData.CharacterIndex];
+                if (c == '\n') break;
+                sb.Append(c);
+                parseData.CharacterIndex++;
+            }
+
+            return new Token(sb.ToString(), TokenType.Comment, parseData.LineCount, parseData.CharCount);
+        }
+
+        static Token? ReadBlockComment(ref ParseData parseData)
+        {
+            StringBuilder sb = new();
+            sb.Append("/*");
+            parseData.CharacterIndex += 2;
+
+            while (parseData.CharacterIndex + 1 < parseData.Code.Length)
+            {
+                char c1 = parseData.Code[parseData.CharacterIndex];
+                char c2 = parseData.Code[parseData.CharacterIndex + 1];
+                sb.Append(c1);
+                parseData.CharacterIndex++;
+
+                if (c1 == '*' && c2 == '/')
+                {
+                    sb.Append('/');
+                    parseData.CharacterIndex++;
+                    return new Token(sb.ToString(), TokenType.Comment, parseData.LineCount, parseData.CharCount);
+                }
+
+                if (c1 == '\n')
+                {
+                    parseData.LineCount++;
+                    parseData.CharCount = 0;
+                }
+            }
+
+            parseData.ParseResult = ParseResult.Unterminated_Comment;
+            return null;
+        }
+
     }
 
     public static class ParseUtils
@@ -318,6 +359,7 @@ namespace TypeGo
             if (input == Constants.PRINTLN) return TokenType.Println;
             if (input == Constants.TRUE) return TokenType.True;
             if (input == Constants.FALSE) return TokenType.False;
+            if (input == Constants.CASE) return TokenType.Case;
 
             // Types
             if (input == Constants.INT) return TokenType.Int;
@@ -350,6 +392,7 @@ namespace TypeGo
             if (input == Constants.GOTO) return TokenType.Goto;
             if (input == Constants.MINUS_MINUS) return TokenType.MinusMinus;
             if (input == Constants.NOT) return TokenType.Not;
+            if (input == Constants.ERRRETURN) return TokenType.ErrReturn;
 
             // Operators
             if (input == Constants.PLUS_PLUS) return TokenType.PlusPlus;
@@ -376,11 +419,6 @@ namespace TypeGo
             if (input == Constants.MODULUS_EQUALS) return TokenType.ModulusEquals;
             if (input == Constants.MULTILINE_COMMENT_START) return TokenType.MultiLineStart;
             if (input == Constants.MULTILINE_COMMENT_END) return TokenType.MultiLineEnd;
-
-            if (input == Constants.COMMENT) {
-                parseData.WasComment = true;
-                return TokenType.Comment;
-            }
 
             // Parentheses and Brackets
             if (input == Constants.LEFT_PARENTHESIS) return TokenType.LeftParenthesis;

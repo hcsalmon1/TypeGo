@@ -29,6 +29,7 @@ namespace TypeGo
         Multiple_Declarations_With_Value,
         Multiple_Declarations_Same_Type_No_Value,
         Multiple_Declarations_Same_Type_With_Value,
+        Multiple_Declarations_One_Type_One_Set_Value,
         Constant_Global_Variable,
         Constant_Global_Variable_With_Type,
         Struct_Variable_Declaration,
@@ -37,6 +38,7 @@ namespace TypeGo
         Else_Statement,
         For_Loop,
         For_Loop_With_Declaration,
+        Err_Return,
         Multi_Line_Import,
         Single_Import,
         Single_Import_With_Alias,
@@ -65,6 +67,8 @@ namespace TypeGo
         False,
         Switch,
         Channel_Setter,
+        ErrReturn,
+        Case,
 
         Int,
         Int8,
@@ -299,6 +303,9 @@ namespace TypeGo
         Map,
         Pointer,
         FullStop,
+        Interface,
+        LeftBrace,
+        RightBrace,
     }
 
     public enum DeclarationPhase

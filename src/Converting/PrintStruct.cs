@@ -64,12 +64,15 @@ namespace TypeGo
                     if (variable.NameToken == null) {
                         continue;
                     }
-                    varNames.Add(variable.NameToken.Value.Text);
+                    if (variable.NameToken.Count == 0) {
+                        continue;
+                    }
+                    varNames.Add(variable.NameToken[0].Text);
                     string? varTypeAsText = TokenUtils.JoinTextInListOfTokens(variable.TypeList);
                     if (varTypeAsText == null) {
                         continue;
                     }
-                    convertData.AppendString($"{variable.NameToken.Value.Text} {varTypeAsText}");
+                    convertData.AppendString($"{variable.NameToken[0].Text} {varTypeAsText}");
                     convertData.NewLineWithTabs(nestCount + 1);
                 }
             }

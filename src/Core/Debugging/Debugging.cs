@@ -62,7 +62,7 @@ namespace TypeGo
                 Fmt.Println($"index: {i}");
                 PrintTypeParameter(in parameter);
 
-                Token? nameToken = parameters[i].NameToken;
+                Token? nameToken = parameters[i].NameToken[0];
                 PrintParameterName(nameToken);
             }
         }
@@ -416,7 +416,7 @@ namespace TypeGo
 
             string code_line = GetCodeLine(line_number, codeLines);
 
-            Fmt.PrintlnColor($"\tError on line {line_number}, {char_number}: {formatData.ErrorDetail}", ConsoleColor.Yellow);
+            Fmt.PrintlnColor($"\tError on line {line_number + 1}, {char_number}: {formatData.ErrorDetail}", ConsoleColor.Yellow);
 
             PrintCodeLines(line_number, codeLines, code_line);
 

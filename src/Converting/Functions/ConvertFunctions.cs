@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+﻿
 
 namespace TypeGo
 {
@@ -24,11 +21,11 @@ namespace TypeGo
             }
 
             ConvertBlock.ProcessBlock(convertData, function.InnerBlock, nestCount: 1);
-            convertData.GeneratedCode.Append('\n');
+            //convertData.GeneratedCode.Append('\n');
             convertData.GeneratedCode.Append('\r');
             convertData.GeneratedCode.Append('}');
             convertData.GeneratedCode.Append('\n');
-            convertData.GeneratedCode.Append('\n');
+            //convertData.GeneratedCode.Append('\n');
         }
 
         private static void PrintFunctionNameAndParameters(ConvertData convertData, Function function)
@@ -58,19 +55,27 @@ namespace TypeGo
                 if (parameter.NameToken == null) {
                     convertData.ConvertResult = ConvertResult.Internal_Error;
                     convertData.ErrorDetail = "name token is null in PrintParameters";
+                    convertData.ErrorToken = function.startingToken;
                     return;
                 }
                 string? typeAsText = TokenUtils.JoinTextInListOfTokens(parameter.TypeList);
                 if (typeAsText == null) {
                     convertData.ConvertResult = ConvertResult.Internal_Error;
                     convertData.ErrorDetail = "var type text is null in PrintParameters";
+                    convertData.ErrorToken = function.startingToken;
                     return;
                 }
                 if (parameterIndex != 0) {
                     convertData.GeneratedCode.Append(',');
                     convertData.GeneratedCode.Append(' ');
                 }
-                convertData.GeneratedCode.Append($"{parameter.NameToken.Value.Text} {typeAsText}");
+                if (parameter.NameToken.Count == 0) {
+                    convertData.ConvertResult = ConvertResult.Internal_Error;
+                    convertData.ErrorDetail = "parameter name invalid in PrintParameters";
+                    convertData.ErrorToken = function.startingToken;
+                    return;
+                }
+                convertData.GeneratedCode.Append($"{parameter.NameToken[0].Text} {typeAsText}");
             }
         }
     }

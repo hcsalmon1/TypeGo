@@ -41,6 +41,7 @@ namespace TypeGo
                 case TokenType.Error:
                 case TokenType.Multiply:
                 case TokenType.Map:
+                case TokenType.Interface:
                     blockData = FormatDeclarations.ProcessDeclaration(formatData, token);
                     break;
                 case TokenType.If:
@@ -95,6 +96,9 @@ namespace TypeGo
                     blockData = new();
                     blockData.NodeType = NodeType.NewLine;
                     break;
+                case TokenType.ErrReturn:
+                    blockData = FormatErrorReturn.ProcessErrReturn(formatData, in token);
+                    break;
                 case TokenType.Var:
                     formatData.Result = FormatResult.UnexpectedType;
                     formatData.ErrorDetail = "'var' isn't ever used in TypeGo. Correct syntax: 'int number = 10', not 'var number int = 10'";
@@ -108,9 +112,9 @@ namespace TypeGo
                     blockData = FormatSwitch.ProcessSwitch(formatData);
                     break;
 
-                case TokenType.Interface:
-                    blockData = FormatInterface.FormatInterfaceVar(formatData, token);
-                    break;
+                //case TokenType.Interface:
+                //    blockData = FormatInterface.FormatInterfaceVar(formatData, token);
+                //    break;
 
                 default:
                     break;

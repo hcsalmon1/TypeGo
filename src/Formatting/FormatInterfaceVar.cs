@@ -63,7 +63,7 @@ namespace TypeGo
                 return null;
             }
 
-            variable.NameToken = tempToken.Value;
+            variable.NameToken.Add(tempToken.Value);
 
             formatData.Increment();
 

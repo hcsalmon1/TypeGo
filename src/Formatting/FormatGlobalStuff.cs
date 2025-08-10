@@ -84,7 +84,8 @@ namespace TypeGo
                     case TokenType.NewLine:
                         isValid =
                             lastTokenType == TokenType.StringValue ||
-                            lastTokenType == TokenType.LeftParenthesis;
+                            lastTokenType == TokenType.LeftParenthesis ||
+                            lastTokenType == TokenType.NewLine;
 
                         if (isValid) {
                             blockData.Tokens.Add(token);
@@ -264,8 +265,7 @@ namespace TypeGo
 
                 //Add struct name
                 Token? tempToken = formatData.GetNextToken();
-                if (tempToken == null)
-                {
+                if (tempToken == null) {
                     formatData.EndOfFileError(tempToken, thisFunctionName);
                     return;
                 }
@@ -301,29 +301,26 @@ namespace TypeGo
 
                 //Add struct name
                 Token? tempToken = formatData.GetNextToken();
-                if (tempToken == null)
-                {
+                if (tempToken == null) {
                     formatData.EndOfFileError(tempToken, thisFunctionName);
                     return;
                 }
+
                 Token enumNameToken = tempToken.Value;
                 blockData.Tokens.Add(enumNameToken);
 
-                if (formatData.ExpectNextType(TokenType.LeftBrace, "missing expected '{' in enum declaration", thisFunctionName) == false)
-                {
+                if (formatData.ExpectNextType(TokenType.LeftBrace, "missing expected '{' in enum declaration", thisFunctionName) == false) {
                     return;
                 }
                 formatData.Increment();
                 formatData.IncrementIfNewLine();
 
                 CodeBlock? enumBlock = FillEnumBody(formatData);
-                if (enumBlock == null)
-                {
+                if (enumBlock == null) {
                     formatData.AddTrace(thisFunctionName);
                     return;
                 }
-                if (formatData.ExpectType(TokenType.RightBrace, "missing expected '}' in enum declaration", thisFunctionName) == false)
-                {
+                if (formatData.ExpectType(TokenType.RightBrace, "missing expected '}' in enum declaration", thisFunctionName) == false) {
                     return;
                 }
                 formatData.Increment();
@@ -419,7 +416,7 @@ namespace TypeGo
                         formatData.UnexpectedTypeError(tempToken, "missing expended identifier in constant variable", THIS_FUNCTION);
                     }
 
-                    variable.NameToken = tempToken;
+                    variable.NameToken.Add(tempToken.Value);
                     blockData.Variables.Add(variable);
                     formatData.Increment();
 

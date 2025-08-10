@@ -21,7 +21,7 @@ namespace TypeGo
                 return;
             }
 
-            string variableName = variable.NameToken.Value.Text;
+            string variableName = variable.NameToken[0].Text;
 
             convertData.AppendString($"{variableName} = append({variableName}, ");
 

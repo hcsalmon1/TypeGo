@@ -65,6 +65,19 @@ namespace TypeGo
                 blockData.Tokens.Add(token);
                 lastTokenType = token.Type;
             }
+            //while (formatData.TokenIndex < formatData.TokenList.Count) {
+            //    Token? finalToken = formatData.GetToken();
+            //    if (finalToken == null)
+            //    {
+            //        formatData.EndOfFileError(finalToken, "LoopTokensUntilLineEnd");
+            //        return;
+            //    }
+            //    if (finalToken.Value.Type == TokenType.NewLine) {
+            //        formatData.Increment();
+            //        break;
+            //    }
+            //    formatData.Increment();
+            //}
         }
 
         static bool IsLineContinuingToken(TokenType type)
@@ -144,11 +157,18 @@ namespace TypeGo
             return false;
         }
 
-        static bool HandleToken(ref FormatData formatData, Token? token, List<Token> returnTypeTokenList, ref TokenType lastType)
+        static bool HandleToken(ref FormatData formatData, Token token, List<Token> returnTypeTokenList, ref TokenType lastType)
         {
-            if (token.Value.Type == TokenType.Identifier)
+            if (TokenUtils.IsVarType(token))
             {
-                if (lastType == TokenType.Identifier) {
+                returnTypeTokenList.Add(token);
+                return false;
+            }
+
+
+            if (token.Type == TokenType.Identifier)
+            {
+                if (lastType == TokenType.Identifier || lastType == TokenType.RightBrace) {
                     return true;
                 }
                 if (TokenUtils.IsVarType(lastType)) {
@@ -159,11 +179,12 @@ namespace TypeGo
                     lastType == TokenType.FullStop ||
                     lastType == TokenType.RightSquareBracket ||
                     lastType == TokenType.Multiply ||
-                    lastType == TokenType.LeftParenthesis;
+                    lastType == TokenType.LeftParenthesis ||
+                    lastType == TokenType.NA;
 
                 if (wasPartOfType)
                 {
-                    returnTypeTokenList.Add(token.Value);
+                    returnTypeTokenList.Add(token);
                     return false;
                 }
 
@@ -171,16 +192,16 @@ namespace TypeGo
                 return true;
             }
             bool isSkippableToken =
-                token.Value.Type == TokenType.Tab ||
-                token.Value.Type == TokenType.NewLine ||
-                token.Value.Type == TokenType.RightParenthesis ||
-                token.Value.Type == TokenType.Comma;
+                token.Type == TokenType.Tab ||
+                token.Type == TokenType.NewLine ||
+                token.Type == TokenType.RightParenthesis ||
+                token.Type == TokenType.Comma;
 
             if (isSkippableToken)
             {
                 return false;
             }
-            returnTypeTokenList.Add(token.Value);
+            returnTypeTokenList.Add(token);
             return false;
         }
 
@@ -202,7 +223,7 @@ namespace TypeGo
                 return WhileLoopAction.Return;
             }
 
-            bool shouldBreak = HandleToken(ref formatData, token, returnTypeTokenList, ref lastType);
+            bool shouldBreak = HandleToken(ref formatData, token.Value, returnTypeTokenList, ref lastType);
             if (shouldBreak == true) {
                 return WhileLoopAction.Break;
             }

@@ -131,9 +131,58 @@ fn main() {
     fmt.Println(number, name)
 }";
 
-    
+    public const string MULTIPLE_DECLARATIONS = @"
 
-    public const string HARD_EXAMPLE =
+package main
+
+import (
+	""errors""
+	""fmt""
+)
+
+fn error mixedDeclarations() {
+	error err; int count
+	err, int code = doSomething(); string msg = ""done""
+	int a, b
+	a, b = 1, 2
+	int x, string y, bool z = 3, ""hello"", true
+	int one; int two = 42
+	int val1, int val2 = 100, 200
+	error err2 = errors.New(""another error""); string result = ""ok""
+
+	if err != nil {
+		return err
+	}
+	if err2 != nil {
+		fmt.Println(""Error 2:"", err2)
+	}
+
+	fmt.Println(""Count:"", count, ""Code:"", code)
+	fmt.Println(""Message:"", msg)
+	fmt.Println(""a + b ="", a+b)
+	fmt.Println(""x:"", x, ""y:"", y, ""z:"", z)
+	fmt.Println(""one:"", one, ""two:"", two)
+	fmt.Println(""val1:"", val1, ""val2:"", val2)
+	fmt.Println(""Result:"", result)
+
+	return nil
+}
+
+fn (error, int) doSomething() {
+	return nil, 42
+}
+
+fn main() {
+	
+	error err = mixedDeclarations()
+	if err != nil {
+		fmt.Println(""mixedDeclarations failed:"", err)
+	}
+}
+    ";
+
+
+        public const string HARD_EXAMPLE =
             @"
 package main
 
