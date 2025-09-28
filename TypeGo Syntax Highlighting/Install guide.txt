@@ -4,7 +4,7 @@ Option 1 Command line:
 
 -Open the command line
 -Run command:
-	code --install-extension typego-0.0.1.vsix
+	code --install-extension typego-0.0.3.vsix
 	
 Option 2 VsCode UI:
 
@@ -12,4 +12,5 @@ Option 2 VsCode UI:
 -Click extensions
 -Click ... button on the top right of the extensions window
 -In that window, click: Install from VSIX...
+
 -select the vsix file in this folder
