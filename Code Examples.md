@@ -56,7 +56,7 @@ The type is optional in constants.
 
 ```
 
-To avoid repetition, the type is not needed to written after the equals or in make().
+To avoid repetition, the type is not needed to be written after the equals or in make().
 
 Structs:
 
