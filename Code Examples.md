@@ -85,7 +85,7 @@ Structs:
 
 ```
 
-Methods are written in inside the struct.  
+Methods are written inside the struct.  
 Again the Struct name can be omitted after '='  
 Structs object names will be based on the first letter of the struct.  
 So: Person -> p, Game -> g, Settings -> s  
