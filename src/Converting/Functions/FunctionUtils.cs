@@ -44,6 +44,7 @@ namespace TypeGo
                     lastType == TokenType.FullStop ||
                     lastType == TokenType.RightSquareBracket ||
                     lastType == TokenType.Multiply ||
+                    lastType == TokenType.Comma ||
                     lastType == TokenType.LeftParenthesis;
 
                 if (wasPartOfType) {

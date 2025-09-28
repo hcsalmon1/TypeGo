@@ -100,7 +100,7 @@ namespace TypeGo
                     break;
 
                 case NodeType.Comment:
-                    PrintTokens(convertData, blockData, nestCount, newLine: true);
+                    PrintTokens(convertData, blockData, nestCount, newLine: false);
                     break;
 
                 case NodeType.Channel_Declaration:

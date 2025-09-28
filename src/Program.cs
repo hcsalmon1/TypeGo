@@ -100,31 +100,28 @@ namespace TypeGo
 
         static void ConsoleInput(string[] args)
         {
-            if (args.Length == 0)
-            {
+            if (args.Length == 0) {
                 ShowHelp();
                 return;
             }
 
             string command = args[0].ToLower();
 
-            switch (command)
-            {
+            switch (command) {
+
                 case HELP:
                     ShowHelp();
                     break;
 
                 case VERSION:
-                    Console.WriteLine("TypeGo version 0.1");
+                    Console.WriteLine("TypeGo version 0.3");
                     break;
 
                 case CONVERT_FILE:
-                    if (args.Length < 2)
-                    {
+
+                    if (args.Length < 2) {
                         Console.WriteLine("Error: You must specify a filename (e.g. typego convertfile myfile.tgo)");
-                    }
-                    else
-                    {
+                    } else {
                         string filePath = Path.Combine(Directory.GetCurrentDirectory(), args[1]);
                         ConvertFile(filePath);
                     }
@@ -147,25 +144,17 @@ namespace TypeGo
 
             string CODE = @"
 
-import ""fmt""
 
-enumstruct ErrorType {
-    A = 0
-    B = 10
-    C
-    D
-    E
-}
-
-fn main() {
-    
-}
 ";
 
-            Fmt.Println($"Inputted code:\n{CODE}");
+            string CODE2 = @"
+
+";
+
+            Fmt.Println($"Inputted code:\n{CODE2}");
             try {
 
-                string? goCode = ConvertToGo(CODE, "none");
+                string? goCode = ConvertToGo(CODE2, "none");
                 if (goCode == null) {
                     return;
                 }
