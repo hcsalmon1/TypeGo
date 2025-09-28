@@ -19,6 +19,7 @@ namespace TypeGo
             {
                 case TokenType.Chan:
                     blockData = FormatChan.ProcessChannel(formatData, token);
+                    //Logging.AddToLog($" -added chan block data, token: {token.Text}");
                     break;
 
                 case TokenType.Int:
@@ -43,9 +44,12 @@ namespace TypeGo
                 case TokenType.Map:
                 case TokenType.Interface:
                     blockData = FormatDeclarations.ProcessDeclaration(formatData, token);
+                    //Logging.AddToLog($" -added declaration, token: {token.Text}");
                     break;
                 case TokenType.If:
+                    //Logging.AddToLog($"\n __inside block if, token: {token.Text}");
                     blockData = FormatIf.ProcessIf(formatData, token);
+                    //Logging.AddToLog($" __added if\n");
                     break;
                 case TokenType.Else:
                     blockData = FormatIf.ProcessElse(formatData, token);
@@ -54,17 +58,20 @@ namespace TypeGo
                     blockData = FormatFor.ProcessFor(formatData, token);
                     break;
                 case TokenType.Return:
-                    blockData = FormatReturn.ProcessReturn(formatData);
+                    blockData = FormatReturn.ProcessOther(formatData);
+                    //Logging.AddToLog($" -added other, token: {token.Text}");
                     break;
                 case TokenType.Break:
                     blockData = new BlockData();
                     blockData.NodeType = NodeType.Other;
                     blockData.Tokens.Add(token);
+                    formatData.IncrementTwice();
                     break;
                 case TokenType.Continue:
                     blockData = new BlockData();
                     blockData.NodeType = NodeType.Other;
                     blockData.Tokens.Add(token);
+                    formatData.IncrementTwice();
                     break;
                 case TokenType.Defer:
                     blockData = FormatDefer.ProcessDefer(formatData, in token);
@@ -95,6 +102,7 @@ namespace TypeGo
                 case TokenType.NewLine:
                     blockData = new();
                     blockData.NodeType = NodeType.NewLine;
+                    //Logging.AddToLog($" -added new line, token: {token.Text}");
                     break;
                 case TokenType.ErrReturn:
                     blockData = FormatErrorReturn.ProcessErrReturn(formatData, in token);

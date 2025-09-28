@@ -258,6 +258,9 @@ namespace TypeGo
         public void Increment() {
             TokenIndex += 1;
         }
+        public void IncrementTwice() {
+            TokenIndex += 2;
+        }
         public Token? GetNextToken() {
 
             Increment();

@@ -58,6 +58,7 @@ namespace TypeGo
                 Token token = tempToken.Value;
                 WhileLoopAction loopResult = LoopUntilEndInner(formatData, blockData, token, lastTokenType, ref openCurlyBraceCount, stopAtSemicolon);
                 if (loopResult == WhileLoopAction.Break) {
+                    lastTokenType = token.Type;
                     break;
                 }
 
@@ -65,19 +66,20 @@ namespace TypeGo
                 blockData.Tokens.Add(token);
                 lastTokenType = token.Type;
             }
-            //while (formatData.TokenIndex < formatData.TokenList.Count) {
-            //    Token? finalToken = formatData.GetToken();
-            //    if (finalToken == null)
-            //    {
-            //        formatData.EndOfFileError(finalToken, "LoopTokensUntilLineEnd");
-            //        return;
-            //    }
-            //    if (finalToken.Value.Type == TokenType.NewLine) {
-            //        formatData.Increment();
-            //        break;
-            //    }
-            //    formatData.Increment();
-            //}
+
+            if (lastTokenType == TokenType.Semicolon)
+            {
+                formatData.Increment();
+                Token? tempToken = formatData.GetToken();
+                if (tempToken != null)
+                {
+                    if (tempToken.Value.Type == TokenType.NewLine)
+                    {
+                        formatData.Increment();
+                    }
+                }
+            }
+
         }
 
         static bool IsLineContinuingToken(TokenType type)

@@ -47,6 +47,7 @@ namespace TypeGo
                         if (blockData == null) {
                             return null;
                         }
+                        //Logging.AddToLog($" -added chan block data, token: {token.Value.Text}");
                         globalBlock.BlockDataList.Add(blockData);
                         break;
 
@@ -76,14 +77,16 @@ namespace TypeGo
                         if (blockData == null) {
                             return null;
                         }
+                        //Logging.AddToLog($" -added declaration block data, token: {token.Value.Text}");
                         globalBlock.BlockDataList.Add(blockData);
                         break;
 
                     case TokenType.Type:
-                        blockData = FormatReturn.ProcessReturn(formatData);
+                        blockData = FormatReturn.ProcessOther(formatData);
                         if (blockData == null) {
                             return null;
                         }
+                        //Logging.AddToLog($" -added type block data, token: {token.Value.Text}");
                         globalBlock.BlockDataList.Add(blockData);
                         break;
 

@@ -8,7 +8,7 @@ namespace TypeGo
 {
     public static class FormatReturn
     {
-        public static BlockData? ProcessReturn(FormatData formatData)
+        public static BlockData? ProcessOther(FormatData formatData)
         {
             BlockData blockData = new BlockData();
 

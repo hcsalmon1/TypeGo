@@ -53,6 +53,7 @@ namespace TypeGo
         Append,
         Package,
         Other,
+        Switch,
     }
 
     public enum TokenType

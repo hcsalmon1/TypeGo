@@ -75,6 +75,9 @@ namespace TypeGo
                 case NodeType.Other:
                     PrintTokens(convertData, blockData, nestCount, newLine: false);
                     break;
+                case NodeType.Switch:
+                    ConvertSwitch.Convert(convertData, blockData, nestCount, false);
+                    break;
                 case NodeType.Struct_Declaration:
                     PrintStruct.ProcessStruct(convertData, blockData, nestCount);
                     break;
@@ -803,13 +806,11 @@ namespace TypeGo
             TokenType lastType = TokenType.NA;
             bool addedSpace = false;
 
-            for (int i = 0; i < blockData.Tokens.Count; i++)
-            {
+            for (int i = 0; i < blockData.Tokens.Count; i++) {
 
                 Token token = blockData.Tokens[i];
 
-                if (token.Type == TokenType.NewLine)
-                {
+                if (token.Type == TokenType.NewLine) {
                     convertData.NewLineWithTabs(nestCount);
                     lastType = token.Type;
                     continue;
@@ -844,16 +845,14 @@ namespace TypeGo
 
         public static void PrintTokensNoNL(ConvertData convertData, BlockData blockData, int nestCount)
         {
-            if (blockData.Tokens.Count == 0)
-            {
+            if (blockData.Tokens.Count == 0) {
                 convertData.NoTokenError(blockData.StartingToken, "no tokens in blockData", "PrintTokens");
                 return;
             }
             TokenType lastType = TokenType.NA;
             bool addedSpace = false;
 
-            for (int i = 0; i < blockData.Tokens.Count; i++)
-            {
+            for (int i = 0; i < blockData.Tokens.Count; i++) {
 
                 Token token = blockData.Tokens[i];
 
@@ -870,16 +869,15 @@ namespace TypeGo
             }
         }
 
-        static void AddSpaceBefore(ConvertData convertData, TokenType thisType, TokenType lastType, int tokenIndex, bool addedSpace)
+        public static void AddSpaceBefore(ConvertData convertData, TokenType thisType, TokenType lastType, int tokenIndex, bool addedSpace)
         {
             int codeLength = convertData.GeneratedCode.Length;
 
-            if (codeLength > 0)
-            {
+            if (codeLength > 0) {
+
                 char lastCharAdded = convertData.GeneratedCode[codeLength - 1];
 
-                if (lastCharAdded == ' ')
-                {
+                if (lastCharAdded == ' ') {
                     return;
                 }
             }
@@ -944,16 +942,14 @@ namespace TypeGo
                     break;
             }
 
-            if (thisType == TokenType.Minus)
-            {
+            if (thisType == TokenType.Minus) {
 
                 bool isOperator =
                     lastType == TokenType.Identifier ||
                     lastType == TokenType.IntegerValue ||
                     TokenUtils.IsOperator(lastType);
 
-                if (isOperator)
-                {
+                if (isOperator) {
                     addSpace = true;
                 }
             }
@@ -972,7 +968,7 @@ namespace TypeGo
             }
         }
 
-        static bool AddSpaceAfter(ConvertData convertData, TokenType thisType, TokenType lastType, int tokenIndex)
+        public static bool AddSpaceAfter(ConvertData convertData, TokenType thisType, TokenType lastType, int tokenIndex)
         {
 
             bool addSpace = false;
@@ -1041,8 +1037,7 @@ namespace TypeGo
                     lastType == TokenType.Identifier ||
                     lastType == TokenType.IntegerValue;
 
-                if (isOperator)
-                {
+                if (isOperator) {
                     addSpace = true;
                 }
             }
@@ -1053,8 +1048,7 @@ namespace TypeGo
                     lastType == TokenType.Identifier ||
                     lastType == TokenType.IntegerValue;
 
-                if (isOperator)
-                {
+                if (isOperator) {
                     addSpace = true;
                 }
             }

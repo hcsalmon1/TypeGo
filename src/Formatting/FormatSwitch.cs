@@ -11,7 +11,7 @@ namespace TypeGo
         public static BlockData? ProcessSwitch(FormatData formatData)
         {
             BlockData blockData = new();
-            blockData.NodeType = NodeType.Other;
+            blockData.NodeType = NodeType.Switch;
 
             FormatUtils.LoopTokensUntilLineEnd(formatData, blockData, stopAtSemicolon: false);
             return blockData;
