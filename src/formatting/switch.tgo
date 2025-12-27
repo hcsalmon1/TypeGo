@@ -1,0 +1,14 @@
+package formatting
+
+import . "TypeGo/core"
+
+fn BlockData ProcessSwitch(*FormatData formatData) {
+
+    formatData.SetErrorFunction("ProcessSwitch");
+
+    BlockData blockData
+    blockData.NodeType = NodeType.Switch;
+
+    LoopTokensUntilLineEnd(formatData, &blockData, false);
+    return blockData;
+}

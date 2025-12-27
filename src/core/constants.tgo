@@ -1,0 +1,103 @@
+package core
+
+const string FN = "fn";
+const string FUNC = "func";
+const string IF = "if";
+const string ELSE = "else";
+const string FOR = "for";
+const string WHILE = "while";
+const string RETURN = "return";
+const string BREAK = "break";
+const string CONTINUE = "continue";
+const string PRINT = "print";
+const string PRINTLN = "println";
+const string TRUE = "true";
+const string FALSE = "false";
+const string SWITCH = "switch";
+const string DEFER = "defer";
+const string CHAN = "chan";
+const string VAR = "var";
+const string GO = "go";
+const string TYPE = "type";
+const string INTERFACE = "interface";
+const string GOTO = "goto";
+const string MINUS_MINUS = "--";
+const string NOT = "!";
+const string ERRRETURN = "errreturn";
+const string CASE = "case";
+const string ERRCHECK = "errcheck";
+
+
+// Types
+const string INT = "int";
+const string INT8 = "int8";
+const string INT16 = "int16";
+const string INT32 = "int32";
+const string INT64 = "int64";
+
+const string UINT8 = "uint8";
+const string UINT16 = "uint16";
+const string UINT32 = "uint32";
+const string UINT64 = "uint64";
+const string BYTE = "byte";
+const string RUNE = "rune";
+
+const string F32 = "float32";
+const string F64 = "float64";
+const string STRING = "string";
+const string BOOL = "bool";
+const string VOID = "void";
+const string CONST = "const";
+const string STRUCT = "struct";
+const string ENUM = "enum";
+const string ENUMSTRUCT = "enumstruct";
+const string MAP = "map";
+const string ERROR = "error";
+
+// Operators
+const string PLUS = "+";
+const string PLUS_PLUS = "++";
+const string MINUS = "-";
+const string MULTIPLY = "*";
+const string DIVIDE = "/";
+const string EQUALS = "=";
+const string PLUS_EQUALS = "+=";
+const string MINUS_EQUALS = "-=";
+const string MULTIPLY_EQUALS = "*=";
+const string DIVIDE_EQUALS = "/=";
+const string GREATER_THAN = ">";
+const string LESS_THAN = "<";
+const string EQUALS_EQUALS = "==";
+const string GREATER_THAN_EQUALS = ">=";
+const string LESS_THAN_EQUALS = "<=";
+const string MODULUS = "%";
+const string COMMENT = "//";
+const string NOT_EQUALS = "!=";
+const string AND = "&";
+const string AND_AND = "&&";
+const string OR = "|";
+const string OR_OR = "||";
+const string MODULUS_EQUALS = "%=";
+const string THREE_SPACES = "   ";
+const string MULTILINE_COMMENT_START = "/*";
+const string MULTILINE_COMMENT_END = "*/";
+const string COLON = ":";
+const string COLON_EQUALS = ":=";
+const string CHANNEL_SETTER = "<-";
+
+const string MAKE = "make";
+const string APPEND = "append";
+const string PACKAGE = "package";
+const string IMPORT = "import";
+
+// Parentheses and Brackets
+const string LEFT_PARENTHESIS = "(";
+const string RIGHT_PARENTHESIS = ")";
+const string LEFT_BRACE = "{";
+const string RIGHT_BRACE = "}";
+const string LEFT_SQUARE_BRACKET = "[";
+const string RIGHT_SQUARE_BRACKET = "]";
+
+const string SEMICOLON = ";";
+const string COMMA = ",";
+const string FULL_STOP = ".";

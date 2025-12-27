@@ -1,0 +1,82 @@
+package converting
+
+import . "TypeGo/core"
+
+fn ProcessFunction(*ConvertData convertData, *Function function) {
+
+    convertData.NewLineWithTabs();
+    PrintFunctionNameAndParameters(convertData, function);
+
+    if function.ReturnType != "" {
+        convertData.AppendString(function.ReturnType)
+        convertData.GeneratedCode.append(' ');
+    }
+    convertData.GeneratedCode.append('{');
+
+    if function.InnerBlock == nil {
+        convertData.ConvertResult = ConvertResult.Internal_Error;
+        convertData.ErrorDetail = "inner block is null in ProcessFunction";
+        return;
+    }
+
+	convertData.IncrementNestCount()
+    ProcessBlock(convertData, function.InnerBlock, 1, false);
+    if convertData.IsError() {
+        return
+    }
+    convertData.DecrementNestCount()
+    convertData.NewLine();
+    convertData.GeneratedCode.append('}');
+    convertData.NewLine();
+}
+
+fn PrintFunctionNameAndParameters(*ConvertData convertData, *Function function) {
+	switch convertData.MethodType {
+	case MethodType.Struct:
+		convertData.AppendString("func " +"(self *" +convertData.StructName + ") " +function.Name + "(")
+		
+	case MethodType.Enum:
+	convertData.AppendString("func " +"(self " +convertData.StructName + ") " +function.Name + "(")
+	
+	default:
+	convertData.AppendString("func " +function.Name + "(")
+	
+	}
+
+    PrintParameters(convertData, function);
+    convertData.GeneratedCode.append(')');
+    convertData.GeneratedCode.append(' ');
+}
+
+fn PrintParameters(*ConvertData convertData, *Function function) {
+    []Variable parameters = function.Parameters;
+    if len(parameters) == 0 {
+        return;
+    }
+
+    for parameterIndex := 0; parameterIndex < len(parameters); parameterIndex++ {
+
+        Variable parameter = parameters[parameterIndex]; 
+        if parameter.NameToken == nil {
+            convertData.ConvertResult = ConvertResult.Internal_Error;
+            convertData.ErrorDetail = "name token is null in PrintParameters";
+            return;
+        }
+        string typeAsText = JoinTextInListOfTokens(&parameter.TypeList);
+        if typeAsText == "" {
+            convertData.ConvertResult = ConvertResult.Internal_Error;
+            convertData.ErrorDetail = "var type text is null in PrintParameters";
+            return;
+        }
+        if parameterIndex != 0 {
+            convertData.GeneratedCode.append(',');
+            convertData.GeneratedCode.append(' ');
+        }
+        if len(parameter.NameToken) == 0 {
+            convertData.ConvertResult = ConvertResult.Internal_Error;
+            convertData.ErrorDetail = "parameter name invalid in PrintParameters";
+            return;
+        }
+        convertData.AppendString(parameter.NameToken[0].Text + " " + typeAsText);
+    }
+}

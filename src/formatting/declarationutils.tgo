@@ -1,0 +1,507 @@
+package formatting
+
+import . "TypeGo/core"
+
+fn ConvertToNodetypeWithValue(*BlockData blockData) {
+    switch blockData.NodeType {
+        case NodeType.Single_Declaration_No_Value:
+            blockData.NodeType = NodeType.Single_Declaration_With_Value;
+
+        case NodeType.Multiple_Declarations_No_Value:
+            blockData.NodeType = NodeType.Multiple_Declarations_Same_Type_With_Value;
+
+        case NodeType.Multiple_Declarations_Same_Type_No_Value:
+            blockData.NodeType = NodeType.Multiple_Declarations_Same_Type_With_Value;
+
+        default:
+
+    }
+}
+
+fn IntLoopAction ProcessAfterNull(*FormatData formatData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    
+    formatData.AddToFunctionLog("ENTER ProcessAfterNull")
+    if IsVarTypeEnum(token.Type) {
+        *lastType = LastTokenType.Vartype;
+        tempVariable.TypeList.append(token);
+        formatData.AddToFunctionLog("EXIT ProcessAfterNull")
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.Multiply {
+        *lastType = LastTokenType.Pointer;
+        tempVariable.TypeList.append(token);
+        formatData.AddToFunctionLog("EXIT ProcessAfterNull")
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.LeftSquareBracket {
+        *lastType = LastTokenType.LeftSqBracket;
+        tempVariable.TypeList.append(token);
+        formatData.AddToFunctionLog("EXIT ProcessAfterNull")
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.Identifier {
+        *lastType = LastTokenType.Identifier;
+        tempVariable.TypeList.append(token);
+        formatData.AddToFunctionLog("EXIT ProcessAfterNull")
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.Map {
+        *lastType = LastTokenType.Map;
+        tempVariable.TypeList.append(token);
+        formatData.AddToFunctionLog("EXIT ProcessAfterNull")
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.Interface {
+        *lastType = LastTokenType.Interface;
+        tempVariable.TypeList.append(token);
+        formatData.AddToFunctionLog("EXIT ProcessAfterNull")        
+        return LoopAction.Continue;
+    }
+
+    formatData.UnexpectedTypeError(token, "unexpected type:" + token.Type.ToString() + " in declaration");
+    formatData.AddToFunctionLog("ERROR ProcessAfterNull")
+    return LoopAction.Error;
+
+}
+
+fn IntLoopAction ProcessAfterVarType(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    
+    formatData.AddToFunctionLog("ENTER ProcessAfterVarType")
+
+    if IsVarTypeEnum(token.Type) {
+        formatData.UnexpectedTypeError(token, "unexpected vartype in declaration");
+        formatData.AddToFunctionLog("ERROR ProcessAfterVarType")
+        return LoopAction.Return;
+    }
+
+    if token.Type == TokenType.Identifier {
+
+        tempVariable.NameToken.append(token);
+        Variable variable = {
+            NameToken: CopyTokenList(tempVariable.NameToken),
+            TypeList: CopyTokenList(tempVariable.TypeList),
+        }
+        blockData.Variables.append(variable);
+        *lastType = LastTokenType.Identifier;
+        tempVariable.SetToDefaults();
+        formatData.Increment();
+        formatData.AddToFunctionLog("EXIT ProcessAfterVarType")
+        return LoopAction.Continue;
+    }
+
+    if token.Type == TokenType.RightSquareBracket {
+        *lastType = LastTokenType.RightSqBracket;
+        tempVariable.TypeList.append(token);
+        formatData.AddToFunctionLog("EXIT ProcessAfterVarType")
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.LeftSquareBracket {
+        *lastType = LastTokenType.LeftSqBracket;
+        tempVariable.TypeList.append(token);
+        formatData.AddToFunctionLog("EXIT ProcessAfterVarType")
+        return LoopAction.Continue;
+    }
+
+    formatData.UnexpectedTypeError(token, "unsupported type:" + token.Type.ToString() + "after variable");
+    formatData.AddToFunctionLog("ERROR ProcessAfterVarType")
+    return LoopAction.Error;
+}
+
+fn IntLoopAction ProcessAfterIdentifier(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    
+    formatData.AddToFunctionLog("ENTER ProcessAfterIdentifier")
+    
+    if token.Type == TokenType.Semicolon {
+        formatData.AddToFunctionLog("EXIT ProcessAfterIdentifier")
+        return LoopAction.Break;
+    }
+
+    int name_count = len(tempVariable.NameToken)
+    int type_count = len(tempVariable.TypeList)
+    if token.Type == TokenType.Equals {
+
+        ConvertToNodetypeWithValue(blockData);
+
+        if len(tempVariable.TypeList) != 0 {
+
+            Variable variable = {
+                NameToken: CopyTokenList(tempVariable.TypeList),
+                TypeList: make([]Token, 0),
+            }
+            blockData.Variables.append(variable);
+            tempVariable.TypeList = nil;
+            blockData.NodeType = NodeType.Multiple_Declarations_One_Type_One_Set_Value;
+        }
+        formatData.AddToFunctionLog("EXIT ProcessAfterIdentifier")
+        return LoopAction.Break;
+    }
+
+    if token.Type == TokenType.Comma {
+
+        if name_count == 0 && type_count != 0 {
+            Variable variable = {
+                NameToken: CopyTokenList(tempVariable.TypeList),
+                TypeList: make([]Token, 0),
+            }
+            blockData.Variables.append(variable);
+            tempVariable.SetToDefaults();
+        }
+
+        blockData.NodeType = NodeType.Multiple_Declarations_No_Value;
+        *lastType = LastTokenType.Comma;
+        formatData.AddToFunctionLog("EXIT ProcessAfterIdentifier")
+        return LoopAction.Continue;
+    }
+
+    if token.Type == TokenType.NewLine {
+
+        if type_count != 0 && name_count == 0 {
+
+            if len(blockData.Variables) != 0 {
+
+                blockData.Variables[0].NameToken = append(blockData.Variables[0].NameToken, tempVariable.TypeList[0]);
+            }
+
+            tempVariable.TypeList = nil;
+        }
+        formatData.AddToFunctionLog("EXIT ProcessAfterIdentifier")
+        return LoopAction.Break;
+    }
+
+    if token.Type == TokenType.Identifier {
+        tempVariable.NameToken.append(token);
+        Variable variable = {
+            NameToken: CopyTokenList(tempVariable.NameToken),
+            TypeList: CopyTokenList(tempVariable.TypeList),
+        }
+        blockData.Variables.append(variable);
+        *lastType = LastTokenType.Identifier;
+        tempVariable.SetToDefaults();
+        formatData.Increment();
+        formatData.AddToFunctionLog("EXIT ProcessAfterIdentifier")
+        return LoopAction.Continue;
+    }
+
+    if token.Type == TokenType.FullStop {
+        *lastType = LastTokenType.FullStop;
+        tempVariable.TypeList.append(token);
+        formatData.AddToFunctionLog("EXIT ProcessAfterIdentifier")
+        return LoopAction.Continue;
+    }
+
+    if token.Type == TokenType.RightSquareBracket {
+        *lastType = LastTokenType.RightSqBracket;
+        tempVariable.TypeList.append(token);
+        formatData.AddToFunctionLog("EXIT ProcessAfterIdentifier")
+        return LoopAction.Continue;
+    }
+
+    formatData.UnexpectedTypeError(token, "unexpected typed after identifier");
+    formatData.AddToFunctionLog("ERROR ProcessAfterIdentifier")
+    return LoopAction.Error;
+}
+
+fn IntLoopAction ProcessAfterPointer(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    if IsVarTypeEnum(token.Type) {
+        *lastType = LastTokenType.Vartype;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.LeftSquareBracket {
+        *lastType = LastTokenType.LeftSqBracket;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.Identifier {
+        *lastType = LastTokenType.Identifier;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+
+    formatData.UnexpectedTypeError(token, "unsupported type: " + token.Type.ToString() + " after '*'");
+    return LoopAction.Error;
+}
+
+fn IntLoopAction ProcessAfterLeftSqBracket(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    if token.Type == TokenType.RightSquareBracket {
+        *lastType = LastTokenType.RightSqBracket;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.IntegerValue {
+        *lastType = LastTokenType.IntegerValue;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if IsVarTypeEnum(token.Type) {
+        *lastType = LastTokenType.Vartype;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.Identifier {
+        *lastType = LastTokenType.Identifier;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.FullStop {
+        *lastType = LastTokenType.FullStop;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+
+    formatData.UnexpectedTypeError(token, "unsupported type: " + token.Type.ToString() + " after '['");
+    return LoopAction.Error;
+}
+
+fn IntLoopAction ProcessAfterRightSqBracket(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    if IsVarTypeEnum(token.Type) {
+        *lastType = LastTokenType.Vartype;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.LeftSquareBracket {
+        *lastType = LastTokenType.LeftSqBracket;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.Identifier {
+        *lastType = LastTokenType.Identifier;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.Multiply {
+        *lastType = LastTokenType.Pointer;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.Map {
+        *lastType = LastTokenType.Map;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.Interface {
+        *lastType = LastTokenType.Interface;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    formatData.UnexpectedTypeError(token, "unsupported type: " + token.Type.ToString() + " after ']'");
+    return LoopAction.Error;
+}
+
+fn IntLoopAction ProcessAfterComma(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    if IsVarTypeEnum(token.Type) {
+        *lastType = LastTokenType.Vartype;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.Identifier {
+        *lastType = LastTokenType.Identifier;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    formatData.UnexpectedTypeError(token, "unsupported type: " + token.Type.ToString() + " after ','");
+    return LoopAction.Error;
+}
+
+fn IntLastTokenType convertTokenTypeToLastTokenType(IntTokenType token_type) {
+
+    if IsVarTypeEnum(token_type) {
+        return LastTokenType.Vartype
+    }
+
+    switch token_type {
+        case TokenType.Identifier:
+            return LastTokenType.Identifier
+        case TokenType.LeftSquareBracket:
+            return LastTokenType.LeftSqBracket 
+        case TokenType.RightSquareBracket:
+            return LastTokenType.RightSqBracket 
+        case TokenType.LeftParenthesis:
+            return LastTokenType.LeftParenth 
+        case TokenType.RightParenthesis:
+            return LastTokenType.RightParenth 
+        case TokenType.Comma:
+            return LastTokenType.Comma
+        case TokenType.Semicolon:
+            return LastTokenType.Semicolon
+        case TokenType.NewLine:
+            return LastTokenType.Newline
+        case TokenType.IntegerValue:
+            return LastTokenType.IntegerValue
+        case TokenType.Map:
+            return LastTokenType.Map 
+        case TokenType.Multiply:
+            return LastTokenType.Pointer
+        case TokenType.FullStop:
+            return LastTokenType.FullStop
+        case TokenType.Interface:
+            return LastTokenType.Interface
+        case TokenType.LeftBrace:
+            return LastTokenType.LeftBrace
+        case TokenType.RightBrace:
+            return LastTokenType.RightBrace
+    }
+    return LastTokenType.Null
+}
+
+fn IntLoopAction ProcessAfterFullStop(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    
+    bool is_valid = 
+       token.Type == TokenType.Identifier ||
+       token.Type == TokenType.FullStop || 
+       token.Type == TokenType.RightSquareBracket
+
+    if is_valid == true {
+        *lastType = convertTokenTypeToLastTokenType(token.Type);
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }   
+
+    formatData.UnexpectedTypeError(token, "unsupported type: " + token.Type.ToString() + " after '.'");
+    return LoopAction.Error;
+}
+
+fn IntLoopAction ProcessAfterIntegerValue(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    if token.Type == TokenType.RightSquareBracket {
+        *lastType = LastTokenType.RightSqBracket;
+        tempVariable.TypeList.append(token);
+        //Fmt.PrintlnColor($"\tlast type was ',', add '{token.Text}' to typeList", ConsoleColor.Cyan);
+        return LoopAction.Continue;
+    }
+    formatData.UnexpectedTypeError(token, "unsupported type: " + token.Type.ToString() + " after integer value");
+    return LoopAction.Error;
+}
+
+fn IntLoopAction ProcessAfterMap(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    if token.Type == TokenType.LeftSquareBracket {
+        *lastType = LastTokenType.LeftSqBracket;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    formatData.UnexpectedTypeError(token, "unsupported type: " + token.Type.ToString() + " after 'map'");
+    return LoopAction.Error;
+}
+
+fn IntLoopAction ProcessAfterInterface(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    if token.Type == TokenType.LeftBrace {
+        *lastType = LastTokenType.LeftBrace;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    formatData.UnexpectedTypeError(token, "unsupported type: " + token.Type.ToString() + " after 'interface'");
+    return LoopAction.Error;
+}
+
+fn IntLoopAction ProcessAfterLeftBrace(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    if token.Type == TokenType.RightBrace {
+        *lastType = LastTokenType.RightBrace;
+        tempVariable.TypeList.append(token);
+        return LoopAction.Continue;
+    }
+    formatData.UnexpectedTypeError(token, "unsupported type: " + token.Type.ToString() + " after 'interface'");
+    return LoopAction.Error;
+}
+
+fn IntLoopAction ProcessAfterRightBrace(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    
+    formatData.AddToFunctionLog("ENTER ProcessAfterRightBrace")
+    
+    if token.Type == TokenType.Identifier {
+        tempVariable.NameToken.append(token);
+        Variable variable = {
+            NameToken: CopyTokenList(tempVariable.NameToken),
+            TypeList: CopyTokenList(tempVariable.TypeList),
+        }
+        blockData.Variables.append(variable);
+        *lastType = LastTokenType.Identifier;
+        tempVariable.SetToDefaults();
+        formatData.Increment();
+        formatData.AddToFunctionLog("EXIT ProcessAfterRightBrace")
+        return LoopAction.Continue;
+    }
+    formatData.UnexpectedTypeError(token, "unsupported type: " + token.Type.ToString() + " after 'interface'");
+    formatData.AddToFunctionLog("ERROR ProcessAfterRightBrace")
+    return LoopAction.Error;
+}
+
+fn IntLoopAction ProcessDeclarationToken(*FormatData formatData, *BlockData blockData, Token token, *IntLastTokenType lastType, *Variable tempVariable) {
+    switch *lastType {
+        case LastTokenType.Null:
+            return ProcessAfterNull(formatData, token, lastType, tempVariable);
+        case LastTokenType.Identifier:
+            return ProcessAfterIdentifier(formatData, blockData, token, lastType, tempVariable);
+        case LastTokenType.Vartype:
+            return ProcessAfterVarType(formatData, blockData, token, lastType, tempVariable);
+        case LastTokenType.Pointer:
+            return ProcessAfterPointer(formatData, blockData, token, lastType, tempVariable);
+
+        case LastTokenType.LeftSqBracket:
+            return ProcessAfterLeftSqBracket(formatData, blockData, token, lastType, tempVariable);
+        case LastTokenType.RightSqBracket:
+            return ProcessAfterRightSqBracket(formatData, blockData, token, lastType, tempVariable);
+        case LastTokenType.Comma:
+            return ProcessAfterComma(formatData, blockData, token, lastType, tempVariable);
+        case LastTokenType.IntegerValue:
+            return ProcessAfterIntegerValue(formatData, blockData, token, lastType, tempVariable);
+        case LastTokenType.FullStop:
+            return ProcessAfterFullStop(formatData, blockData, token, lastType, tempVariable);
+
+        case LastTokenType.Map:
+            return ProcessAfterMap(formatData, blockData, token, lastType, tempVariable);
+
+        case LastTokenType.Interface:
+            return ProcessAfterInterface(formatData, blockData, token, lastType, tempVariable);
+
+        case LastTokenType.LeftBrace:
+            return ProcessAfterLeftBrace(formatData, blockData, token, lastType, tempVariable);
+
+        case LastTokenType.RightBrace:
+            return ProcessAfterRightBrace(formatData, blockData, token, lastType, tempVariable);
+
+        default:
+		formatData.UnexpectedTypeError(token, "unsupported last type: " + lastType.ToString() + ", this type: " + token.Type.ToString())
+            return LoopAction.Error;
+    }
+}
+
+fn WriteTokens(*FormatData formatData, *BlockData blockData) {
+
+    formatData.AddToFunctionLog("ENTER WriteTokens")
+
+    switch blockData.NodeType {
+        case NodeType.Invalid:
+            break;
+        case NodeType.Single_Declaration_With_Value:
+            LoopTokensUntilLineEnd(formatData, blockData, true);
+            if blockData.Validate(formatData) == false {
+                formatData.AddToFunctionLog("ERROR WriteTokens")
+                return
+            }
+
+        case NodeType.Single_Declaration_No_Value:
+            LoopTokensUntilLineEnd(formatData, blockData, true);
+
+        case NodeType.Multiple_Declarations_One_Type_One_Set_Value:
+            LoopTokensUntilLineEnd(formatData, blockData, true);
+
+        case NodeType.Multiple_Declarations_No_Value:
+            LoopTokensUntilLineEnd(formatData, blockData, true);
+
+        case NodeType.Multiple_Declarations_With_Value:
+            formatData.UnsupportedFeatureError(blockData.StartingToken, "Multiple declarations with value, not supported yet");
+            formatData.AddToFunctionLog("ERROR WriteTokens")
+            return
+
+        case NodeType.Multiple_Declarations_Same_Type_No_Value:
+            formatData.UnsupportedFeatureError(blockData.StartingToken, "Multiple same type declarations with no value, not supported yet");
+            formatData.AddToFunctionLog("ERROR WriteTokens")
+            return
+
+        case NodeType.Multiple_Declarations_Same_Type_With_Value:
+            LoopTokensUntilLineEnd(formatData, blockData, true);
+
+        default:
+            break;
+    }
+    formatData.AddToFunctionLog("EXIT WriteTokens")
+}

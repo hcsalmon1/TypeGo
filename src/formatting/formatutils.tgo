@@ -1,0 +1,427 @@
+package formatting
+
+import (
+    . "TypeGo/core"
+    "strings"
+    "fmt"
+)
+
+fn IntLoopAction LoopUntilEndInner(*FormatData formatData, *BlockData blockData, Token token, IntTokenType lastTokenType, *BracketCounts bracket_counts, bool stopAtSemicolon) {
+    
+    formatData.SetErrorFunction("LoopUntilEndInner");
+
+    if token.Type == TokenType.LeftSquareBracket {
+        bracket_counts.OpenSqCount += 1;
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.RightSquareBracket {
+        bracket_counts.OpenSqCount -= 1;
+        return LoopAction.Continue;
+    }
+
+    if token.Type == TokenType.LeftParenthesis {
+        bracket_counts.OpenBracketCount += 1;
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.RightParenthesis {
+        bracket_counts.OpenBracketCount -= 1;
+        return LoopAction.Continue;
+    }
+
+    if token.Type == TokenType.LeftBrace {
+        bracket_counts.OpenBraceCount += 1;
+        return LoopAction.Continue;
+    }
+    if token.Type == TokenType.RightBrace {
+        bracket_counts.OpenBraceCount -= 1;
+        return LoopAction.Continue;
+    }
+
+    if bracket_counts.AreAllZero() == false {
+        return LoopAction.Continue;
+    }
+
+    if stopAtSemicolon == true {
+
+        if token.Type == TokenType.Semicolon {
+
+            blockData.Tokens.append(token);
+            return LoopAction.Break;
+        }
+    }
+    if token.Type == TokenType.NewLine {
+
+        blockData.Tokens.append(token);
+        if IsLineContinuingToken(lastTokenType) == false {
+            formatData.Increment();
+            return LoopAction.Break;
+        }
+    }
+    if token.Type == TokenType.EndComment {
+        return LoopAction.Break;
+    }
+    return LoopAction.Continue;
+}
+
+fn LoopTokensUntilLineEnd(*FormatData formatData, *BlockData blockData, bool stopAtSemicolon) {
+
+    formatData.SetErrorFunction("LoopTokensUntilLineEnd");
+
+    IntTokenType lastTokenType = TokenType.NA;
+
+    BracketCounts bracket_counts
+    bracket_counts.OpenBraceCount = 0
+    bracket_counts.OpenBracketCount = 0
+    bracket_counts.OpenSqCount = 0
+
+    for formatData.IndexInBounds() {
+
+        Token tempToken = formatData.GetToken();
+        if formatData.IsValidToken(tempToken) == false {
+            break;
+        }
+        Token token = tempToken;
+        IntLoopAction loopResult = LoopUntilEndInner(formatData, blockData, token, lastTokenType, &bracket_counts, stopAtSemicolon);
+        if loopResult == LoopAction.Break {
+            lastTokenType = token.Type;
+            break;
+        }
+
+        formatData.Increment();
+        blockData.Tokens.append(token);
+        lastTokenType = token.Type;
+    }
+
+    if lastTokenType == TokenType.Semicolon {
+
+        formatData.Increment();
+        Token tempToken = formatData.GetToken();
+        if formatData.IsValidToken(tempToken) {
+
+            if tempToken.Type == TokenType.NewLine {
+                formatData.Increment();
+            }
+        }
+    }
+}
+
+fn bool IsLineContinuingToken(IntTokenType token_type) {
+    switch token_type {
+
+	case TokenType.Minus, TokenType.Plus, TokenType.Divide, TokenType.Multiply, TokenType.Equals, TokenType.And,
+		TokenType.AndAnd, TokenType.Or, TokenType.OrOr, TokenType.PlusEquals, TokenType.MinusEquals, TokenType.MultiplyEquals,
+		TokenType.DivideEquals, TokenType.GreaterThan, TokenType.LessThan, TokenType.EqualsEquals, TokenType.GreaterThanEquals,
+		TokenType.LessThanEquals, TokenType.Modulus, TokenType.ModulusEquals, TokenType.NotEquals, TokenType.LeftBrace,
+		TokenType.LeftSquareBracket, TokenType.Comma, TokenType.FullStop:
+            return true;
+        
+        default:
+            return false;
+    }
+    return false
+}
+
+fn bool IsInfiniteWhile(*int count, int max) {
+    *count += 1
+    return *count >= max
+}
+
+fn bool IsPointerDeclaration(*FormatData formatData) {
+
+    formatData.SetErrorFunction("IsPointerDeclaration");
+
+    int index = formatData.TokenIndex;
+    IntTokenType lastType = TokenType.NA;
+    bool identifierFound = false;
+
+    for formatData.IndexInBounds() {
+
+        if index >= len(formatData.TokenList) {
+            formatData.EndOfFileError(EmptyToken());
+            return false;
+        }
+        Token token = formatData.TokenList[index];
+        if token.Type == TokenType.LeftSquareBracket {
+
+            if identifierFound == true {
+                return false;
+            }
+            return true;
+        }
+        if token.Type == TokenType.Identifier {
+
+            identifierFound = true;
+            if lastType == TokenType.Identifier {
+                return true;
+            }
+        } 
+        if IsVarTypeEnum(token.Type) {
+            return true;
+        } 
+        if IsAssignmentOperator(token.Type) {
+            return false;
+        }
+        lastType = token.Type;
+        index += 1;
+    }
+    return false;
+}
+
+fn bool HandleToken(*FormatData formatData, Token token, *[]Token returnTypeTokenList, *IntTokenType lastType) {
+    formatData.SetErrorFunction("HandleToken");
+
+    if IsVarTypeEnum(token.Type) {
+        *returnTypeTokenList = append(*returnTypeTokenList, token);
+        return false;
+    }
+
+    if token.Type == TokenType.Identifier {
+
+        if *lastType == TokenType.Identifier || *lastType == TokenType.RightBrace {
+            return true;
+        }
+        if IsVarTypeEnum(*lastType) {
+            return true;
+        }
+
+        bool wasPartOfType =
+            *lastType == TokenType.FullStop ||
+            *lastType == TokenType.RightSquareBracket ||
+            *lastType == TokenType.Multiply ||
+            *lastType == TokenType.LeftParenthesis ||
+            *lastType == TokenType.NA;
+
+        if wasPartOfType {
+            *returnTypeTokenList = append(*returnTypeTokenList, token);
+            return false;
+        }
+
+        formatData.UnexpectedTypeError(token, "Found unexpected identifier in parameters");
+        return true;
+    }
+    bool isSkippableToken =
+        token.Type == TokenType.Tab ||
+        token.Type == TokenType.NewLine ||
+        token.Type == TokenType.RightParenthesis ||
+        token.Type == TokenType.Comma;
+
+    if isSkippableToken {
+        return false;
+    }
+    *returnTypeTokenList = append(*returnTypeTokenList, token);
+    return false;
+}
+
+fn IntLoopAction VarTypeInnerCode(*FormatData formatData, *[]Token returnTypeTokenList, *int whileCount, *IntTokenType lastType) {
+    formatData.SetErrorFunction("VarTypeInnerCode");
+
+    int MAX = 10000;
+
+    if IsInfiniteWhile(whileCount, MAX) {
+        formatData.Result = FormatResult.Internal_Error;
+        formatData.ErrorDetail = "Infinite while loop in VarTypeInnerLoop, FormatUtils";
+        return LoopAction.Error;
+    }
+    int indexBefore = formatData.TokenIndex;
+
+    Token token = formatData.GetToken();
+    if formatData.IsValidToken(token) == false {
+        formatData.EndOfFileError(token);
+        return LoopAction.Return;
+    }
+
+    bool shouldBreak = HandleToken(formatData, token, returnTypeTokenList, lastType);
+    if shouldBreak == true {
+        return LoopAction.Break;
+    }
+
+    formatData.IncrementIfSame(indexBefore);
+    *lastType = token.Type;
+    return LoopAction.Continue;
+}
+
+fn FillVarType(*FormatData formatData, *[]Token returnTypeTokenList) {
+
+    formatData.SetErrorFunction("FillVarType");
+
+    int whileCount = 0;
+
+    IntTokenType lastType = TokenType.NA;
+
+    //Get to ')' and then don't increment
+    for formatData.IndexInBounds() {
+
+        IntLoopAction iterationResult = VarTypeInnerCode(formatData, returnTypeTokenList, &whileCount, &lastType);
+        if iterationResult == LoopAction.Break {
+            break;
+        }
+        if iterationResult == LoopAction.Return {
+            return;
+        }
+    }
+}
+
+fn LoopUntilRightParenthesis(*FormatData formatData, *[]Token returnTypeTokenList) {
+    formatData.SetErrorFunction("LoopUntilRightParenthesis");
+
+    int whileCount = 0;
+
+    int openParenthesisCount = 1;
+
+    fmt.Println("looping until right parenthesis")
+    for formatData.IndexInBounds() {
+        int MAX = 10000;
+
+        if IsInfiniteWhile(&whileCount, MAX) {
+            formatData.Result = FormatResult.Internal_Error;
+            formatData.ErrorDetail = "Infinite while loop in LoopUntilRightParenthesis, FormatUtils";
+            return;
+        }
+        int indexBefore = formatData.TokenIndex;
+
+        Token token = formatData.GetToken();
+        if formatData.IsValidToken(token) == false {
+            formatData.EndOfFileError(token);
+            return;
+        }
+        fmt.Printf("\t%s\n", token.Text)
+
+        *returnTypeTokenList = append(*returnTypeTokenList, token);
+
+        formatData.IncrementIfSame(indexBefore);
+
+        if token.Type == TokenType.LeftParenthesis {
+            openParenthesisCount += 1;
+        }
+
+        if token.Type == TokenType.RightParenthesis {
+            if openParenthesisCount != 1 {
+                openParenthesisCount -= 1;
+                continue;
+            }
+            break;
+        }
+    }
+}
+
+fn FindParameters(*FormatData formatData, *[]Variable parameters) {
+    formatData.SetErrorFunction("FindParameters");
+
+    int whileCount = 0;
+
+    Variable tempParameter
+    tempParameter.SetToDefaults();
+    IntTokenType lastType = TokenType.LeftParenthesis;
+
+    //Get to ')' and then don't increment
+    for formatData.IndexInBounds() {
+
+        IntLoopAction iterationResult = ParameterInnerLoop(formatData, parameters, &tempParameter, &whileCount, &lastType);
+        if iterationResult == LoopAction.Break {
+            break;
+        }
+        if iterationResult == LoopAction.Return {
+            return;
+        }
+    }
+}
+
+fn IntLoopAction ParameterInnerLoop(*FormatData formatData, *[]Variable parameters, *Variable tempParameter, *int whileCount, *IntTokenType lastType) {
+    formatData.SetErrorFunction("ParameterInnerLoop");
+    int MAX = 10000;
+
+    if IsInfiniteWhile(whileCount, MAX) {
+        formatData.Result = FormatResult.Internal_Error;
+        formatData.ErrorDetail = "infinite while loop in ParameterInnerLoop, FunctionUtils";
+        return LoopAction.Error;
+    }
+    int indexBefore = formatData.TokenIndex;
+
+    Token token = formatData.GetToken();
+    if formatData.IsValidToken(token) == false {
+        formatData.EndOfFileError(token);
+        return LoopAction.Return;
+    }
+
+    HandleParameterToken(formatData, token, tempParameter, lastType);
+
+    if token.Type == TokenType.Comma {
+        AddParameter(parameters, tempParameter);
+    }
+    if token.Type == TokenType.RightParenthesis {
+        AddParameter(parameters, tempParameter);
+        return LoopAction.Break;
+    }
+
+    formatData.IncrementIfSame(indexBefore);
+    *lastType = token.Type;
+    return LoopAction.Continue;
+}
+
+fn HandleParameterToken(*FormatData formatData, Token token, *Variable tempParameter, *IntTokenType lastType) {
+
+    if token.Type == TokenType.Identifier {
+
+        if *lastType == TokenType.Identifier || *lastType == TokenType.RightBrace {
+            tempParameter.NameToken.append(token);
+            return;
+        }
+        if IsVarTypeEnum(*lastType) {
+            tempParameter.NameToken.append(token);
+            return;
+        }
+
+        bool wasPartOfType =
+            *lastType == TokenType.FullStop ||
+            *lastType == TokenType.RightSquareBracket ||
+            *lastType == TokenType.Multiply ||
+            *lastType == TokenType.Comma ||
+            *lastType == TokenType.LeftParenthesis;
+
+        if wasPartOfType {
+            tempParameter.TypeList.append(token);
+            return;
+        }
+
+        formatData.UnexpectedTypeError(token, "Found unexpected identifier in parameters");
+        return;
+    }
+    bool isSkippableToken =
+        token.Type == TokenType.Tab ||
+        token.Type == TokenType.NewLine ||
+        token.Type == TokenType.RightParenthesis ||
+        token.Type == TokenType.Comma;
+
+    if isSkippableToken {
+        return;
+    }
+    tempParameter.TypeList.append(token);
+}
+
+fn AddParameter(*[]Variable parameters, *Variable tempParameter) {
+
+    if tempParameter.NameToken == nil {
+        return;
+    }
+    int parameter_count = len(tempParameter.TypeList)
+    if parameter_count == 0 {
+        return;
+    }
+    Variable parameterCopy;
+    parameterCopy.TypeList = make([]Token, 0)
+    for i := 0; i < parameter_count; i++ {
+        parameterCopy.TypeList.append(tempParameter.TypeList[i]);
+    }
+    parameterCopy.NameToken = CopyTokenList(tempParameter.NameToken);
+
+    *parameters = append(*parameters, parameterCopy);
+    tempParameter.SetToDefaults();
+}
+
+fn string ConcatStrings([]string slice) {
+	strings.Builder result
+	for _, s := range slice {
+		result.WriteString(s)
+	}
+	return result.String()
+}

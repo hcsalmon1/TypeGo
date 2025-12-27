@@ -1,0 +1,16 @@
+package converting
+
+import . "TypeGo/core"
+
+fn Process(*ConvertData convertData, *BlockData blockData, int nestCount) {
+    convertData.AppendString("if err != nil {{");
+    convertData.NewLineWithTabs();
+    convertData.AppendString("return ");
+
+    []Token tokenList = blockData.Tokens;
+    if len(tokenList) != 0 {
+        PrintTokens(convertData, blockData, nestCount);
+    }
+    convertData.NewLineWithTabs();
+    convertData.AppendChar('}');
+}

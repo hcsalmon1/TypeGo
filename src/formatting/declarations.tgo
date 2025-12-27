@@ -1,0 +1,112 @@
+package formatting
+
+import . "TypeGo/core"
+
+fn BlockData DeclarationLoop(*FormatData format_data, Token firstToken) {
+
+    format_data.AddToFunctionLog("ENTER DeclarationLoop")
+    format_data.ErrorFunction = "DeclarationLoop";
+
+    int whileCount = 0;
+
+    BlockData blockData = {
+        Block: nil,
+        NodeType: NodeType.Single_Declaration_No_Value,
+        StartingToken: firstToken,
+        Tokens: make([]Token, 0),
+        Variables: make([]Variable, 0),
+    };
+    Variable tempVariable = {
+        NameToken: make([]Token, 0),
+        TypeList: make([]Token, 0),
+    };
+    IntLastTokenType lastType = LastTokenType.Null;
+
+    for format_data.IndexInBounds() {
+
+        IntLoopAction result = DeclarationInnerLoop(format_data, &whileCount, &blockData, &tempVariable, &lastType);
+        if result == LoopAction.Break {
+            break;
+        }
+        if result == LoopAction.Return {
+            return blockData;
+        }
+    }
+
+    WriteTokens(format_data, &blockData);
+    format_data.AddToFunctionLog("EXIT DeclarationLoop")
+    return blockData;
+}
+
+fn IntLoopAction DeclarationInnerLoop(*FormatData format_data, *int whileCount, *BlockData blockData, *Variable tempVariable, *IntLastTokenType lastType) {
+    
+    format_data.AddToFunctionLog("ENTER DeclarationInnerLoop")
+    
+    if IsInfiniteWhile(whileCount, 10000) == true {
+        format_data.Result = FormatResult.Internal_Error;
+        format_data.ErrorDetail = "Infinite white loop in DeclarationInnerLoop";
+        return LoopAction.Error;
+    }
+
+    int previousIndex = format_data.TokenIndex;
+
+    Token tempToken = format_data.GetToken();
+    if tempToken.Type == TokenType.NA {
+        format_data.EndOfFileError(tempToken);
+        format_data.AddToFunctionLog("ERROR DeclarationInnerLoop")
+        return LoopAction.Return;
+    }
+    IntLoopAction loopResult = ProcessDeclarationToken(format_data, blockData, tempToken, lastType, tempVariable);
+    if loopResult == LoopAction.Break {
+        format_data.AddToFunctionLog("EXIT DeclarationInnerLoop")
+        return LoopAction.Break;
+    }
+    if loopResult == LoopAction.Return {
+        format_data.AddToFunctionLog("EXIT DeclarationInnerLoop")
+        return LoopAction.Return;
+    }
+
+    format_data.IncrementIfSame(previousIndex);
+    format_data.AddToFunctionLog("EXIT DeclarationInnerLoop")
+    return LoopAction.Continue;
+}
+
+fn BlockData ProcessDeclaration(*FormatData format_data, Token firstToken) {
+
+    format_data.AddToFunctionLog("ENTER ProcessDeclaration")
+
+    bool isDeclaration =
+        IsVarTypeEnum(firstToken.Type) ||
+        firstToken.Type == TokenType.LeftSquareBracket;
+
+    if isDeclaration {
+        format_data.AddToFunctionLog("EXIT ProcessDeclaration")
+        return DeclarationLoop(format_data, firstToken);
+    }
+
+    if firstToken.Type == TokenType.Multiply {
+
+        if IsPointerDeclaration(format_data) {
+            format_data.AddToFunctionLog("EXIT ProcessDeclaration")
+            return DeclarationLoop(format_data, firstToken);
+        }
+        format_data.AddToFunctionLog("EXIT ProcessDeclaration")
+        return FillNonDeclaration(format_data, firstToken);
+    }
+    format_data.AddToFunctionLog("EXIT ProcessDeclaration")
+    return EmptyBlockData();
+}
+
+fn BlockData FillNonDeclaration(*FormatData format_data, Token firstToken) {
+    format_data.AddToFunctionLog("ENTER FillNonDeclaration")
+    BlockData blockData = {
+        Block: nil,
+        NodeType: NodeType.Other,
+        StartingToken: firstToken,
+        Tokens: make([]Token, 0),
+        Variables: make([]Variable, 0),
+    };
+    LoopTokensUntilLineEnd(format_data, &blockData, true);
+    format_data.AddToFunctionLog("EXIT FillNonDeclaration")
+    return blockData;
+}

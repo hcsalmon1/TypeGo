@@ -1,0 +1,16 @@
+package formatting
+
+import . "TypeGo/core"
+
+fn BlockData ProcessGo(*FormatData formatData, Token token) {
+
+    formatData.SetErrorFunction("ProcessGo");
+
+    BlockData blockData
+    blockData.Tokens = make([]Token, 0)
+    blockData.NodeType = NodeType.Other;
+
+    LoopTokensUntilLineEnd(formatData, &blockData, true);
+
+    return blockData;
+}

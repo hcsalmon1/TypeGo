@@ -1,0 +1,532 @@
+package formatting
+
+import . "TypeGo/core"
+
+
+fn ProcessPackage(*FormatData formatData, *CodeBlock globalBlock, Token packageToken) {
+
+    formatData.SetErrorFunction("ProcessPackage");
+
+    BlockData blockData
+    blockData.Tokens = make([]Token, 0)
+    blockData.NodeType = NodeType.Package;
+    blockData.StartingToken = packageToken;
+
+    blockData.Tokens.append(packageToken);
+
+    Token packageNameToken = formatData.GetNextToken(); 
+    if formatData.IsValidToken(packageNameToken) == false {
+        formatData.EndOfFileError(packageToken);
+        return;
+    }
+    if packageNameToken.Type != TokenType.Identifier {
+        formatData.MissingExpectedTypeError(packageNameToken, "Missing identifier in package");
+        return;
+    }
+
+    Token newLineToken = formatData.GetNextToken();
+    if formatData.IsValidToken(newLineToken) == false {
+        formatData.EndOfFileError(packageToken);
+        return;
+    }
+    blockData.Tokens.append(packageNameToken);
+    blockData.Tokens.append(newLineToken);
+    formatData.Increment();
+
+    globalBlock.BlockDataList.append(blockData);
+}
+
+fn IntLoopAction MultiImportInnerLoop(*FormatData formatData, *BlockData blockData, Token token, *IntTokenType lastTokenType) {
+
+    formatData.SetErrorFunction("MultiImportInnerLoop");
+
+    bool isValid;
+
+    switch token.Type {
+
+        case TokenType.StringValue:
+
+            isValid =
+                *lastTokenType == TokenType.Identifier ||
+                *lastTokenType == TokenType.FullStop ||
+                *lastTokenType == TokenType.NewLine ||
+                *lastTokenType == TokenType.Comment ||
+                *lastTokenType == TokenType.EndComment;
+
+            if isValid {
+                blockData.Tokens = append(blockData.Tokens, token);
+                break;
+            }
+            formatData.UnexpectedTypeError(token, "invalid import lasttype" + lastTokenType.ToString() + " token: " + token.Text);
+            return LoopAction.Return;
+
+        case TokenType.Identifier:
+            isValid =
+                *lastTokenType == TokenType.NewLine ||
+                *lastTokenType == TokenType.EndComment;
+
+            if isValid {
+                blockData.Tokens = append(blockData.Tokens, token);
+                break;
+            }
+            formatData.UnexpectedTypeError(token, "invalid import lasttype " + lastTokenType.ToString() + " token: " + token.Text);
+            return LoopAction.Return;
+
+        case TokenType.Comment:
+            isValid =
+                *lastTokenType == TokenType.NewLine ||
+                *lastTokenType == TokenType.EndComment;
+
+            if isValid {
+                blockData.Tokens = append(blockData.Tokens, token);
+                break;
+            }
+            formatData.UnexpectedTypeError(token, "invalid import lasttype " + lastTokenType.ToString() + " token: " + token.Text);
+            break;
+
+        case TokenType.EndComment:
+            break;
+
+        case TokenType.NewLine:
+            isValid =
+                *lastTokenType == TokenType.StringValue ||
+                *lastTokenType == TokenType.LeftParenthesis ||
+                *lastTokenType == TokenType.NewLine ||
+                *lastTokenType == TokenType.Comment ||
+                *lastTokenType == TokenType.EndComment;
+
+            if isValid {
+                blockData.Tokens = append(blockData.Tokens, token);
+                break;
+            }
+            formatData.UnexpectedTypeError(token, "invalid import lasttype " + lastTokenType.ToString() + " token: " + token.Text);
+            return LoopAction.Return;
+
+        case TokenType.FullStop:
+            blockData.Tokens = append(blockData.Tokens, token);
+            return LoopAction.Continue;
+
+        case TokenType.RightParenthesis:
+            blockData.Tokens = append(blockData.Tokens, token);
+            formatData.Increment();
+            return LoopAction.Break;
+
+        default:
+            formatData.UnexpectedTypeError(token, "invalid import lasttype " + lastTokenType.ToString() + " token: " + token.Text);
+            return LoopAction.Return;
+    }
+    return LoopAction.Continue;
+}
+
+fn ProcessMultiImport(*FormatData formatData, *CodeBlock globalBlock, *BlockData blockData, Token leftParenthToken) {
+ 
+    formatData.SetErrorFunction("ProcessMultiImport");
+
+    blockData.Tokens.append(leftParenthToken);
+    formatData.Increment();
+    IntTokenType lastTokenType = TokenType.LeftParenthesis;
+    blockData.NodeType = NodeType.Multi_Line_Import;
+
+    for formatData.IndexInBounds() {
+
+        int previousIndex = formatData.TokenIndex;
+        Token tempToken = formatData.GetToken();
+        if formatData.IsValidToken(tempToken) == false {
+            formatData.EndOfFileError(leftParenthToken);
+            return;
+        }
+        Token token = tempToken;
+
+        IntLoopAction result = MultiImportInnerLoop(formatData, blockData, token, &lastTokenType);
+        if result == LoopAction.Return {
+            return;
+        } 
+        if result == LoopAction.Break {
+            break;
+        }
+
+        lastTokenType = token.Type;
+        formatData.IncrementIfSame(previousIndex);
+    }
+
+    globalBlock.BlockDataList.append(*blockData);
+}
+
+fn ProcessImport(*FormatData formatData, *CodeBlock globalBlock, Token packageToken) {
+    formatData.SetErrorFunction("ProcessImport");
+
+    BlockData blockData
+    blockData.Tokens = make([]Token, 0)
+    blockData.StartingToken = packageToken;
+    blockData.Tokens.append(packageToken);
+
+    Token tempToken = formatData.GetNextToken();
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(packageToken);
+        return;
+    }
+    Token nextToken = tempToken; 
+
+    if nextToken.IsType(TokenType.LeftParenthesis) {
+        ProcessMultiImport(formatData, globalBlock, &blockData, nextToken);
+        return;
+    }
+    ProcessSingleImport(formatData, globalBlock, &blockData, &nextToken);
+}
+
+fn ProcessSingleImport(*FormatData formatData, *CodeBlock globalBlock, *BlockData blockData, *Token nextToken) {
+
+    formatData.SetErrorFunction("ProcessSingleImport");
+
+    Token tempToken = EmptyToken()
+
+    blockData.NodeType = NodeType.Single_Import;
+    //Is Alias
+    if nextToken.Type == TokenType.Identifier {
+
+        blockData.NodeType = NodeType.Single_Import_With_Alias;
+        blockData.Tokens.append(*nextToken);
+
+        tempToken = formatData.GetNextToken();
+        if formatData.IsValidToken(tempToken) == false {
+            formatData.EndOfFileError(*nextToken);
+            return;
+        }
+        *nextToken = tempToken;
+    }
+    if nextToken.Type == TokenType.FullStop {
+
+        blockData.Tokens.append(*nextToken);
+        Token spaceToken = {
+            Text: " ", 
+            Type: TokenType.StringValue,
+            LineNumber: 0,
+            CharNumber: 0,
+        }
+        blockData.Tokens.append(spaceToken);
+
+        tempToken = formatData.GetNextToken();
+        if formatData.IsValidToken(tempToken) == false {
+            formatData.EndOfFileError(*nextToken);
+            return;
+        }
+        *nextToken = tempToken;
+    }
+    //Import name
+    if nextToken.Type == TokenType.StringValue {
+
+        blockData.Tokens.append(*nextToken);
+        tempToken = formatData.GetNextToken();
+        if formatData.IsValidToken(tempToken) == false {
+            formatData.EndOfFileError(*nextToken);
+            return;
+        }
+        *nextToken = tempToken;
+    }
+    //new line
+    if (*nextToken).Type == TokenType.NewLine {
+        blockData.Tokens.append(*nextToken);
+        globalBlock.BlockDataList.append(*blockData);
+        return;
+    }
+    formatData.UnexpectedTypeError(*nextToken, "unexpected type in import");
+}
+
+fn ProcessStruct(*FormatData formatData, *CodeBlock globalBlock, Token structToken) {
+    formatData.SetErrorFunction("ProcessStruct");
+
+    BlockData blockData
+    blockData.Tokens = make([]Token, 0)
+    blockData.StartingToken = structToken;
+    blockData.NodeType = NodeType.Struct_Declaration;
+
+    //Add struct name
+    Token tempToken = formatData.GetNextToken();
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(tempToken);
+        return;
+    }
+    Token structNameToken = tempToken;
+    blockData.Tokens.append(structNameToken);
+
+    if formatData.ExpectNextType(TokenType.LeftBrace, "missing expected '{' in struct declaration") == false { 
+        return;
+    }
+    formatData.Increment();
+    formatData.IncrementIfNewLine();
+
+    formatData.AddToProcessLog("Struct body " + structNameToken.Text)
+    formatData.IncreaseLogIndent()
+
+    CodeBlock structBlock = FillStructBody(formatData);
+
+    formatData.DecreaseLogIndent()
+    formatData.AddToProcessLog("} " + structNameToken.Text)
+
+    if formatData.IsError() {
+        return;
+    }
+    if formatData.ExpectType(TokenType.RightBrace, "missing expected '}' in struct declaration") == false {
+        return;
+    }
+    formatData.Increment();
+    blockData.Block = &structBlock;
+    globalBlock.BlockDataList.append(blockData);
+}
+
+fn ProcessEnum(*FormatData formatData, *CodeBlock globalBlock, Token structToken) {
+    formatData.SetErrorFunction("ProcessEnum");
+
+    BlockData blockData
+    blockData.Tokens = make([]Token, 0)
+    blockData.StartingToken = structToken;
+    blockData.NodeType = NodeType.Enum_Declaration;
+
+    //Add struct name
+    Token tempToken = formatData.GetNextToken();
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(tempToken);
+        return;
+    }
+    Token enumNameToken = tempToken;
+    blockData.Tokens.append(enumNameToken);
+
+    if formatData.ExpectNextType(TokenType.LeftBrace, "missing expected '{' in enum declaration") == false {
+        return;
+    }
+    formatData.Increment();
+    formatData.IncrementIfNewLine();
+
+    CodeBlock enumBlock = FillEnumBody(formatData);
+    if formatData.IsError() {
+        return;
+    }
+    if formatData.ExpectType(TokenType.RightBrace, "missing expected '}' in enum declaration") == false {
+        return;
+    }
+    formatData.Increment();
+    blockData.Block = &enumBlock;
+    globalBlock.BlockDataList.append(blockData);
+}
+
+fn ProcessEnumstruct(*FormatData formatData, *CodeBlock globalBlock, Token structToken) {
+    formatData.SetErrorFunction("ProcessEnumStruct");
+
+    BlockData blockData
+    blockData.Tokens = make([]Token, 0)
+    blockData.StartingToken = structToken;
+    blockData.NodeType = NodeType.Enum_Struct_Declaration;
+
+    //Add struct name
+    Token tempToken = formatData.GetNextToken();
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(tempToken);
+        return;
+    }
+
+    Token enumNameToken = tempToken;
+    blockData.Tokens.append(enumNameToken);
+
+    tempToken = formatData.GetNextToken();
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(tempToken);
+        return;
+    }
+
+    if tempToken.Type == TokenType.Colon {
+
+        blockData.NodeType = NodeType.Enum_Struct_Declaration_With_Alias;
+
+        tempToken = formatData.GetNextToken();
+        if formatData.IsValidToken(tempToken) == false {
+            formatData.EndOfFileError(tempToken);
+            return;
+        }
+        if tempToken.Type != TokenType.Identifier {
+            formatData.MissingExpectedTypeError(tempToken, "Missing alias identifier in enumstruct");
+            return;
+        }
+        blockData.VarName = tempToken.Text;
+        formatData.Increment();
+    }
+    if formatData.ExpectType(TokenType.LeftBrace, "missing expected '{' in enum declaration") == false {
+        return;
+    }
+    formatData.Increment();
+    formatData.IncrementIfNewLine();
+
+    CodeBlock enumBlock = FillEnumBody(formatData);
+    if formatData.IsError() {
+        return;
+    }
+    if formatData.ExpectType(TokenType.RightBrace, "missing expected '}' in enum declaration") == false {
+        return;
+    }
+    formatData.Increment();
+    blockData.Block = &enumBlock;
+    globalBlock.BlockDataList.append(blockData);
+}
+
+fn CodeBlock FillEnumBody(*FormatData formatData) {
+
+    formatData.SetErrorFunction("FillEnumBody");
+
+    CodeBlock block = {
+        BlockDataList: make([]BlockData, 0),
+    };
+
+    BlockData tempBlockData;
+    tempBlockData.NodeType = NodeType.Enum_Variable
+
+    int whileCount = 0;
+
+    for formatData.IndexInBounds() {
+
+        whileCount += 1;
+        if whileCount > 10000 {
+            formatData.Result = FormatResult.Infinite_While_Loop;
+            return block;
+        }
+
+        Token token = formatData.GetToken();
+        if formatData.IsValidToken(token) == false {
+            formatData.EndOfFileError(token);
+            return block;
+        }
+        if token.Type == TokenType.Fn {
+			ProcessFunction(formatData, &block.MethodList, token); 
+			formatData.Increment(); 
+			continue 
+		}
+        if token.Type == TokenType.Comment {
+            formatData.Increment()
+			continue
+        }
+        if token.Type == TokenType.Comma {
+			formatData.Increment()
+			continue
+		}
+        if token.Type == TokenType.NewLine {
+            block.BlockDataList.append(tempBlockData);
+            tempBlockData = BlockData{}
+            tempBlockData.NodeType = NodeType.Enum_Variable
+            formatData.Increment();
+            continue;
+        }
+        if token.Type == TokenType.RightBrace {
+            break;
+        }
+
+        tempBlockData.Tokens.append(token);
+
+        formatData.Increment();
+    }
+
+    return block;
+}
+
+fn ProcessConstant(*FormatData formatData, *CodeBlock globalBlock, Token constToken) {
+    formatData.SetErrorFunction("ProcessConstant");
+
+    BlockData blockData = {
+        Block: nil,
+        NodeType: NodeType.Constant_Global_Variable,
+        StartingToken: constToken,
+        Tokens: make([]Token, 0),
+        Variables: make([]Variable, 0),
+    };
+
+    formatData.Increment();
+    Token tempToken = formatData.GetToken();
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(tempToken);
+        return;
+    }
+    if tempToken.Type == TokenType.Identifier {
+        blockData.Tokens.append(tempToken);
+        formatData.Increment();
+        LoopValue(formatData, globalBlock, blockData);
+        return;
+    }
+    if IsVarTypeEnum(tempToken.Type) == true {
+
+        blockData.NodeType = NodeType.Constant_Global_Variable_With_Type;
+        Variable variable = {
+            TypeList: make([]Token, 0),
+            NameToken: make([]Token, 0),
+        }
+        variable.TypeList.append(tempToken);
+        formatData.Increment();
+        tempToken = formatData.GetToken();
+        if formatData.IsValidToken(tempToken) == false {
+            formatData.EndOfFileError(tempToken);
+            return;
+        }
+        if tempToken.Type != TokenType.Identifier {
+            formatData.UnexpectedTypeError(tempToken, "missing expended identifier in constant variable");
+        }
+
+        variable.NameToken.append(tempToken);
+        blockData.Variables.append(variable);
+        formatData.Increment();
+
+        LoopValue(formatData, globalBlock, blockData);
+
+    }
+}
+
+fn LoopValue(*FormatData formatData, *CodeBlock globalBlock, BlockData blockData) {
+    formatData.SetErrorFunction("LoopValue");
+
+    for formatData.IndexInBounds() {
+        Token token = formatData.GetToken();
+        if formatData.IsValidToken(token) == false {
+            formatData.EndOfFileError(token);
+            return;
+        }
+        if token.Type == TokenType.NewLine {
+            break;
+        }
+        blockData.Tokens.append(token);
+        formatData.Increment();
+    }
+
+    globalBlock.BlockDataList.append(blockData);
+}
+
+fn Process(*FormatData formatData, *CodeBlock globalBlock, Token interfaceToken) {
+    formatData.SetErrorFunction("ProcessInterface");
+
+    BlockData blockData
+    blockData.Tokens = make([]Token, 0)
+    blockData.StartingToken = interfaceToken;
+    blockData.NodeType = NodeType.Interface_Declaration;
+
+    //Add struct name
+    Token tempToken = formatData.GetNextToken();
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(tempToken);
+        return;
+    }
+    Token structNameToken = tempToken;
+    blockData.Tokens.append(structNameToken);
+
+    if formatData.ExpectNextType(TokenType.LeftBrace, "missing expected '{' in interface declaration") == false {
+        return;
+    }
+    formatData.Increment();
+    formatData.IncrementIfNewLine();
+
+    CodeBlock structBlock = FillInterfaceBody(formatData);
+    if formatData.IsError() {
+        return;
+    }
+    if formatData.ExpectType(TokenType.RightBrace, "missing expected '}' in interface declaration") == false {
+        return;
+    }
+    formatData.Increment();
+    blockData.Block = &structBlock;
+    globalBlock.BlockDataList.append(blockData);
+}
+
+

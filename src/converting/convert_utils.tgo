@@ -1,0 +1,983 @@
+package converting
+
+import (
+    . "TypeGo/core"
+)
+
+fn PrintConstant(*ConvertData convertData, *BlockData blockData, int nestCount) {
+    convertData.AppendString("const ");
+    if len(blockData.Variables) == 0 {
+        convertData.ConvertResult = ConvertResult.No_Token_In_Node;
+        convertData.ErrorDetail = "no variable tokens in constant declaration";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    Variable variable = blockData.Variables[0];
+    if variable.NameToken == nil {
+        convertData.ConvertResult = ConvertResult.Null_Token;
+        convertData.ErrorDetail = "null name token in constant declaration";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    convertData.AppendToken(variable.NameToken[0]);
+    convertData.AppendChar(' ');
+    if len(variable.TypeList) == 0 {
+        convertData.ConvertResult = ConvertResult.No_Token_In_Node;
+        convertData.ErrorDetail = "no variable type in constant declaration";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    convertData.AppendString(variable.TypeList[0].Text);
+    PrintTokens(convertData, blockData, nestCount);
+}
+
+fn ProcessSingleDeclarationNoValue(*ConvertData convertData, *BlockData blockData, int nestCount) {
+
+    []byte string_builder = make(0)
+
+    []Variable variables = blockData.Variables;
+    if len(variables) == 0 {
+        convertData.ConvertResult = ConvertResult.No_Token_In_Node;
+        convertData.ErrorDetail = "no variables in single declaration";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    for varIndex := 0; varIndex < len(variables); varIndex++ {
+
+        []Token varTypeTokenList = variables[varIndex].TypeList;
+
+        if varTypeTokenList == nil {
+            convertData.UnexpectedTypeError(blockData.StartingToken, "Type is invalid in single declaration");
+            return;
+        }
+
+        string varTypeAsText = JoinTextInListOfTokens(&varTypeTokenList);
+        if varTypeAsText == "" {
+            convertData.UnexpectedTypeError(blockData.StartingToken, "Type is invalid in single declaration");
+            return;
+        }
+
+        []Token varNameList = variables[varIndex].NameToken;
+
+        for nameTokenIndex := 0; nameTokenIndex < len(varNameList); nameTokenIndex++ {
+
+            Token nameToken = variables[varIndex].NameToken[nameTokenIndex];
+            if nameToken.Type == TokenType.NA {
+                convertData.UnexpectedTypeError(blockData.StartingToken, "Variable name is invalid in single declaration");
+                return;
+            }
+
+            if nameTokenIndex != 0 {
+                string_builder.append(',');
+                string_builder.append(' ');
+            }
+            for i := 0; i < len(nameToken.Text); i++ {
+                string_builder.append(nameToken.Text[i]);
+            }
+            
+        }
+
+        convertData.AppendString("var " + string(string_builder) + " " + varTypeAsText);
+    }
+}
+
+fn ProcessChannelDeclarationNoValue(*ConvertData convertData, *BlockData blockData, int nestCount) {
+    
+    []Variable variables = blockData.Variables;
+    if len(variables) == 0 {
+        convertData.ConvertResult = ConvertResult.No_Token_In_Node;
+        convertData.ErrorDetail = "no variables in single declaration";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    for i := 0; i < len(variables); i++ {
+
+        []Token varTypeTokenList = variables[i].TypeList;
+
+        if varTypeTokenList == nil {
+            convertData.ConvertResult = ConvertResult.Unexpected_Type;
+            convertData.ErrorDetail = "Type is invalid in single declaration";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        string varTypeAsText = JoinTextInListOfTokens(&varTypeTokenList);
+        if varTypeAsText == "" {
+            convertData.ConvertResult = ConvertResult.Unexpected_Type;
+            convertData.ErrorDetail = "Type is invalid in single declaration";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        Token nameToken = variables[i].NameToken[0];
+        if nameToken.Type == TokenType.NA {
+            convertData.ConvertResult = ConvertResult.Unexpected_Type;
+            convertData.ErrorDetail = "Variable name is invalid in single declaration";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        convertData.AppendString("var " + nameToken.Text + " chan " + varTypeAsText);
+
+    }
+}
+
+fn ProcessChannelDeclarationWithValue(*ConvertData convertData, *BlockData blockData, int nestCount) {
+
+    []Token tokens = blockData.Tokens;
+    []Variable variables = blockData.Variables;
+    if len(variables) == 0 {
+        convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+        convertData.ErrorDetail = "No variables in single declaration with value";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    if len(tokens) == 0 {
+        convertData.ConvertResult = ConvertResult.No_Token_In_Node;
+        convertData.ErrorDetail = "No tokens in single declaration with value";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    for i := 0; i < len(variables); i++ {
+
+        []Token varTypeTokenList = variables[i].TypeList;
+
+        if varTypeTokenList == nil {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = "invalid var type in single declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        string varTypeAsText = JoinTextInListOfTokens(&varTypeTokenList)
+        if varTypeAsText == "" {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = "invalid var type text in single declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        Token nameToken = variables[i].NameToken[0];
+        if nameToken.Text == "" {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = "No variable name in single declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        convertData.AppendString("var " + nameToken.Text + " chan " + varTypeAsText + " ");
+        PrintTokensDeclaration(convertData, blockData, nestCount, false, varTypeAsText);
+    }
+}
+
+fn ProcessSingleDeclarationWithValue(*ConvertData convertData, *BlockData blockData, int nestCount) {
+    
+    []Token tokens = blockData.Tokens;
+    []Variable variables = blockData.Variables;
+    if len(variables) == 0 {
+        convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+        convertData.ErrorDetail = "No variables in single declaration with value";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    if len(tokens) == 0 {
+        convertData.ConvertResult = ConvertResult.No_Token_In_Node;
+        convertData.ErrorDetail = "No tokens in single declaration with value";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    for i := 0; i < len(variables); i++ {
+
+        []Token varTypeTokenList = variables[i].TypeList;
+
+        if varTypeTokenList == nil {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = "invalid var type in single declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        string varTypeAsText = JoinTextInListOfTokens(&varTypeTokenList);
+        if varTypeAsText == "" {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = "invalid var type text in single declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        Token nameToken = variables[i].NameToken[0];
+        if nameToken.Type == TokenType.NA {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = "No variable name in single declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        bool should_add_type = true
+
+        if len(varTypeTokenList) > 2 {
+
+            bool is_inferred_array = 
+                varTypeTokenList[0].Type == TokenType.LeftSquareBracket &&
+                varTypeTokenList[1].Type == TokenType.FullStop
+
+            if is_inferred_array == true {
+                should_add_type = false
+            }
+        }
+
+        if should_add_type == true {
+            convertData.AppendString("var " + nameToken.Text + " " + varTypeAsText + " ");
+        } else {
+            convertData.AppendString("var " + nameToken.Text + " ");
+        }
+        PrintTokensDeclaration(convertData, blockData, nestCount, false, varTypeAsText);
+    }
+    convertData.NewLineWithTabs()
+}
+
+fn ProcessMultipleDeclarationNoValue(*ConvertData convertData, *BlockData blockData, int nestCount) {
+
+    []Token tokens = blockData.Tokens;
+    []Variable variables = blockData.Variables;
+    if len(variables) == 0 {
+        convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+        convertData.ErrorDetail = "No variables in multiple declaration with value";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    if len(tokens) == 0 {
+        convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+        convertData.ErrorDetail = "No Tokens in multiple declaration with value";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    for  i := 0; i < len(variables); i++ {
+
+        []Token varTypeTokenList = variables[i].TypeList;
+
+        if varTypeTokenList == nil {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = " var type is invalid in multiple declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        string varTypeAsText = JoinTextInListOfTokens(&varTypeTokenList);
+        if varTypeAsText == "" {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = "var type text is invalid in multiple declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        []Token varNameTokenList = variables[i].NameToken;
+
+        convertData.AppendChar('v');
+        convertData.AppendChar('a');
+        convertData.AppendChar('r');
+        convertData.AppendChar(' ');
+
+        for varNameIndex := 0; varNameIndex < len(varNameTokenList); varNameIndex++ {
+            Token nameToken = varNameTokenList[varNameIndex];
+            if nameToken.Text == "" {
+                convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                convertData.ErrorDetail = "name Token is null in multiple declaration with value";
+                convertData.ErrorToken = blockData.StartingToken;
+                return;
+            }
+
+            if varNameIndex != 0 {
+                convertData.AppendChar(',');
+                convertData.AppendChar(' ');
+            }
+            convertData.AppendString(nameToken.Text);
+        }
+
+        convertData.AppendString(" " + varTypeAsText + "\n\t");
+    }
+
+    convertData.AppendChar(' ');
+    PrintTokensDeclaration(convertData, blockData, nestCount, false, "");
+}
+
+fn ProcessMultipleDeclarationWithValue(*ConvertData convertData, *BlockData blockData, int nestCount) {
+    []Token tokens = blockData.Tokens;
+    []Variable variables = blockData.Variables;
+    if len(variables) == 0 {
+        convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+        convertData.ErrorDetail = "No variables in multiple declaration with value";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    if len(tokens) == 0 {
+        convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+        convertData.ErrorDetail = "No Tokens in multiple declaration with value";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    for i := 0; i < len(variables); i++ {
+
+        []Token varTypeTokenList = variables[i].TypeList;
+
+        if varTypeTokenList == nil {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = " var type is invalid in multiple declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        string varTypeAsText = JoinTextInListOfTokens(&varTypeTokenList);
+        if varTypeAsText == "" {
+            //convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            //convertData.ErrorDetail = "var type text is invalid in multiple declaration with value";
+            //convertData.ErrorToken = blockData.StartingToken;
+            continue;
+        }
+
+        Token nameToken = variables[i].NameToken[0];
+        if nameToken.Type == TokenType.NA {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = "name Token is null in multiple declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        convertData.AppendString("var " + nameToken.Text + " " + varTypeAsText + "\n\t");
+    }
+
+    for i := 0; i < len(variables); i++ {
+
+        if len(variables[i].NameToken) == 0 {
+            continue;
+        }
+        Token nameToken = variables[i].NameToken[0];
+        if nameToken.Type == TokenType.NA {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = "name Token is null in multiple declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        if i != 0 {
+            convertData.AppendChar(',');
+            convertData.AppendChar(' ');
+        }
+        convertData.AppendString(nameToken.Text);
+    }
+    convertData.AppendChar(' ');
+    PrintTokensDeclaration(convertData, blockData, nestCount, false, "");
+}
+
+fn ProcessMultipleDeclarationWithSetValue(*ConvertData convertData, *BlockData blockData, int nestCount) {
+    []Token tokens = blockData.Tokens;
+    []Variable variables = blockData.Variables;
+    if len(variables) == 0 {
+        convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+        convertData.ErrorDetail = "No variables in multiple declaration with value";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    if len(tokens) == 0 {
+        convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+        convertData.ErrorDetail = "No Tokens in multiple declaration with value";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+
+    for i := 0; i < len(variables); i++ {
+        if i != 0 {
+            convertData.AppendChar(';');
+            convertData.AppendChar(' ');
+        }
+
+        []Token varTypeTokenList = variables[i].TypeList;
+
+        if varTypeTokenList == nil {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = " var type is invalid in multiple declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        string varTypeAsText = JoinTextInListOfTokens(&varTypeTokenList);
+
+        if len(variables[i].NameToken) == 0 {
+            continue;
+        }
+
+        Token nameToken = variables[i].NameToken[0];
+        if nameToken.Type == TokenType.NA {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = "name Token is null in multiple declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        if varTypeAsText == "" {
+            continue;
+        }
+
+        convertData.AppendString("var " + nameToken.Text + " " + varTypeAsText);
+    }
+    convertData.NewLineWithTabs();
+
+    for i := 0; i < len(variables); i++ {
+
+        Token nameToken = EmptyToken();
+
+        if len(variables[i].NameToken) == 0 {
+
+            []Token varTypeTokenList = variables[i].TypeList;
+            string varTypeAsText = JoinTextInListOfTokens(&varTypeTokenList);
+
+            if varTypeAsText == "" {
+                convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+                convertData.ErrorDetail = "name Token is null in multiple declaration with value";
+                convertData.ErrorToken = blockData.StartingToken;
+                return;
+            }
+
+        } else {
+            nameToken = variables[i].NameToken[0];
+        }
+
+
+        if nameToken.Text == "" {
+            convertData.ConvertResult = ConvertResult.Missing_Expected_Type;
+            convertData.ErrorDetail = "name Token is null in multiple declaration with value";
+            convertData.ErrorToken = blockData.StartingToken;
+            return;
+        }
+
+        if i != 0 {
+            convertData.AppendChar(',');
+            convertData.AppendChar(' ');
+        }
+        convertData.AppendString(nameToken.Text);
+    }
+    convertData.AppendChar(' ');
+    PrintTokensDeclaration(convertData, blockData, nestCount, false, "");
+}
+
+fn WriteVarTypeText(*ConvertData convertData, string varTypeAsText) {
+
+    byte firstChar = varTypeAsText[0];
+
+    if firstChar == '*' {
+
+        []byte charArray = []byte(varTypeAsText)
+        charArray[0] = '&';
+        convertData.AppendString(string(charArray));
+        return;
+    }
+    convertData.AppendString(varTypeAsText);
+}
+
+fn PrintTokensDeclaration(*ConvertData convertData, *BlockData blockData, int nestCount, bool newLine, string varTypeAsText) {
+
+    if len(blockData.Tokens) == 0 {
+        convertData.NoTokenError(blockData.StartingToken, "no tokens in blockData");
+        return;
+    }
+    IntTokenType lastType = TokenType.NA;
+    bool inMake = false;
+    bool addedSpace = false;
+
+    for i := 0; i < len(blockData.Tokens); i++ {
+
+        Token token = blockData.Tokens[i];
+
+        if token.Type == TokenType.NewLine {
+            convertData.NewLineWithTabs();
+            lastType = token.Type;
+            continue;
+        }
+        if i == 1 {
+            if token.Type == TokenType.LeftBrace {
+                WriteVarTypeText(convertData, varTypeAsText);
+            }
+        }
+        if i == 2 || i == 1 {
+
+            if lastType == TokenType.Make {
+
+                if token.Type == TokenType.LeftParenthesis {
+                    convertData.AppendChar('(');
+                    convertData.AppendString(varTypeAsText);
+                    inMake = true;
+                    continue;
+                }
+            }
+        }
+        if inMake == true {
+
+            if token.Type != TokenType.RightParenthesis {
+                convertData.AppendChar(',');
+                convertData.AppendChar(' ');
+            }
+            inMake = false;
+        }
+
+        AddSpaceBefore(convertData, token.Type, lastType, i, addedSpace);
+        convertData.AppendString(token.Text);
+        addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i);
+        lastType = token.Type;
+    }
+}
+
+fn ProcessInterfaceDeclaration(*ConvertData convertData, *BlockData blockData, int nestCount) {
+    
+    if len(blockData.Tokens) == 0 {
+        convertData.ConvertResult = ConvertResult.Internal_Error;
+        convertData.ErrorDetail = "No tokens in interface declaration";
+        return;
+    }
+
+    //first token is the name of the interface
+    Token interfaceNameToken = blockData.Tokens[0];
+
+    if interfaceNameToken.Type == TokenType.NA {
+        convertData.ConvertResult = ConvertResult.Internal_Error;
+        convertData.ErrorDetail = "interface name token is null in interface declaration";
+        return;
+    }
+
+    //block has method list and that's all, 0 count is blank interface
+    convertData.AppendString("type " + interfaceNameToken.Text + " interface {\n\t");
+
+    if blockData.Block == nil {
+        convertData.ConvertResult = ConvertResult.Internal_Error;
+        convertData.ErrorDetail = "Block is null in interface declaration";
+        return;
+    }
+
+    []Function methodList = blockData.Block.MethodList;
+
+    if len(methodList) == 0 {
+        EndInterface(convertData);
+        return;
+    }
+
+    for i := 0; i < len(methodList); i++ {
+
+        Function function = methodList[i];
+
+		convertData.AppendString(function.Name+"(")
+
+        PrintParameters(convertData, &function);
+        convertData.GeneratedCode.append(')');
+        convertData.GeneratedCode.append(' ');
+        if function.ReturnType != "" {
+			convertData.AppendString(function.ReturnType)
+            convertData.GeneratedCode.append(' ');
+        }
+        convertData.GeneratedCode.append('\n');
+        convertData.GeneratedCode.append('\t');
+    }
+
+    EndInterface(convertData);
+}
+
+fn EndInterface(*ConvertData convertData) {
+    convertData.AppendChar('\r');
+    convertData.AppendChar('}');
+    convertData.AppendChar('\n');
+}
+
+fn PrintParametersInterface(*ConvertData convertData, Function function) {
+
+    []Variable parameters = function.Parameters;
+    if len(parameters) == 0 {
+        return;
+    }
+
+    for parameterIndex := 0; parameterIndex < len(parameters); parameterIndex++ {
+
+        Variable parameter = parameters[parameterIndex];
+        if parameter.NameToken[0].Type == TokenType.NA {
+            convertData.ConvertResult = ConvertResult.Internal_Error;
+            convertData.ErrorDetail = "name token is null in PrintParameters";
+            return;
+        }
+        string typeAsText = JoinTextInListOfTokens(&parameter.TypeList);
+        if typeAsText == "" {
+            convertData.ConvertResult = ConvertResult.Internal_Error;
+            convertData.ErrorDetail = "var type text is null in PrintParameters";
+            return;
+        }
+        if parameterIndex != 0 {
+            convertData.GeneratedCode.append(',');
+            convertData.GeneratedCode.append(' ');
+        }
+		convertData.AppendString(parameter.NameToken[0].Text+" "+typeAsText)
+    }
+}
+
+fn AddMethodPrefix(*ConvertData convertData, string varName) {
+
+    if convertData.MethodType == MethodType.None {
+        return;
+    }
+
+    if len(convertData.MethodVarNames) == 0 {
+        return;
+    }
+    if IsMethodVar(convertData, varName) == false {
+        return;
+    }
+
+    byte firstLetter = convertData.StructName[0];
+    convertData.AppendChar(firstLetter);
+    convertData.AppendChar('.');
+    return;
+}
+
+fn bool IsMethodVar(*ConvertData convertData, string varName) {
+
+    for i := 0; i < len(convertData.MethodVarNames); i++ {
+
+        string name = convertData.MethodVarNames[i];
+        if name == varName {
+            return true;
+        }
+    }
+    return false;
+}
+
+fn PrintTokens(*ConvertData convertData, *BlockData blockData, int nestCount) {
+
+    if len(blockData.Tokens) == 0 {
+        convertData.NoTokenError(blockData.StartingToken, "no tokens in blockData");
+        return;
+    }
+    IntTokenType lastType = TokenType.NA;
+    bool addedSpace = false;
+
+    for i := 0; i < len(blockData.Tokens); i++ {
+
+        Token token = blockData.Tokens[i];
+
+        AddSpaceBefore(convertData, token.Type, lastType, i, addedSpace);
+        HandleToken(convertData, token);
+        addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i);
+        lastType = token.Type;
+    }
+}
+
+fn HandleToken(*ConvertData convertData, Token token) {
+
+    if token.Text == "\r" {
+        return;
+    }
+    if token.Text == "\r\n" {
+        return;
+    }
+    if token.Type == TokenType.NewLine {
+        return;
+    }
+    if token.Type == TokenType.Semicolon {
+
+        int codeLength = len(convertData.GeneratedCode);
+        byte lastChar = convertData.GeneratedCode[codeLength - 1];
+        if lastChar == ' ' {
+            convertData.GeneratedCode[codeLength - 1] = ';';
+            return;
+        }
+    }
+    convertData.AppendString(token.Text);
+}
+
+fn PrintTokensNewLine(*ConvertData convertData, *BlockData blockData, int nestCount, bool newLine) {
+
+    if len(blockData.Tokens) == 0 {
+        convertData.NoTokenError(blockData.StartingToken, "no tokens in blockData");
+        return;
+    }
+    IntTokenType lastType = TokenType.NA;
+    bool addedSpace = false;
+
+    for i := 0; i < len(blockData.Tokens); i++ {
+
+        Token token = blockData.Tokens[i];
+
+        if token.Type == TokenType.NewLine {
+            convertData.NewLineWithTabs();
+            lastType = token.Type;
+            continue;
+        }
+        AddSpaceBefore(convertData, token.Type, lastType, i, addedSpace);
+        HandleToken(convertData, token);
+        addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i);
+        lastType = token.Type;
+    }
+
+    if lastType != TokenType.NewLine {
+        convertData.NewLineWithTabs();
+    }
+    if newLine == true {
+        convertData.NewLineWithTabs();
+    }
+
+
+}
+
+fn HandleTokenPrintTokensNL(*ConvertData convertData, Token token) {
+
+    if token.Type == TokenType.Semicolon {
+
+        int codeLength = len(convertData.GeneratedCode);
+        byte lastChar = convertData.GeneratedCode[codeLength - 1];
+        if lastChar == ' ' {
+            convertData.GeneratedCode[codeLength - 1] = ';';
+            return;
+        }
+    }
+    convertData.AppendString(token.Text);
+}
+
+fn PrintComment(*ConvertData convertData, *BlockData blockData, int nestCount) {
+    
+    if len(blockData.Tokens) == 0 {
+        convertData.NoTokenError(blockData.StartingToken, "no tokens in blockData");
+        return;
+    }
+    IntTokenType lastType = TokenType.NA;
+    bool addedSpace = false;
+
+    for i := 0; i < len(blockData.Tokens); i++ {
+
+        Token token = blockData.Tokens[i];
+
+        if i != 0 {
+            AddSpaceBefore(convertData, token.Type, lastType, i, addedSpace);
+        }
+
+        HandleToken(convertData, token);
+        addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i);
+        lastType = token.Type;
+    }
+}
+
+fn HandleTokenComment(*ConvertData convertData, Token token) {
+
+    if token.Text == "\r" {
+        return;
+    }
+    if token.Text == "\r\n" {
+        return;
+    }
+    if token.Type == TokenType.NewLine {
+        return;
+    }
+    if token.Type == TokenType.Semicolon {
+
+        int codeLength = len(convertData.GeneratedCode)
+        byte lastChar = convertData.GeneratedCode[codeLength - 1];
+        if lastChar == ' ' {
+            convertData.GeneratedCode[codeLength - 1] = ';';
+            return;
+        }
+    }
+    convertData.AppendString(token.Text);
+}
+
+fn PrintTokensNoNL(*ConvertData convertData, *BlockData blockData, int nestCount) {
+    
+    if len(blockData.Tokens) == 0 {
+        convertData.NoTokenError(blockData.StartingToken, "no tokens in blockData");
+        return;
+    }
+    IntTokenType lastType = TokenType.NA;
+    bool addedSpace = false;
+
+    for i := 0; i < len(blockData.Tokens); i++ {
+
+        Token token = blockData.Tokens[i];
+
+        if token.Type == TokenType.NewLine {
+            convertData.NewLineWithTabs();
+            lastType = token.Type;
+            continue;
+        }
+        AddSpaceBefore(convertData, token.Type, lastType, i, addedSpace);
+        convertData.AppendString(token.Text);
+        addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i);
+        lastType = token.Type;
+    }
+}
+
+fn AddSpaceBefore(*ConvertData convertData, IntTokenType thisType, IntTokenType lastType, int tokenIndex, bool addedSpace) {
+
+    int codeLength = len(convertData.GeneratedCode)
+
+    if codeLength == 0 {
+
+        byte lastCharAdded = convertData.GeneratedCode[codeLength - 1];
+
+        if lastCharAdded == ' ' {
+            return;
+        }
+    }
+
+    if addedSpace == true {
+        return;
+    }
+
+    bool addSpace = false;
+    bool shouldHaveSpaceBeforePlus = false
+
+    switch thisType {
+
+        case TokenType.NotEquals, TokenType.And, TokenType.AndAnd, TokenType.Or, TokenType.OrOr, TokenType.PlusEquals, TokenType.MinusEquals,
+            TokenType.MultiplyEquals, TokenType.DivideEquals, TokenType.GreaterThan, TokenType.LessThan, TokenType.EqualsEquals, TokenType.GreaterThanEquals,
+            TokenType.LessThanEquals, TokenType.Modulus, TokenType.ModulusEquals, TokenType.ColonEquals, TokenType.Equals, TokenType.LeftBrace,
+            TokenType.Comment:
+
+            addSpace = true;
+
+        case TokenType.Plus:
+
+            shouldHaveSpaceBeforePlus =
+                lastType == TokenType.Identifier ||
+                lastType == TokenType.IntegerValue ||
+                lastType == TokenType.StringValue;
+
+            if shouldHaveSpaceBeforePlus {
+                addSpace = true;
+            }
+
+        case TokenType.Multiply:
+
+            if lastType == TokenType.Identifier {
+                addSpace = true;
+            }
+
+        case TokenType.Divide:
+            addSpace = true;
+
+        default:
+
+    }
+
+    if thisType == TokenType.Minus {
+
+        bool isOperator =
+            lastType == TokenType.Identifier ||
+            lastType == TokenType.IntegerValue ||
+            IsOperator(lastType);
+
+        if isOperator {
+            addSpace = true;
+        }
+    }
+
+    if thisType == TokenType.Identifier {
+
+        if lastType == TokenType.Identifier {
+            addSpace = true;
+        }
+    }
+
+    if addSpace {
+        convertData.AppendChar(' ');
+    }
+}
+
+fn bool AddSpaceAfter(*ConvertData convertData, IntTokenType thisType, IntTokenType lastType, int tokenIndex) {
+
+    bool addSpace = false;
+
+    switch thisType {
+        case TokenType.If, TokenType.Else, TokenType.For, TokenType.Switch,
+            TokenType.Struct, TokenType.Bool, TokenType.Int, TokenType.Int16,
+            TokenType.Int32, TokenType.Int64, TokenType.Int8, TokenType.AndAnd,
+            TokenType.Or, TokenType.Return, TokenType.PlusEquals, TokenType.MinusEquals,
+            TokenType.DivideEquals, TokenType.Enum, TokenType.Enumstruct, TokenType.GreaterThanEquals,
+            TokenType.LessThanEquals, TokenType.Goto, TokenType.Equals, TokenType.Divide,
+            TokenType.Fn, TokenType.Package, TokenType.Import, TokenType.Comma,
+            TokenType.Const, TokenType.Semicolon, TokenType.OrOr, TokenType.ColonEquals,
+            TokenType.NotEquals, TokenType.ModulusEquals, TokenType.Modulus, TokenType.EqualsEquals,
+            TokenType.LessThan, TokenType.MultiplyEquals, TokenType.GreaterThan, TokenType.Defer,
+            TokenType.ErrReturn, TokenType.Case, TokenType.Break, TokenType.Continue:
+
+            addSpace = true;
+            
+
+        default:
+            
+    }
+
+    if thisType == TokenType.Multiply {
+        addSpace = true;
+    }
+
+    if thisType == TokenType.Minus {
+
+        bool isOperator =
+            lastType == TokenType.Identifier ||
+            lastType == TokenType.IntegerValue;
+
+        if isOperator {
+            addSpace = true;
+        }
+    }
+
+    if thisType == TokenType.Plus || thisType == TokenType.And {
+        bool isOperator =
+            lastType == TokenType.Identifier ||
+            lastType == TokenType.IntegerValue;
+
+        if isOperator {
+            addSpace = true;
+        }
+    }
+
+    if addSpace {
+        convertData.AppendChar(' ');
+        return true;
+    }
+    return false;
+}
+
+fn AddSpaceAfterBlock(*ConvertData convertData, IntNodeType nodeType, int nestCount) {
+
+    switch nodeType {
+
+        case NodeType.Invalid,
+            NodeType.Channel_Declaration,
+            NodeType.Channel_Declaration_With_Value,
+            NodeType.Interface_Declaration,
+            NodeType.Single_Declaration_No_Value,
+            NodeType.Multiple_Declarations_No_Value,
+            NodeType.Multiple_Declarations_With_Value,
+            NodeType.Multiple_Declarations_Same_Type_No_Value,
+            NodeType.Multiple_Declarations_Same_Type_With_Value,
+            NodeType.Multiple_Declarations_One_Type_One_Set_Value,
+            NodeType.Constant_Global_Variable,
+            NodeType.Constant_Global_Variable_With_Type,
+            NodeType.Struct_Variable_Declaration,
+            NodeType.Else_Statement,
+            NodeType.For_Loop,
+            NodeType.For_Loop_With_Declaration,
+            NodeType.Err_Return,
+            NodeType.Err_Check,
+            NodeType.Single_Import,
+            NodeType.Single_Import_With_Alias,
+            NodeType.NestedStruct,
+            NodeType.Struct_Declaration,
+            NodeType.Enum_Declaration,
+            NodeType.Enum_Variable,
+            NodeType.Enum_Variable_With_Value,
+            NodeType.Enum_Struct_Declaration,
+            NodeType.Comment,
+            NodeType.Append,
+            NodeType.Other,
+            NodeType.Switch:
+
+            convertData.NewLineWithTabs();
+
+        default:
+
+    }
+}

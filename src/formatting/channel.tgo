@@ -1,0 +1,40 @@
+package formatting
+
+import . "TypeGo/core"
+
+fn BlockData ProcessChannel(*FormatData format_data, Token const_token) {
+
+    format_data.AddToFunctionLog("ENTER ProcessChannel")
+
+    BlockData block_data
+    format_data.Increment();
+    Token nextToken = format_data.GetToken();
+    if nextToken.Type == TokenType.NA {
+        format_data.EndOfFileError(const_token);
+        format_data.AddToFunctionLog("ERROR ProcessChannel")
+        return block_data;
+    }
+    block_data = DeclarationLoop(format_data, nextToken);
+
+    SetNodeType(&block_data);
+    block_data.StartingToken = const_token;
+    format_data.AddToFunctionLog("EXIT ProcessChannel")
+    return block_data;
+}
+
+fn SetNodeType(*BlockData block_data) {
+    switch block_data.NodeType {
+        case NodeType.Single_Declaration_With_Value, NodeType.Multiple_Declarations_With_Value,
+            NodeType.Multiple_Declarations_Same_Type_With_Value:
+
+            block_data.NodeType = NodeType.Channel_Declaration_With_Value;
+
+        case NodeType.Single_Declaration_No_Value, NodeType.Multiple_Declarations_No_Value,
+            NodeType.Multiple_Declarations_Same_Type_No_Value:
+            
+            block_data.NodeType = NodeType.Channel_Declaration;
+
+        default:
+            block_data.NodeType = NodeType.Channel_Declaration;
+    }
+}

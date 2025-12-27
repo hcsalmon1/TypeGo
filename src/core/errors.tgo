@@ -1,0 +1,40 @@
+package core
+
+enumstruct ConvertResult : IntConvertResult {
+    Ok,
+    Missing_Expected_Type,
+    Unexpected_Type,
+    Unexpected_End_Of_File,
+    No_Token_In_Node,
+    Null_Token,
+    Invalid_Node_Type,
+    Unsupported_Type,
+    Internal_Error,
+}
+
+enumstruct ParseResult : IntParseResult {
+    Ok,
+    String_Length_Zero,
+    Starting_Index_Out_Of_Range_Of_String,
+    Index_Minus,
+    Invalid_Token,
+    Current_Index_Out_Of_Range,
+    Buffer_Index_Over_Max,
+    Unexpected_Value,
+    Unterminated_Char,
+    Unterminated_String,
+    Unterminated_Comment,
+    Infinite_While_Loop,
+}
+
+enumstruct FormatResult : IntFormatResult {
+    Ok,
+    NoTokens,
+    MissingExpectedType,
+    UnexpectedType,
+    EndOfFile,
+    UnsupportedFeature,
+    Infinite_While_Loop,
+    Internal_Error,
+    Invalid_Node,
+}

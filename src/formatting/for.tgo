@@ -1,0 +1,50 @@
+package formatting
+
+import . "TypeGo/core"
+
+fn BlockData ProcessFor(*FormatData formatData, Token firstToken) {
+    formatData.SetErrorFunction("ProcessFor");
+
+    BlockData blockData
+
+    blockData.NodeType = NodeType.For_Loop;
+    blockData.StartingToken = firstToken;
+
+    for formatData.IndexInBounds() {
+
+        Token token = formatData.GetToken();
+
+        if token.Type == TokenType.NA {
+            formatData.EndOfFileError(token);
+            return blockData;
+        }
+
+        if token.Type == TokenType.LeftBrace {
+            break;
+        }
+        blockData.Tokens.append(token);
+
+        formatData.Increment();
+    }
+
+    if formatData.ExpectType(TokenType.LeftBrace, "missing '{' after for loop") == false {
+        return blockData;
+    }
+    formatData.Increment();
+    formatData.IncrementIfNewLine();
+
+    CodeBlock forBody = FillBody(formatData);
+
+    if formatData.IsError() {
+        return blockData;
+    }
+    if formatData.ExpectType(TokenType.RightBrace, "missing '}' after for loop block") == false {
+        return blockData;
+    }
+    formatData.Increment();
+    formatData.IncrementIfNewLine();
+
+    blockData.Block = &forBody;
+
+    return blockData;
+}

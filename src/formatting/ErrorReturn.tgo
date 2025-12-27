@@ -1,0 +1,17 @@
+package formatting
+
+import . "TypeGo/core"
+
+fn BlockData ProcessErrReturn(*FormatData formatData, Token token) {
+
+    formatData.SetErrorFunction("ProcessErrReturn");
+
+    BlockData blockData
+
+    blockData.NodeType = NodeType.Err_Return;
+    formatData.Increment();
+
+    LoopTokensUntilLineEnd(formatData, &blockData, true);
+
+    return blockData;
+}

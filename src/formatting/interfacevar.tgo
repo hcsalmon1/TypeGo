@@ -1,0 +1,84 @@
+package formatting
+
+import . "TypeGo/core"
+
+fn BlockData FormatInterfaceVar(*FormatData formatData, Token firstToken) {
+
+    formatData.SetErrorFunction("FormatInterfaceVar");
+
+    BlockData blockData = {
+        Block: nil,
+        NodeType: NodeType.Single_Declaration_No_Value,
+        StartingToken: firstToken,
+        Tokens: make([]Token, 0),
+        Variables: make([]Variable, 0),
+    };
+
+    Variable variable;
+    variable.TypeList = make([]Token, 0)
+    variable.TypeList.append(firstToken);
+
+    formatData.Increment();
+    Token tempToken = formatData.GetToken();
+
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(firstToken);
+        return blockData;
+    }
+
+    if tempToken.Type != TokenType.LeftBrace {
+        formatData.MissingExpectedTypeError(tempToken, "Missing expected '{' in interface declaration");
+        return blockData;
+    }
+
+    variable.TypeList.append(tempToken);
+
+    formatData.Increment();
+    tempToken = formatData.GetToken();
+
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(firstToken);
+        return blockData;
+    }
+
+    if tempToken.Type != TokenType.RightBrace {
+        formatData.MissingExpectedTypeError(tempToken, "Missing expected '}' in interface declaration, advanced local interfaces not supported yet");
+        return blockData;
+    }
+
+    variable.TypeList.append(tempToken);
+
+    formatData.Increment();
+
+    tempToken = formatData.GetToken();
+
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(firstToken);
+        return blockData;
+    }
+
+    if tempToken.Type != TokenType.Identifier {
+        formatData.MissingExpectedTypeError(tempToken, "Missing expected identifier in interface declaration");
+        return blockData;
+    }
+
+    variable.NameToken.append(tempToken);
+
+    formatData.Increment();
+
+    tempToken = formatData.GetToken();
+
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(firstToken);
+        return blockData;
+    }
+
+    if tempToken.Type == TokenType.Equals {
+        blockData.NodeType = NodeType.Single_Declaration_With_Value;
+        LoopTokensUntilLineEnd(formatData, &blockData, true);
+    }
+
+    blockData.Variables.append(variable);
+
+    return blockData;
+}

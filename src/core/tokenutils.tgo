@@ -1,0 +1,126 @@
+package core
+
+fn string JoinTextInListOfTokens(*[]Token tokenList) {
+    if tokenList == nil {
+        return "";
+    }
+    int count = len(*tokenList)
+    if count == 0 {
+        return "";
+    }
+    []string outputSB = make(0)
+    for i := 0; i < count; i++ {
+        outputSB.append((*tokenList)[i].Text);
+    }
+    string result = ""
+	for i := 0; i < len(outputSB); i++ {
+		result += outputSB[i]
+	}
+    return result
+}
+
+fn string JoinTextInListOfTokensWithSpaces([]Token tokenList) {
+    if tokenList == nil {
+        return "";
+    }
+    int count = len(tokenList)
+    if count == 0 {
+        return "";
+    }
+    []byte outputSB = make(0);
+    for i := 0; i < count; i++ {
+        string text = tokenList[i].Text
+        int length = len(text)
+        for j := 0; i < length; j++ {
+            outputSB.append(text[j])
+        }
+        outputSB.append(' ');
+    }
+    return string(outputSB)
+}
+
+fn AppendStringToSlice(*[]byte slice, string input) {
+    int length = len(input)
+    if length == 0 {
+        return
+    }
+    for i := 0; i < length; i++ {
+        byte c = input[i]
+        *slice = append(*slice, c)
+    }
+}
+
+fn []Token CopyTokenList([]Token tokenList) {
+
+    []Token copyTokenList = make(0)
+    int count = len(tokenList)
+    if (count == 0) {
+        return copyTokenList;
+    }
+    for i := 0; i < count; i++ {
+        copyTokenList.append(tokenList[i]);
+    }
+    return copyTokenList;
+}
+
+fn bool IsAssignmentOperator(IntTokenType token_type) {
+    return token_type == TokenType.Equals ||
+        token_type == TokenType.PlusEquals ||
+        token_type == TokenType.DivideEquals ||
+        token_type == TokenType.MultiplyEquals ||
+        token_type == TokenType.MinusEquals ||
+        token_type == TokenType.ModulusEquals ||
+        token_type == TokenType.PlusPlus ||
+        token_type == TokenType.MinusMinus;
+}
+
+func bool IsVarTypePart(Token token) {
+	switch token.Type {
+		case TokenType.LeftSquareBracket, TokenType.Multiply:
+			return true;
+		default:
+			return false;
+	}
+}
+
+func bool IsVarType(Token token) {
+
+	switch token.Type {
+		case TokenType.Int, TokenType.Int8, TokenType.Int16, TokenType.Int32, 
+			 TokenType.Int64, TokenType.Uint, TokenType.Uint8, TokenType.Uint16,
+			 TokenType.Uint32, TokenType.Uint64, TokenType.Float32, TokenType.Float64,
+			 TokenType.String, TokenType.Byte, TokenType.Rune, TokenType.Bool, 
+			 TokenType.Error, TokenType.Struct, TokenType.Map:
+
+			return true;
+
+		default:
+			return false;
+	}
+}
+func bool IsVarTypeEnum(IntTokenType tokenType) {
+
+	switch tokenType {
+
+		case TokenType.Int, TokenType.Int8, TokenType.Int16, TokenType.Int32, TokenType.Int64,
+		 	TokenType.Uint, TokenType.Uint8, TokenType.Uint16, TokenType.Uint32, TokenType.Uint64,
+		 TokenType.Float32,
+		 TokenType.Float64,
+		 TokenType.String,
+		 TokenType.Byte,
+		 TokenType.Rune,
+		 TokenType.Bool,
+		 TokenType.Error,
+		 TokenType.Map,
+		 TokenType.Struct,
+		TokenType.Interface:
+			return true;
+		default:
+			return false;
+	}
+}
+
+func bool IsOperator(IntTokenType tokenType) {
+	return tokenType == TokenType.Plus ||
+		tokenType == TokenType.Minus;
+}

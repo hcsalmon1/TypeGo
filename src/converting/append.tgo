@@ -1,0 +1,36 @@
+package converting
+
+import . "TypeGo/core"
+
+fn PrintAppend(*ConvertData convertData, *BlockData blockData, int nestCount) {
+
+    if len(blockData.Variables) == 0 {
+        convertData.ConvertResult = ConvertResult.Internal_Error;
+        convertData.ErrorDetail = "variables count in PrintAppend";
+        return;
+    }
+
+    Variable variable = blockData.Variables[0];
+
+    if variable.NameToken[0].Text == "" {
+        convertData.ConvertResult = ConvertResult.Internal_Error;
+        convertData.ErrorDetail = "NameToken is null in PrintAppend";
+        return;
+    }
+
+    string variableName = variable.NameToken[0].Text;
+
+    convertData.AppendString(variableName + " = append(" + variableName + ", ");
+
+    if len(blockData.Tokens) == 0 {
+        convertData.ConvertResult = ConvertResult.Internal_Error;
+        convertData.ErrorDetail = "tokens count is 0 in PrintAppend";
+        return;
+    }
+
+    for i := 0; i < len(blockData.Tokens); i++ {
+        convertData.AppendToken(blockData.Tokens[i]);
+    }
+
+    convertData.AppendChar(')');
+}

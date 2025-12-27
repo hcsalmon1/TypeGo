@@ -1,0 +1,125 @@
+package formatting
+
+import . "TypeGo/core"
+
+fn FillAppend(*FormatData formatData, *BlockData blockData) {
+
+    formatData.AddToFunctionLog("ENTER FillAppend")
+    formatData.SetErrorFunction("FillAppend");
+
+    blockData.NodeType = NodeType.Append;
+
+    Token tempToken = EmptyToken();
+
+    int startingIndex = formatData.TokenIndex;
+    int appendIndex = -1;
+
+    for formatData.IndexInBounds() {
+
+        tempToken = formatData.GetToken();
+
+        if tempToken.Type == TokenType.NA {
+            formatData.EndOfFileError(tempToken);
+            formatData.AddToFunctionLog("ERROR FillAppend")
+            return;
+        }
+
+        if tempToken.Type == TokenType.Append {
+            appendIndex = formatData.TokenIndex;
+            break;
+        }
+        formatData.Increment();
+    }
+
+    if appendIndex == -1 {
+        formatData.UnexpectedTypeError(tempToken, "Missing 'append'");
+        formatData.AddToFunctionLog("ERROR FillAppend")
+        return;
+    }
+
+    Variable nameVariable;
+    nameVariable.TypeList = make([]Token, 0);
+
+    []string nameTextBuilder = make(0)
+
+    for i := startingIndex; i < appendIndex; i++ {
+
+        if i + 1 == appendIndex {
+            break;
+        }
+
+        tempToken = formatData.GetTokenByIndex(i);
+        if tempToken.Type == TokenType.NA {
+            formatData.EndOfFileError(tempToken);
+            formatData.AddToFunctionLog("ERROR FillAppend")
+            return;
+        }
+        nameTextBuilder.append(tempToken.Text);
+    }
+
+    Token name_token = {
+        Text: ConcatStrings(nameTextBuilder),
+        Type: TokenType.Identifier,
+        LineNumber: 0,
+        CharNumber: 0,
+    }
+    nameVariable.NameToken.append(name_token);
+
+    blockData.Variables.append(nameVariable);
+
+    formatData.TokenIndex = appendIndex + 1;
+    formatData.ExpectType(TokenType.LeftParenthesis, "expecting a '(' after append");
+    formatData.Increment();
+
+    int openParenthesisCount = 1;
+
+    for formatData.IndexInBounds() {
+
+        tempToken = formatData.GetToken();
+
+        if formatData.IsValidToken(tempToken) == false {
+            formatData.EndOfFileError(tempToken);
+            formatData.AddToFunctionLog("ERROR FillAppend")
+            return;
+        }
+
+        if tempToken.Type == TokenType.LeftParenthesis {
+
+            openParenthesisCount += 1;
+
+        } else if tempToken.Type == TokenType.RightParenthesis {
+
+            if openParenthesisCount != 1 {
+                openParenthesisCount -= 1;
+            } else {
+                break;
+            }
+        }
+
+        blockData.Tokens.append(tempToken);
+
+        formatData.Increment();
+    }
+
+
+    for formatData.IndexInBounds() {
+
+        tempToken = formatData.GetToken();
+
+        if formatData.IsValidToken(tempToken) == false {
+            formatData.EndOfFileError(tempToken);
+            formatData.AddToFunctionLog("ERROR FillAppend")
+            return;
+        }
+
+        if tempToken.Type == TokenType.Semicolon {
+            break;
+        }
+        if tempToken.Type == TokenType.NewLine {
+            break;
+        }
+
+        formatData.Increment();
+    }
+    formatData.AddToFunctionLog("EXIT FillAppend")
+}

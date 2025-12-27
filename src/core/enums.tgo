@@ -1,0 +1,205 @@
+package core
+
+enumstruct TokenType : IntTokenType {
+    Fn,
+
+    IntegerValue,
+    DecimalValue,
+    CharValue,
+    StringValue,
+    True,
+    False,
+    Switch,
+    Channel_Setter,
+    ErrReturn,
+    ErrCheck,
+    Case,
+
+    Int,
+    Int8,
+    Int16,
+    Int32,
+    Int64,
+
+    Uint,
+    Uint8,
+    Uint16,
+    Uint32,
+    Uint64,
+
+    Float32,
+    Float64,
+
+    String,
+    Byte,
+    Rune,
+    Bool,
+    Void,
+
+    Struct,
+    Enum,
+    Enumstruct,
+    Error,
+
+    Map,
+    Chan,
+    Var,
+    Type,
+    Interface,
+    Goto,
+
+    If,
+    Else,
+    For,
+    While,
+    Return,
+    Break,
+    Continue,
+    Defer,
+    Go,
+    Not,
+
+    Minus,
+    Plus,
+    PlusPlus,
+    Divide,
+    Multiply,
+    Equals,
+    And,
+    AndAnd,
+    Or,
+    OrOr,
+    PlusEquals,
+    MinusEquals,
+    MultiplyEquals,
+    DivideEquals,
+    GreaterThan,
+    LessThan,
+    EqualsEquals,
+    GreaterThanEquals,
+    LessThanEquals,
+    Modulus,
+    ModulusEquals,
+    NotEquals,
+    Colon,
+    ColonEquals,
+    MinusMinus,
+
+    Identifier,
+
+    Print,
+    Println,
+
+    LeftParenthesis,
+    RightParenthesis,
+    LeftBrace,
+    RightBrace,
+    LeftSquareBracket,
+    RightSquareBracket,
+
+    Make,
+    Append,
+    Semicolon,
+    Package,
+    Import,
+
+    Comma,
+    FullStop,
+
+    In,
+    Const,
+
+    Tab,
+    MultiLineStart,
+    MultiLineEnd,
+    Comment,
+    EndComment,
+    NewLine,
+
+    NA,
+}
+
+enumstruct LastTokenType : IntLastTokenType {
+    Null
+    Identifier
+    CustomVarType
+    Vartype
+    LeftSqBracket
+    RightSqBracket
+    LeftParenth
+    RightParenth
+    Comma
+    Semicolon
+    Newline
+    IntegerValue
+    Map
+    Pointer
+    FullStop
+    Interface
+    LeftBrace
+    RightBrace
+}
+
+enumstruct NodeType : IntNodeType {
+    Invalid,
+    Channel_Declaration,
+    Channel_Declaration_With_Value,
+    Interface_Declaration,
+    Single_Declaration_With_Value,
+    Single_Declaration_No_Value,
+    Multiple_Declarations_No_Value,
+    Multiple_Declarations_With_Value,
+    Multiple_Declarations_Same_Type_No_Value,
+    Multiple_Declarations_Same_Type_With_Value,
+    Multiple_Declarations_One_Type_One_Set_Value,
+    Constant_Global_Variable,
+    Constant_Global_Variable_With_Type,
+    Struct_Variable_Declaration,
+    If_Statement_With_Declaration,
+    If_Statement,
+    Else_Statement,
+    For_Loop,
+    For_Loop_With_Declaration,
+    Err_Return,
+    Err_Check,
+    Multi_Line_Import,
+    Single_Import,
+    Single_Import_With_Alias,
+    NestedStruct,
+    Struct_Declaration,
+    Enum_Declaration,
+    Enum_Variable,
+    Enum_Variable_With_Value,
+    Enum_Struct_Declaration,
+    Enum_Struct_Declaration_With_Alias,
+    NewLine,
+    Comment,
+    Append,
+    Package,
+    Other,
+    Switch,
+    Return,
+    Break,
+}
+
+enumstruct LoopAction : IntLoopAction {
+    Continue
+    Break
+    Return
+    Error
+}
+
+enumstruct IdentLoopAction : IntIdentLoopAction {
+    Continue,
+    Break,
+    Declaration,
+    Other,
+    Append,
+    Error,
+}
+
+enumstruct MethodType : IntMethodType {
+    None,
+    Struct,
+    Enum,
+}

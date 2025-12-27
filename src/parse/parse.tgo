@@ -1,0 +1,399 @@
+package parse
+
+import (
+	. "TypeGo/core"
+	//"fmt"
+)
+
+fn []Token ParseToTokens(*IntParseResult err, string code) {
+
+    //fmt.Print("\tParsing\t\t\t")
+
+    ParseData parse_data
+    parse_data.Code = code;
+
+    parse_data.CodeLength = len(code)
+    if parse_data.CodeLength == 0 {
+        *err = ParseResult.String_Length_Zero;
+        return parse_data.TokenList;
+    }
+
+    int while_count = 0
+    int MAX_WHILE_ITERATIONS = parse_data.CodeLength + 100
+
+    parse_data.CharacterIndex = 0
+    for parse_data.CharacterIndex < parse_data.CodeLength {
+
+        if while_count >= MAX_WHILE_ITERATIONS {
+            *err = ParseResult.Infinite_While_Loop
+            return parse_data.TokenList
+        }
+        while_count += 1
+
+        processCharacter(&parse_data);
+        if parse_data.ParseResult != ParseResult.Ok {
+            *err = parse_data.ParseResult;
+            return parse_data.TokenList;
+        }
+
+    }
+    //fmt.Println("Done")
+    return parse_data.TokenList;
+}
+
+fn processCharacter(*ParseData parse_data) {
+
+    if shouldSkip(parse_data) == true {
+        return
+    }
+
+    int previousCharacterIndex = parse_data.CharacterIndex;
+
+    bool success = true
+    Token token = getToken(&success, parse_data);
+
+    if previousCharacterIndex == parse_data.CharacterIndex {
+        parse_data.CharacterIndex += 1;
+    }
+    if isInvalid(token, success, parse_data) == true {
+        return;
+    }
+
+    parse_data.TokenList.append(token);
+    parse_data.LastToken = token;
+}
+
+fn bool shouldSkip(*ParseData parse_data) {
+
+    parse_data.CharCount += 1;
+
+    byte current_char = parse_data.Code[parse_data.CharacterIndex];
+
+    if current_char == '\n' {
+
+        Token token = {
+			Text: "\\n", 
+			Type: TokenType.NewLine,
+			LineNumber: parse_data.LineCount,
+			CharNumber: parse_data.CharCount, 
+        }
+
+        parse_data.TokenList.append(token);
+        
+        parse_data.LineCount += 1;
+        parse_data.CharCount = 0;
+        parse_data.CharacterIndex += 1;
+        return true;
+    }
+    bool is_special_char =
+        current_char == '\r' ||
+        current_char == '\t' ||
+        current_char == ' ' ||
+        current_char == '\\';
+
+    if is_special_char == true {
+
+        parse_data.CharacterIndex += 1;
+        return true;
+    }
+    return false;
+}
+
+fn bool isInvalid(Token token, bool success, *ParseData parseData) {
+
+    if success == false {
+        return true;
+    }
+    if parseData.IsError() {
+        return true;
+    }
+    return false;
+}
+
+fn Token getToken(*bool success, *ParseData parse_data) {
+
+    if parse_data.CharacterIndex + 1 < parse_data.CodeLength {
+
+        byte c1 = parse_data.Code[parse_data.CharacterIndex];
+        byte c2 = parse_data.Code[parse_data.CharacterIndex + 1];
+
+        if c1 == '/' && c2 == '/' {
+            return readLineComment(parse_data);
+        }
+        if c1 == '/' && c2 == '*' {
+            return readBlockComment(parse_data);
+        }
+    }
+
+    byte current_char = parse_data.Code[parse_data.CharacterIndex];
+
+    if current_char == '"' {
+        return readString(success, parse_data);
+    }
+    if current_char == '\'' {
+        return readChar(success, parse_data);
+    }
+    if isOperator(current_char) {
+        return readOperator(success, parse_data);
+    }
+    if isSeparator(current_char) {
+        return readSeparator(success, parse_data);
+    }
+    if current_char == '`' {
+        return ReadMultilineString(parse_data);
+    }
+
+    return readWord(success, parse_data);
+}
+
+fn Token readString(*bool success, *ParseData parseData) {
+
+    []byte string_builder = make(0)
+
+    string_builder.append(parseData.Code[parseData.CharacterIndex]);
+    parseData.CharacterIndex += 1;
+
+    byte lastChar = ' ';
+
+    for parseData.CharacterIndex < parseData.CodeLength {
+
+        byte currentChar = parseData.Code[parseData.CharacterIndex];
+
+        bool isStringEnd = 
+            currentChar == '"' &&
+            lastChar != '\\';
+
+        if isStringEnd == true {
+            string_builder.append(currentChar);
+            parseData.CharacterIndex++;
+            Token token = {
+                Text: string(string_builder),
+                Type: TokenType.StringValue,
+                LineNumber: parseData.LineCount,
+                CharNumber: parseData.CharCount,
+            }
+            return token
+        }
+        string_builder.append(currentChar);
+        if currentChar == '\\' && lastChar == '\\' {
+            lastChar = ' ';
+        } else {
+            lastChar = currentChar;
+        }
+        parseData.CharacterIndex++;
+    }
+
+    *success = false
+    parseData.ParseResult = ParseResult.Unterminated_String;
+    return EmptyToken()
+}
+
+fn Token readSeparator(*bool success, *ParseData parseData) {
+    byte c = parseData.Code[parseData.CharacterIndex];
+    parseData.CharacterIndex += 1;
+    string tokenText = string(c)
+    return Token {
+        Text: tokenText,
+        Type: getTokenType(tokenText),
+        LineNumber: parseData.LineCount,
+        CharNumber: parseData.CharCount,
+    }
+}
+
+fn Token readChar(*bool success, *ParseData parseData) {
+
+    parseData.CharacterIndex += 1;
+    if parseData.CharacterIndex >= parseData.CodeLength {
+        parseData.ParseResult = ParseResult.Unexpected_Value;
+        *success = false
+        return EmptyToken()
+    }
+
+    byte charValue = parseData.Code[parseData.CharacterIndex];
+    byte charValueSecondPart = ' ';
+    parseData.CharacterIndex += 1;
+
+    if charValue == '\\' {
+        charValueSecondPart = parseData.Code[parseData.CharacterIndex];
+        parseData.CharacterIndex += 1;
+    }
+
+    if parseData.CharacterIndex >= parseData.CodeLength {
+        parseData.ParseResult = ParseResult.Unexpected_Value;
+        *success = false
+        return EmptyToken()
+    }
+    if parseData.Code[parseData.CharacterIndex] != '\'' {
+        parseData.ParseResult = ParseResult.Unterminated_Char;
+        *success = false
+        return EmptyToken()
+    }
+    parseData.CharacterIndex += 1;
+
+    if charValueSecondPart != ' ' {
+		string token_text = "'" + string([]byte{charValue, charValueSecondPart}) + "'"
+        return Token{
+            Text: token_text,
+            Type: TokenType.CharValue,
+            LineNumber: parseData.LineCount,
+            CharNumber: parseData.CharCount
+        }
+    }
+    return Token{
+        Text: "'" + string(charValue) + "'",
+        Type: TokenType.CharValue,
+        LineNumber: parseData.LineCount,
+        CharNumber: parseData.CharCount
+    }
+}
+
+fn Token readOperator(*bool success, *ParseData parseData) {
+
+    []byte string_builder = make(0)
+    byte c = parseData.Code[parseData.CharacterIndex];
+    string_builder.append(c);
+
+    parseData.CharacterIndex += 1;
+
+    // Lookahead for compound operators like "==", "!="
+    if parseData.CharacterIndex < parseData.CodeLength {
+
+        byte next = parseData.Code[parseData.CharacterIndex]; 
+        if isOperator(next) {
+            string_builder.append(next);
+            parseData.CharacterIndex += 1;
+        }
+    }
+
+    string tokenText = string(string_builder)
+    return Token{
+        Text: tokenText,
+        Type: getTokenType(tokenText),
+        LineNumber: parseData.LineCount,
+        CharNumber: parseData.CharCount
+    }
+}
+
+fn Token readWord(*bool success, *ParseData parseData) {
+    
+    []byte string_builder = make(0)
+
+    for parseData.CharacterIndex < parseData.CodeLength {
+
+        byte c = parseData.Code[parseData.CharacterIndex];
+
+        if isLetterOrDigit(c) || c == '_' {
+            string_builder.append(c);
+            parseData.CharacterIndex++;
+        } else {
+            break;
+        }
+    }
+
+    string word = string(string_builder)
+    return Token{
+        Text: word,
+        Type: getTokenType(word),
+        LineNumber: parseData.LineCount,
+        CharNumber: parseData.CharCount
+    }
+}
+
+fn Token readLineComment(*ParseData parseData) {
+
+    []byte string_builder = make(0)
+
+    string_builder.append('/');
+    string_builder.append('/');
+    parseData.CharacterIndex += 2;
+
+    for parseData.CharacterIndex < parseData.CodeLength {
+
+        byte c = parseData.Code[parseData.CharacterIndex];
+        if c == '\n'{
+            break;
+        }
+        string_builder.append(c);
+        parseData.CharacterIndex++;
+    }
+    return Token{
+        Text: string(string_builder),
+        Type: TokenType.Comment,
+        LineNumber: parseData.LineCount,
+        CharNumber: parseData.CharCount
+    }
+}
+
+fn Token readBlockComment(*ParseData parseData) {
+
+    []byte string_builder = make(0)
+    string_builder.append('/');
+    string_builder.append('*');
+    parseData.CharacterIndex += 2;
+
+    for parseData.CharacterIndex + 1 < parseData.CodeLength {
+
+        byte c1 = parseData.Code[parseData.CharacterIndex];
+        byte c2 = parseData.Code[parseData.CharacterIndex + 1];
+        string_builder.append(c1);
+        parseData.CharacterIndex++;
+
+        if (c1 == '*' && c2 == '/') {
+            string_builder.append('/');
+            parseData.CharacterIndex++;
+            return Token{
+                Text: string(string_builder),
+                Type: TokenType.Comment,
+                LineNumber: parseData.LineCount,
+                CharNumber: parseData.CharCount
+            }
+        }
+
+        if c1 == '\n' {
+            parseData.LineCount++;
+            parseData.CharCount = 0;
+        }
+    }
+
+    parseData.ParseResult = ParseResult.Unterminated_Comment;
+    return EmptyToken()
+}
+
+fn Token ReadMultilineString(*ParseData parseData) {
+
+    []byte sb = make(0);
+    sb.append(parseData.Code[parseData.CharacterIndex]);
+    parseData.CharacterIndex += 1;
+
+    byte lastChar = ' ';
+
+    for parseData.CharacterIndex < len(parseData.Code) {
+        byte currentChar = parseData.Code[parseData.CharacterIndex];
+
+        bool isStringEnd =
+            currentChar == '`' && lastChar != '\\';
+
+        if isStringEnd == true {
+            sb.append(currentChar);
+            parseData.CharacterIndex++;
+            Token token = {
+                Text: string(sb), 
+                Type: TokenType.StringValue, 
+                LineNumber: parseData.LineCount, 
+                CharNumber: parseData.CharCount,
+            }
+            return token;
+        }
+        sb.append(currentChar);
+        if currentChar == '\\' && lastChar == '\\' {
+            lastChar = ' ';
+        } else {
+            lastChar = currentChar;
+        }
+        parseData.CharacterIndex++;
+    }
+
+    parseData.ParseResult = ParseResult.Unterminated_String;
+    return EmptyToken();
+}
+

@@ -1,0 +1,244 @@
+package formatting
+
+import (
+    . "TypeGo/core"
+)
+
+fn TypeAndNameLeftParenthesis(*FormatData formatData, *string returnType, *string functionName, Token firstToken) {
+
+    formatData.SetErrorFunction("TypeAndNameLeftParenthesis");
+
+    []Token returnTypeTokenList = make(0)
+	returnTypeTokenList.append(firstToken)
+    formatData.TokenIndex += 1
+
+    LoopUntilRightParenthesis(formatData, &returnTypeTokenList);
+
+    *returnType = JoinTextInListOfTokens(&returnTypeTokenList);
+
+    Token nextToken = formatData.GetToken();
+    if nextToken.Type == TokenType.NA {
+        return
+    }
+    if nextToken.Type != TokenType.Identifier {
+        formatData.MissingExpectedTypeError(nextToken, "missing identifier in function name");
+        return;
+    }
+    *functionName = nextToken.Text;
+    formatData.Increment();
+}
+
+fn TypeAndNameOther(*FormatData formatData, *string returnType, *string functionName, Token firstToken) {
+
+    formatData.SetErrorFunction("TypeAndNameOther");
+
+    []Token returnTypeTokenList = make(0);
+    FillVarType(formatData, &returnTypeTokenList);
+
+    *returnType = JoinTextInListOfTokens(&returnTypeTokenList);
+
+    Token nextToken = formatData.GetToken();
+    if formatData.IsValidToken(nextToken) == false {
+        formatData.EndOfFileError(firstToken);
+        return;
+    }
+    if nextToken.Type != TokenType.Identifier {
+        formatData.MissingExpectedTypeError(nextToken, "missing identifier in function name");
+        return;
+    }
+    *functionName = nextToken.Text;
+    formatData.Increment();
+}
+
+fn TypeAndNameIdentifier(*FormatData formatData, *string ReturnType, *string functionName, Token firstToken) {
+
+    formatData.SetErrorFunction("TypeAndNameIdentifier");
+
+    int index = formatData.TokenIndex;
+    Token tempToken = formatData.GetNextToken();
+
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(tempToken);
+        return;
+    }
+    Token nextToken = tempToken;
+    //void type
+    if nextToken.Type == TokenType.LeftParenthesis {
+        *ReturnType = "";
+        *functionName = firstToken.Text;
+        return;
+    }
+    if nextToken.Type == TokenType.Identifier {
+        tempToken = formatData.GetNextToken();
+        if formatData.IsValidToken(tempToken) == false {
+            formatData.EndOfFileError(tempToken);
+            return;
+        }
+        if tempToken.Type != TokenType.LeftParenthesis {
+            formatData.MissingExpectedTypeError(tempToken, "missing expected '(' in function");
+            return;
+        }
+
+        *ReturnType = firstToken.Text;
+        *functionName = nextToken.Text;
+        return;
+    }
+    formatData.TokenIndex = index;
+    TypeAndNameOther(formatData, ReturnType, functionName, firstToken);
+}
+
+fn GetFunctionTypeAndName(*FormatData formatData, *string returnType, *string functionName) {
+    formatData.SetErrorFunction("GetFunctionTypeAndName");
+
+    Token tempToken = EmptyToken();
+    tempToken = formatData.GetNextToken();
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(tempToken);
+        return;
+    }
+    Token firstToken = tempToken;
+    
+    switch firstToken.Type {
+
+        case TokenType.LeftParenthesis:
+            TypeAndNameLeftParenthesis(formatData, returnType, functionName, firstToken)
+
+        case TokenType.Identifier:
+            TypeAndNameIdentifier(formatData, returnType, functionName, firstToken);
+
+	    case TokenType.Void:
+            formatData.UnexpectedTypeError(firstToken, "Can't use void as a return type")
+            return
+
+        default:
+            TypeAndNameOther(formatData, returnType, functionName, firstToken);
+
+    }
+}
+
+fn GetInterfaceMethodTypeAndName(*FormatData formatData, *string returnType, *string functionName) {
+
+    formatData.SetErrorFunction("GetFunctionTypeAndName");
+
+    Token tempToken = EmptyToken();
+    tempToken = formatData.GetToken();
+    if formatData.IsValidToken(tempToken) == false {
+        formatData.EndOfFileError(tempToken);
+        return;
+    }
+    Token firstToken = tempToken;
+    switch firstToken.Type {
+
+        case TokenType.Identifier:
+            TypeAndNameIdentifier(formatData, returnType, functionName, firstToken);
+
+        case TokenType.LeftParenthesis:
+            TypeAndNameLeftParenthesis(formatData, returnType, functionName, firstToken);
+
+        default:
+            TypeAndNameOther(formatData, returnType, functionName, firstToken);
+    }
+
+}
+
+fn ProcessFunction(*FormatData formatData, *[]Function functions, Token fnToken) {
+
+    formatData.AddToFunctionLog("ENTER ProcessFunction")
+    formatData.SetErrorFunction("ProcessFunction");
+
+    []Variable parameters = make(0)
+    string returnType = "";
+    string functionName = "";
+
+    GetFunctionTypeAndName(formatData, &returnType, &functionName);
+    if formatData.IsError() {
+        return;
+    }
+    //Expect '('
+    if formatData.ExpectType(TokenType.LeftParenthesis, "Missing expected '(' in fn") == false {
+        formatData.AddToFunctionLog("ERROR ProcessFunction")
+        return;
+    }
+    formatData.Increment();
+
+    FindParameters(formatData, &parameters);
+    if formatData.IsError() {
+        return;
+    }
+
+    //Expect ')'
+    if formatData.ExpectType(TokenType.RightParenthesis, "Missing expected ')' in fn") == false {
+		formatData.AddToFunctionLog("ERROR ProcessFunction")
+        return;
+    }
+    //Expect '{'
+    if formatData.ExpectNextType(TokenType.LeftBrace, "Missing expected '{' in fn") == false {
+		formatData.AddToFunctionLog("ERROR ProcessFunction")
+        return;
+    }
+    formatData.Increment();
+
+    formatData.AddToProcessLog(functionName + "() {")
+    formatData.IncreaseLogIndent()
+    CodeBlock innerBlock = FillBody(formatData);
+    formatData.DecreaseLogIndent()
+    formatData.AddToProcessLog("}")
+
+    if formatData.IsError() {
+        return
+    }
+
+    //Expect '}'
+    if formatData.ExpectType(TokenType.RightBrace, "Missing expected '}' in fn") == false {
+        formatData.AddToFunctionLog("ERROR ProcessFunction")
+        return;
+    }
+
+    Function function = { 
+        InnerBlock: &innerBlock,
+        Parameters: parameters,
+        Name: functionName,
+        ReturnType: returnType,
+        StartingToken: fnToken,
+    };
+    formatData.AddToFunctionLog("EXIT ProcessFunction")
+    *functions = append(*functions, function);
+}
+
+fn ProcessInterfaceFunction(*FormatData formatData, *[]Function functions, Token fnToken) {
+
+    formatData.SetErrorFunction("ProcessInterfaceFunction");
+
+    []Variable parameters = make(0);
+    string returnType = "";
+    string functionName = "";
+
+    GetInterfaceMethodTypeAndName(formatData, &returnType, &functionName);
+    if formatData.IsError() {
+        return;
+    }
+    //Expect '('
+    if formatData.ExpectType(TokenType.LeftParenthesis, "Missing expected '(' in interface") == false {
+        return;
+    }
+    formatData.Increment();
+
+    FindParameters(formatData, &parameters);
+    if formatData.IsError() {
+        return;
+    }
+
+    //Expect ')'
+    if formatData.ExpectType(TokenType.RightParenthesis, "Missing expected ')' in interface") == false {
+        return;
+    }
+    formatData.Increment();
+
+    Function function = {
+        InnerBlock: nil,
+        Parameters: parameters,
+        Name: functionName,
+        ReturnType: returnType,
+    };
+    *functions = append(*functions, function);
+}

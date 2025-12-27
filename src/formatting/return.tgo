@@ -1,0 +1,28 @@
+package formatting
+
+import . "TypeGo/core"
+
+fn BlockData ProcessReturn(*FormatData formatData) {
+
+    formatData.SetErrorFunction("ProcessReturn");
+
+    BlockData blockData;
+
+    blockData.NodeType = NodeType.Return;
+
+    LoopTokensUntilLineEnd(formatData, &blockData, true);
+
+    return blockData;
+}
+fn BlockData ProcessOther(*FormatData formatData) {
+
+    formatData.SetErrorFunction("ProcessOther");
+
+    BlockData blockData;
+
+    blockData.NodeType = NodeType.Other;
+
+    LoopTokensUntilLineEnd(formatData, &blockData, true);
+
+    return blockData;
+}

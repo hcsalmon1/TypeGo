@@ -1,0 +1,168 @@
+package parse
+
+import . "TypeGo/core"
+
+fn bool isOperator(byte c) {
+
+    int operators_len = len(OPERATORS)
+
+    for i := 0; i < operators_len; i++ {
+
+        if c == OPERATORS[i] {
+            return true;
+        }
+    }
+    return false;
+}
+
+fn bool isSeparator(byte c) {
+
+    int separator_len = len(SEPERATORS)
+
+    for i := 0; i < separator_len; i++ {
+
+        if c == SEPERATORS[i] {
+            return true;
+        }
+    }
+    return false;
+}
+
+fn bool isInteger(string input) {
+
+    int string_len = len(input)
+
+    for i := 0; i < string_len; i++ {
+
+        byte c = input[i]
+
+        if c >= '0' && c <= '9' {
+            continue
+        }   
+        return false
+    }
+    return true
+}
+
+fn bool isLetterOrDigit(byte c) {
+
+    if c >= '0' && c <= '9' {
+        return true
+    }   
+    if c >= 'A' && c <= 'Z' {
+        return true
+    }
+    if c >= 'a' && c <= 'z' {
+        return true
+    }
+    return false
+
+}
+
+fn IntTokenType getTokenType(string input) {
+    // Keywords
+    if input == FN { return TokenType.Fn; }
+    if input == FUNC { return TokenType.Fn; }
+    if input == IF { return TokenType.If; }
+    if input == ELSE { return TokenType.Else; }
+    if input == FOR { return TokenType.For; }
+    if input == WHILE { return TokenType.While; }
+    if input == RETURN { return TokenType.Return; }
+    if input == BREAK { return TokenType.Break; }
+    if input == CONTINUE { return TokenType.Continue; }
+    if input == PRINT { return TokenType.Print; }
+    if input == PRINTLN { return TokenType.Println; }
+    if input == TRUE { return TokenType.True; }
+    if input == FALSE { return TokenType.False; }
+    if input == CASE { return TokenType.Case; }
+
+    // Types
+    if input == INT { return TokenType.Int; }
+    if input == INT8 { return TokenType.Int8; }
+    if input == INT16 { return TokenType.Int16; }
+    if input == INT32 { return TokenType.Int32; }
+    if input == INT64 { return TokenType.Int64; }
+    if input == UINT16 { return TokenType.Uint16; }
+    if input == UINT32 { return TokenType.Uint32; }
+    if input == UINT64 { return TokenType.Uint64; }
+    if input == F32 { return TokenType.Float32; }
+    if input == F64 { return TokenType.Float64; }
+    if input == STRING { return TokenType.String; }
+    if input == BOOL { return TokenType.Bool; }
+    if input == BYTE { return TokenType.Byte; }
+    if input == RUNE { return TokenType.Rune; }
+    if input == CONST { return TokenType.Const; }
+    if input == STRUCT { return TokenType.Struct; }
+    if input == ENUM { return TokenType.Enum; }
+    if input == ENUMSTRUCT { return TokenType.Enumstruct; }
+    if input == MAP { return TokenType.Map; }
+    if input == ERROR { return TokenType.Error; }
+    if input == DEFER { return TokenType.Defer; }
+    if input == CHAN { return TokenType.Chan; }
+    if input == CHANNEL_SETTER { return TokenType.Channel_Setter; }
+    if input == VAR { return TokenType.Var; }
+    if input == GO { return TokenType.Go; }
+    if input == TYPE { return TokenType.Type; }
+    if input == INTERFACE { return TokenType.Interface; }
+    if input == GOTO { return TokenType.Goto; }
+    if input == MINUS_MINUS { return TokenType.MinusMinus; }
+    if input == NOT { return TokenType.Not; }
+    if input == ERRRETURN { return TokenType.ErrReturn; }
+    if input == ERRCHECK { return TokenType.ErrCheck; }
+    if input == VOID {return TokenType.Void; }
+
+    // Operators
+    if input == PLUS_PLUS { return TokenType.PlusPlus; }
+    if input == PLUS { return TokenType.Plus; }
+    if input == MINUS { return TokenType.Minus; }
+    if input == MULTIPLY { return TokenType.Multiply; }
+    if input == DIVIDE { return TokenType.Divide; }
+    if input == EQUALS { return TokenType.Equals; }
+    if input == PLUS_EQUALS { return TokenType.PlusEquals; }
+    if input == MINUS_EQUALS { return TokenType.MinusEquals; }
+    if input == MULTIPLY_EQUALS { return TokenType.MultiplyEquals; }
+    if input == DIVIDE_EQUALS { return TokenType.DivideEquals; }
+    if input == GREATER_THAN { return TokenType.GreaterThan; }
+    if input == LESS_THAN { return TokenType.LessThan; }
+    if input == EQUALS_EQUALS { return TokenType.EqualsEquals; }
+    if input == GREATER_THAN_EQUALS { return TokenType.GreaterThanEquals; }
+    if input == LESS_THAN_EQUALS { return TokenType.LessThanEquals; }
+    if input == MODULUS { return TokenType.Modulus; }
+    if input == NOT_EQUALS { return TokenType.NotEquals; }
+    if input == AND { return TokenType.And; }
+    if input == AND_AND { return TokenType.AndAnd; }
+    if input == OR { return TokenType.Or; }
+    if input == OR_OR { return TokenType.OrOr; }
+    if input == MODULUS_EQUALS { return TokenType.ModulusEquals; }
+    if input == MULTILINE_COMMENT_START { return TokenType.MultiLineStart; }
+    if input == MULTILINE_COMMENT_END { return TokenType.MultiLineEnd; }
+
+    // Parentheses and Brackets
+    if input == LEFT_PARENTHESIS { return TokenType.LeftParenthesis; }
+    if input == RIGHT_PARENTHESIS { return TokenType.RightParenthesis; }
+    if input == LEFT_BRACE { return TokenType.LeftBrace; }
+    if input == RIGHT_BRACE { return TokenType.RightBrace; }
+    if input == LEFT_SQUARE_BRACKET { return TokenType.LeftSquareBracket; }
+    if input == RIGHT_SQUARE_BRACKET { return TokenType.RightSquareBracket; }
+
+    if input == COLON { return TokenType.Colon; }
+    if input == COLON_EQUALS { return TokenType.ColonEquals; }
+    if input == SEMICOLON { return TokenType.Semicolon; }
+    if input == COMMA { return TokenType.Comma; }
+    if input == FULL_STOP { return TokenType.FullStop; }
+
+    if input == MAKE { return TokenType.Make; }
+    if input == APPEND { return TokenType.Append; }
+    if input == PACKAGE { return TokenType.Package; }
+    if input == IMPORT { return TokenType.Import; }
+    if input == SWITCH { return TokenType.Switch; }
+
+    // Number literals
+    if isInteger(input) { return TokenType.IntegerValue; }
+
+    // String or Char value
+    //if (input.Contains('"')) { return TokenType.StringValue; }
+    //if (input.Contains('\'')) { return TokenType.CharValue; }
+
+    return TokenType.Identifier;
+}

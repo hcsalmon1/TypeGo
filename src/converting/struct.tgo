@@ -1,0 +1,134 @@
+package converting
+
+import . "TypeGo/core"
+
+fn ProcessStruct(*ConvertData convertData, *BlockData blockData, int nestCount) {
+    if blockData.Tokens == nil {
+        convertData.ConvertResult = ConvertResult.Internal_Error;
+        convertData.ErrorDetail = "Tokens is null in ProcessStruct";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    if len(blockData.Tokens) != 1 {
+        convertData.ConvertResult = ConvertResult.Internal_Error;
+        convertData.ErrorDetail = "Token count is 1 in ProcessStruct";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+    string structNameText = blockData.Tokens[0].Text;
+
+    convertData.AppendString("type " + structNameText + " struct {");
+    convertData.NewLineWithTabs();
+
+    *CodeBlock structVariableBlock = blockData.Block;
+    if structVariableBlock == nil {
+        convertData.AppendChar('\n');
+        EndStruct(convertData);
+        return;
+    }
+
+    if structVariableBlock.BlockDataList == nil {
+        convertData.ConvertResult = ConvertResult.Internal_Error;
+        convertData.ErrorDetail = "BlockDataList is null in ProcessStruct";
+        convertData.ErrorToken = blockData.StartingToken;
+        return;
+    }
+
+    []BlockData blockDataList = structVariableBlock.BlockDataList;
+
+    if len(blockDataList) == 0 {
+        convertData.AppendChar('\n');
+        EndStruct(convertData);
+        return;
+    }
+
+    []string varNames = make(0);
+
+    for blockIndex := 0; blockIndex < len(blockDataList); blockIndex++ {
+
+        BlockData varBlock = blockDataList[blockIndex];
+
+        if varBlock.NodeType != NodeType.Single_Declaration_No_Value {
+            
+            PrintOther(convertData, &varBlock, nestCount);
+            if convertData.IsError() {
+                return
+            }
+            continue;
+        }
+
+        for i := 0; i < len(varBlock.Variables); i++ {
+            Variable variable = varBlock.Variables[i];
+            if variable.NameToken == nil {
+                continue;
+            }
+            if len(variable.NameToken) == 0 {
+                continue;
+            }
+            varNames.append(variable.NameToken[0].Text);
+            string varTypeAsText = JoinTextInListOfTokens(&variable.TypeList);
+            if varTypeAsText == "" {
+                continue;
+            }
+            convertData.AppendString(variable.NameToken[0].Text + " " + varTypeAsText);
+            convertData.NewLineWithTabs();
+        }
+    }
+
+    convertData.AppendChar('\r');
+    EndStruct(convertData);
+    PrintStructMethods(convertData, structVariableBlock, nestCount, &varNames, structNameText);
+}
+
+fn PrintStructMethods(*ConvertData convertData, *CodeBlock structBlock, int nestCount, *[]string varName, string structName) {
+
+    []Function functions = structBlock.MethodList;
+    if functions == nil {
+        return;
+    }
+    if len(functions) == 0 {
+        return;
+    }
+
+    convertData.MethodType = MethodType.Struct;
+    convertData.StructName = structName;
+
+    for i := 0; i < len(functions); i++ {
+        ProcessFunction(convertData, &functions[i]);
+    }
+    convertData.MethodType = MethodType.None;
+    convertData.MethodVarNames = nil
+}
+
+fn PrintOther(*ConvertData convertData, *BlockData varBlock, int nestCount) {
+    
+	if varBlock.NodeType == NodeType.Single_Declaration_With_Value {
+		convertData.ErrorToken = varBlock.StartingToken
+		convertData.ErrorDetail = "Can't set a value in a struct definition"
+		convertData.ConvertResult = ConvertResult.Unexpected_Type
+		return
+	}
+
+    if varBlock.NodeType != NodeType.Other {
+        return;
+    }
+
+    if len(varBlock.Tokens) == 0 {
+        return;
+    }
+
+    for i := 0; i < len(varBlock.Tokens); i++ {
+        Token token = varBlock.Tokens[i];
+
+        if token.Type == TokenType.NewLine {
+            continue;
+        }
+        convertData.AppendString(varBlock.Tokens[i].Text);
+    }
+}
+
+fn EndStruct(*ConvertData convertData) {
+    convertData.AppendChar('}');
+    convertData.AppendChar('\n');
+    convertData.AppendChar('\n');
+}

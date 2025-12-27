@@ -1,0 +1,17 @@
+package formatting
+
+import . "TypeGo/core"
+
+fn BlockData ProcessDefer(*FormatData formatData, *Token token) {
+
+    formatData.SetErrorFunction("ProcessDefer");
+
+    BlockData blockData
+
+    blockData.NodeType = NodeType.Other;
+
+    formatData.SetErrorProcess("Loop tokens until line end, defer");
+    LoopTokensUntilLineEnd(formatData, &blockData, true);
+
+    return blockData;
+}
