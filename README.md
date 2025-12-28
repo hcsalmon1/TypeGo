@@ -164,7 +164,7 @@ The rest of your project will be untouched.
 
 It has decent syntax highlighting in VSCode. You can also enable conversion on save using the "Run on Save" extension in VSCode. You then put this in your settings.json:
 
-`json
+```json
   "emeraldwalk.runonsave": {
     "commands": [
       {
@@ -173,7 +173,7 @@ It has decent syntax highlighting in VSCode. You can also enable conversion on s
       }
     ]
   }
-`
+```
 TypeGo lets Go handle the errors. I may experiment with a way to see errors inside TypeGo files later.
 
 **Q. What's wrong with ':=' and inferred types?**
