@@ -35,7 +35,8 @@ func DeclarationLoop(format_data *FormatData, firstToken Token) BlockData {
 		if result == LoopAction.Return {
 			return blockData; 
 		}
-			}
+		
+	}
 	
 	
 	WriteTokens(format_data, &blockData); 
