@@ -82,14 +82,17 @@ func ProcessSingleDeclarationNoValue(convertData *ConvertData, blockData *BlockD
 			
 				string_builder = append(string_builder, nameToken.Text[i])
 				
-							}
+				
+			}
 			
 			
-					}
+			
+		}
 		
 		
 		convertData.AppendString("var " +string(string_builder)+" " +varTypeAsText); 
-			}
+		
+	}
 	
 	
 }
@@ -132,7 +135,8 @@ func ProcessChannelDeclarationNoValue(convertData *ConvertData, blockData *Block
 		
 		convertData.AppendString("var " +nameToken.Text + " chan " +varTypeAsText); 
 		
-			}
+		
+	}
 	
 	
 }
@@ -183,7 +187,8 @@ func ProcessChannelDeclarationWithValue(convertData *ConvertData, blockData *Blo
 		
 		convertData.AppendString("var " +nameToken.Text + " chan " +varTypeAsText + " "); 
 		PrintTokensDeclaration(convertData, blockData, nestCount, false, varTypeAsText); 
-			}
+		
+	}
 	
 	
 }
@@ -258,7 +263,8 @@ func ProcessSingleDeclarationWithValue(convertData *ConvertData, blockData *Bloc
 		}
 		
 		PrintTokensDeclaration(convertData, blockData, nestCount, false, varTypeAsText); 
-			}
+		
+	}
 	
 	convertData.NewLineWithTabs()
 	
@@ -322,11 +328,13 @@ func ProcessMultipleDeclarationNoValue(convertData *ConvertData, blockData *Bloc
 				
 			}
 			convertData.AppendString(nameToken.Text); 
-					}
+			
+		}
 		
 		
 		convertData.AppendString(" " +varTypeAsText + "\n\t"); 
-			}
+		
+	}
 	
 	
 	convertData.AppendChar(' '); 
@@ -379,7 +387,8 @@ func ProcessMultipleDeclarationWithValue(convertData *ConvertData, blockData *Bl
 		}
 		
 		convertData.AppendString("var " +nameToken.Text + " " +varTypeAsText + "\n\t"); 
-			}
+		
+	}
 	
 	
 	for i := 0; i < len(variables); i++ {
@@ -403,7 +412,8 @@ func ProcessMultipleDeclarationWithValue(convertData *ConvertData, blockData *Bl
 			
 		}
 		convertData.AppendString(nameToken.Text); 
-			}
+		
+	}
 	
 	convertData.AppendChar(' '); 
 	PrintTokensDeclaration(convertData, blockData, nestCount, false, ""); 
@@ -466,7 +476,8 @@ func ProcessMultipleDeclarationWithSetValue(convertData *ConvertData, blockData 
 		}
 		
 		convertData.AppendString("var " +nameToken.Text + " " +varTypeAsText); 
-			}
+		
+	}
 	
 	convertData.NewLineWithTabs(); 
 	
@@ -506,7 +517,8 @@ func ProcessMultipleDeclarationWithSetValue(convertData *ConvertData, blockData 
 			
 		}
 		convertData.AppendString(nameToken.Text); 
-			}
+		
+	}
 	
 	convertData.AppendChar(' '); 
 	PrintTokensDeclaration(convertData, blockData, nestCount, false, ""); 
@@ -584,7 +596,8 @@ func PrintTokensDeclaration(convertData *ConvertData, blockData *BlockData, nest
 		convertData.AppendString(token.Text); 
 		addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i); 
 		lastType = token.Type; 
-			}
+		
+	}
 	
 	
 }
@@ -643,7 +656,8 @@ func ProcessInterfaceDeclaration(convertData *ConvertData, blockData *BlockData,
 		
 		convertData.GeneratedCode = append(convertData.GeneratedCode, '\t')
 		
-			}
+		
+	}
 	
 	
 	EndInterface(convertData); 
@@ -686,7 +700,8 @@ func PrintParametersInterface(convertData *ConvertData, function Function) {
 			
 		}
 		convertData.AppendString(parameter.NameToken[0].Text + " " +typeAsText)
-			}
+		
+	}
 	
 	
 }
@@ -718,7 +733,8 @@ func IsMethodVar(convertData *ConvertData, varName string) bool {
 		if name == varName {
 			return true; 
 		}
-			}
+		
+	}
 	
 	return false; 
 }
@@ -740,7 +756,8 @@ func PrintTokens(convertData *ConvertData, blockData *BlockData, nestCount int) 
 		HandleToken(convertData, token); 
 		addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i); 
 		lastType = token.Type; 
-			}
+		
+	}
 	
 	
 }
@@ -793,7 +810,8 @@ func PrintTokensNewLine(convertData *ConvertData, blockData *BlockData, nestCoun
 		HandleToken(convertData, token); 
 		addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i); 
 		lastType = token.Type; 
-			}
+		
+	}
 	
 	
 	if lastType != TokenType.NewLine {
@@ -845,7 +863,8 @@ func PrintComment(convertData *ConvertData, blockData *BlockData, nestCount int)
 		HandleToken(convertData, token); 
 		addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i); 
 		lastType = token.Type; 
-			}
+		
+	}
 	
 	
 }
@@ -899,7 +918,8 @@ func PrintTokensNoNL(convertData *ConvertData, blockData *BlockData, nestCount i
 		convertData.AppendString(token.Text); 
 		addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i); 
 		lastType = token.Type; 
-			}
+		
+	}
 	
 	
 }
@@ -944,20 +964,23 @@ func AddSpaceBefore(convertData *ConvertData, thisType IntTokenType, lastType In
 	
 	if shouldHaveSpaceBeforePlus {
 	addSpace = true; 
-		}
+	
+	}
 	
 	case TokenType.Multiply:
 	
 	if lastType == TokenType.Identifier {
 	addSpace = true; 
-		}
+	
+	}
 	
 	case TokenType.Divide:
 	addSpace = true; 
 	
 	default:
 	
-		}
+	
+	}
 	
 	
 	if thisType == TokenType.Minus {
@@ -1013,7 +1036,8 @@ func AddSpaceAfter(convertData *ConvertData, thisType IntTokenType, lastType Int
 	
 	default:
 	
-		}
+	
+	}
 	
 	
 	if thisType == TokenType.Multiply {
@@ -1095,7 +1119,8 @@ func AddSpaceAfterBlock(convertData *ConvertData, nodeType IntNodeType, nestCoun
 	
 	default:
 	
-		}
+	
+	}
 	
 	
 }
