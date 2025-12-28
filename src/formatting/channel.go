@@ -39,7 +39,8 @@ func SetNodeType(block_data *BlockData) {
 	
 	default:
 	block_data.NodeType = NodeType.Channel_Declaration; 
-		}
+	
+	}
 	
 	
 }
