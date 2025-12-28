@@ -120,7 +120,8 @@ func GetFunctionTypeAndName(formatData *FormatData, returnType *string, function
 	default:
 	TypeAndNameOther(formatData, returnType, functionName, firstToken); 
 	
-		}
+	
+	}
 	
 	
 }
@@ -146,7 +147,8 @@ func GetInterfaceMethodTypeAndName(formatData *FormatData, returnType *string, f
 	
 	default:
 	TypeAndNameOther(formatData, returnType, functionName, firstToken); 
-		}
+	
+	}
 	
 	
 	
