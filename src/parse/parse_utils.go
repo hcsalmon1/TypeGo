@@ -15,7 +15,8 @@ func isOperator(c byte) bool {
 		if c == OPERATORS[i] {
 			return true; 
 		}
-			}
+		
+	}
 	
 	return false; 
 }
@@ -30,7 +31,8 @@ func isSeparator(c byte) bool {
 		if c == SEPERATORS[i] {
 			return true; 
 		}
-			}
+		
+	}
 	
 	return false; 
 }
@@ -49,7 +51,8 @@ func isInteger(input string) bool {
 			continue 
 			
 		}
-		return false	}
+		return false
+	}
 	
 	return true
 }
