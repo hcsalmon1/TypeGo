@@ -63,7 +63,8 @@ func MultiImportInnerLoop(formatData *FormatData, blockData *BlockData, token To
 	if isValid {
 	blockData.Tokens = append(blockData.Tokens, token); 
 	break; 
-		}
+	
+	}
 	formatData.UnexpectedTypeError(token, "invalid import lasttype" +lastTokenType.ToString()+" token: " +token.Text); 
 	return LoopAction.Return; 
 	
@@ -75,7 +76,8 @@ func MultiImportInnerLoop(formatData *FormatData, blockData *BlockData, token To
 	if isValid {
 	blockData.Tokens = append(blockData.Tokens, token); 
 	break; 
-		}
+	
+	}
 	formatData.UnexpectedTypeError(token, "invalid import lasttype " +lastTokenType.ToString()+" token: " +token.Text); 
 	return LoopAction.Return; 
 	
@@ -87,7 +89,8 @@ func MultiImportInnerLoop(formatData *FormatData, blockData *BlockData, token To
 	if isValid {
 	blockData.Tokens = append(blockData.Tokens, token); 
 	break; 
-		}
+	
+	}
 	formatData.UnexpectedTypeError(token, "invalid import lasttype " +lastTokenType.ToString()+" token: " +token.Text); 
 	break; 
 	
@@ -105,7 +108,8 @@ func MultiImportInnerLoop(formatData *FormatData, blockData *BlockData, token To
 	if isValid {
 	blockData.Tokens = append(blockData.Tokens, token); 
 	break; 
-		}
+	
+	}
 	formatData.UnexpectedTypeError(token, "invalid import lasttype " +lastTokenType.ToString()+" token: " +token.Text); 
 	return LoopAction.Return; 
 	
@@ -121,7 +125,8 @@ func MultiImportInnerLoop(formatData *FormatData, blockData *BlockData, token To
 	default:
 	formatData.UnexpectedTypeError(token, "invalid import lasttype " +lastTokenType.ToString()+" token: " +token.Text); 
 	return LoopAction.Return; 
-		}
+	
+	}
 	
 	return LoopAction.Continue; 
 }
@@ -157,7 +162,8 @@ func ProcessMultiImport(formatData *FormatData, globalBlock *CodeBlock, blockDat
 		
 		lastTokenType = token.Type; 
 		formatData.IncrementIfSame(previousIndex); 
-			}
+		
+	}
 	
 	
 	globalBlock.BlockDataList = append(globalBlock.BlockDataList, *blockData)
@@ -461,7 +467,8 @@ func FillEnumBody(formatData *FormatData) CodeBlock {
 		
 		
 		formatData.Increment(); 
-			}
+		
+	}
 	
 	
 	return block; 
@@ -541,7 +548,8 @@ func LoopValue(formatData *FormatData, globalBlock *CodeBlock, blockData BlockDa
 		blockData.Tokens = append(blockData.Tokens, token)
 		
 		formatData.Increment(); 
-			}
+		
+	}
 	
 	
 	globalBlock.BlockDataList = append(globalBlock.BlockDataList, blockData)
