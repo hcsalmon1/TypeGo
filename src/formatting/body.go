@@ -37,12 +37,14 @@ func ProcessTokenInBody(formatData *FormatData, block *CodeBlock, token Token) {
 	blockData = ProcessReturn(formatData); 
 	
 	case TokenType.Break:
-	blockData = BlockData {	}; 
+	blockData = BlockData {
+	}; 
 	blockData.NodeType = NodeType.Break; 
 	formatData.IncrementTwice(); 
 	
 	case TokenType.Continue:
-	blockData = BlockData {	}; 
+	blockData = BlockData {
+	}; 
 	blockData.NodeType = NodeType.Other; 
 	blockData.Tokens = append(blockData.Tokens, token); 
 	formatData.IncrementTwice(); 
@@ -68,7 +70,8 @@ func ProcessTokenInBody(formatData *FormatData, block *CodeBlock, token Token) {
 	case TokenType.EndComment:
 	return; 
 	case TokenType.NewLine:
-	blockData = BlockData {	}; 
+	blockData = BlockData {
+	}; 
 	blockData.NodeType = NodeType.NewLine; 
 	
 	case TokenType.ErrReturn:
@@ -93,7 +96,8 @@ func ProcessTokenInBody(formatData *FormatData, block *CodeBlock, token Token) {
 	formatData.UnsupportedFeatureError(token, "unexpected token " +token.Text); 
 	formatData.AddToFunctionLog("ERROR ProcessTokenInBody")
 	return; 
-		}
+	
+	}
 	
 	
 	if formatData.IsError() {
@@ -137,7 +141,8 @@ func FillBody(formatData *FormatData) CodeBlock {
 		}
 		
 		formatData.IncrementIfSame(previousIndex); 
-			}
+		
+	}
 	
 	formatData.AddToFunctionLog("EXIT ProcessTokenInBody")
 	return block; 
@@ -184,7 +189,8 @@ func FillStructBody(formatData *FormatData) CodeBlock {
 		}
 		
 		formatData.IncrementIfSame(previousIndex); 
-			}
+		
+	}
 	
 	formatData.AddToFunctionLog("EXIT FillStructBody")
 	return block; 
@@ -222,7 +228,8 @@ func FillInterfaceBody(formatData *FormatData) CodeBlock {
 		}
 		ProcessInterfaceFunction(formatData, &block.MethodList, token); 
 		formatData.IncrementIfSame(previousIndex); 
-			}
+		
+	}
 	
 	formatData.AddToFunctionLog("EXIT FillStructBody")
 	return block; 
