@@ -162,7 +162,7 @@ The rest of your project will be untouched.
 
 **Q. Does TypeGo have a Language Server?**
 
-I has decent syntax highlighting in VSCode. You can also enable conversion on save using the "Run on Save" extension in VSCode. You then put this in your settings.json:
+It has decent syntax highlighting in VSCode. You can also enable conversion on save using the "Run on Save" extension in VSCode. You then put this in your settings.json:
 
 `json
   "emeraldwalk.runonsave": {
