@@ -30,7 +30,8 @@ func ProcessFor(formatData *FormatData, firstToken Token) BlockData {
 		
 		
 		formatData.Increment(); 
-			}
+		
+	}
 	
 	
 	if formatData.ExpectType(TokenType.LeftBrace, "missing '{' after for loop") == false {
