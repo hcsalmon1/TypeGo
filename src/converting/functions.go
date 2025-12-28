@@ -49,7 +49,8 @@ func PrintFunctionNameAndParameters(convertData *ConvertData, function *Function
 	default:
 	convertData.AppendString("func " +function.Name + "(")
 	
-		}
+	
+	}
 	
 	
 	PrintParameters(convertData, function); 
@@ -93,7 +94,8 @@ func PrintParameters(convertData *ConvertData, function *Function) {
 			return; 
 		}
 		convertData.AppendString(parameter.NameToken[0].Text + " " +typeAsText); 
-			}
+		
+	}
 	
 	
 }
