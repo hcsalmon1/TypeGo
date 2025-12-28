@@ -93,7 +93,8 @@ func FormatCode(tokenList []Token, result *IntFormatResult, code string) CodeFor
 		
 		default:
 		
-				}
+		
+		}
 		
 		
 		if formatData.IsError() {
@@ -105,7 +106,8 @@ func FormatCode(tokenList []Token, result *IntFormatResult, code string) CodeFor
 		}
 		
 		formatData.IncrementIfSame(previousIndex); 
-			}
+		
+	}
 	
 	
 	codeFormat.Functions = functionList
