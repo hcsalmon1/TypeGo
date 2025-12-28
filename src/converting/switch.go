@@ -29,7 +29,8 @@ func ConvertSwitch(convertData *ConvertData, blockData *BlockData, nestCount int
 		HandleTokenSwitch(convertData, token, &nestCount); 
 		addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i); 
 		lastType = token.Type; 
-			}
+		
+	}
 	
 	
 	if lastType != TokenType.NewLine {
