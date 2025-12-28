@@ -69,14 +69,53 @@ panic() ✅
 recover() ✅  
 new() ✅    
 
+Errors
+
+errreturn keyword ✅
+```go
+
+  err = foo()
+  errreturn err
+
+```
+Converts to:
+```go
+
+   err = foo()
+   if err != nil {
+         return err
+    }
+
+```
+errcheck keyword ✅
+```go
+
+    err = foo()
+    errcheck {
+        fmt.Println("Error doing something:", err.Error())
+        return
+    }
+```
+Converts to:
+```go
+
+    err = foo()
+    if err != nil {
+        fmt.Println("Error doing something:", err.Error())
+        return
+    }
+
+```
+
 **Enums**  
 
 enum (iota-style) ✅  
 enumstruct ✅  
+custom aliases in enumstruct
 ToString functions ✅  
 Custom integer values in enum ✅ 
 Using enums in switch statements ✅  
-Enum method support ❌  
+Enum method support ✅
 
 **Structs** 
 Struct declarations ✅  
@@ -84,7 +123,9 @@ Struct literal initialization ✅
 Embedded structs ✅  
 Method declarations inside structs ✅  
 Method receivers (pointer/value) ❌  
-  For simplicity all methods will use a pointer by default.
+  For consistency:
+  structs - by reference by default
+  enum methods - by value by default
 Struct methods with receiver access to fields ✅  
 Embedded struct field access in methods ✅    
 Struct embedding with method promotion ❌  
