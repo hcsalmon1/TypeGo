@@ -87,9 +87,7 @@ Structs:
 
 Methods are written inside the struct.  
 Again the Struct name can be omitted after '='  
-Structs object names will be based on the first letter of the struct.  
-So: Person -> p, Game -> g, Settings -> s  
-You are still required to write this before member variables. I originally made it automatic but it created a lot of bugs.  
+Structs object names will always be self.  
 
 **Enums:**
 
