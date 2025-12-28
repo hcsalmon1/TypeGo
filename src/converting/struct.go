@@ -84,9 +84,11 @@ func ProcessStruct(convertData *ConvertData, blockData *BlockData, nestCount int
 			}
 			convertData.AppendString(variable.NameToken[0].Text + " " +varTypeAsText); 
 			convertData.NewLineWithTabs(); 
-					}
+			
+		}
 		
-			}
+		
+	}
 	
 	
 	convertData.AppendChar('\r'); 
@@ -111,7 +113,8 @@ func PrintStructMethods(convertData *ConvertData, structBlock *CodeBlock, nestCo
 	for i := 0; i < len(functions); i++ {
 	
 		ProcessFunction(convertData, &functions[i]); 
-			}
+		
+	}
 	
 	convertData.MethodType = MethodType.None; 
 	convertData.MethodVarNames = nil
@@ -145,7 +148,8 @@ func PrintOther(convertData *ConvertData, varBlock *BlockData, nestCount int) {
 			
 		}
 		convertData.AppendString(varBlock.Tokens[i].Text); 
-			}
+		
+	}
 	
 	
 }
