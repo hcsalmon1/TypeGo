@@ -365,7 +365,7 @@ func (self UserType) ToString() string {
 
 ```
 
-The name of the enum will be placed before each name to avoid conflicts and a function called NameToString will be auto generated.  
+The name of the enum will be placed before each name to avoid conflicts and a method called ToString will be auto generated.  
 This is the first option, to keep the iota way still possible.
 
 **2. enumstruct**
