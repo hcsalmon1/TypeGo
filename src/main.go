@@ -161,7 +161,8 @@ func ConvertDirectory(currentDirectory string) {
 		}
 		
 		
-			}
+		
+	}
 	
 	
 }
@@ -275,13 +276,15 @@ func ConsoleInput(args []string) {
 	if len(args) < 2 {
 	fmt.Println("Error: You must specify a filename (e.g. typego convertfile myfile.tgo)")
 	break 
-		}
+	
+	}
 	
 	current_working_directory, err = os.Getwd()
 	if err != nil {
 	fmt.Println("Error getting current directory:", err)
 	return 
-		}
+	
+	}
 	
 	file_path = filepath.Join(current_working_directory, args[1])
 	ConvertFile(file_path)
@@ -295,14 +298,16 @@ func ConsoleInput(args []string) {
 	if err != nil {
 	fmt.Println("Error getting current directory:", err)
 	return 
-		}
+	
+	}
 	ConvertDirectory(current_working_directory)
 	fmt.Println("Done")
 	
 	default:
 	fmt.Printf("Unknown command: %s\n", command)
 	ShowHelp()
-		}
+	
+	}
 	
 	
 }
