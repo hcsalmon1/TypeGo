@@ -116,6 +116,7 @@ Features:
 -Improved enum syntax  
 -Simplified struct methods  
 
+TypeGo is also completely written in TypeGo itself and converts every file to Go.
   
 **Q. Why did you make TypeGo?**
   
