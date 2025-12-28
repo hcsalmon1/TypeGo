@@ -18,7 +18,8 @@ func ConvertToNodetypeWithValue(blockData *BlockData) {
 	
 	default:
 	
-		}
+	
+	}
 	
 	
 }
@@ -380,7 +381,8 @@ func convertTokenTypeToLastTokenType(token_type IntTokenType) IntLastTokenType {
 	return LastTokenType.LeftBrace
 	case TokenType.RightBrace:
 	return LastTokenType.RightBrace
-		}
+	
+	}
 	
 	return LastTokenType.Null
 }
@@ -514,7 +516,8 @@ func ProcessDeclarationToken(formatData *FormatData, blockData *BlockData, token
 	default:
 	formatData.UnexpectedTypeError(token, "unsupported last type: " +lastType.ToString()+", this type: " +token.Type.ToString())
 	return LoopAction.Error; 
-		}
+	
+	}
 	
 	
 }
@@ -531,7 +534,8 @@ func WriteTokens(formatData *FormatData, blockData *BlockData) {
 	if blockData.Validate(formatData) == false {
 	formatData.AddToFunctionLog("ERROR WriteTokens")
 	return 
-		}
+	
+	}
 	
 	case NodeType.Single_Declaration_No_Value:
 	LoopTokensUntilLineEnd(formatData, blockData, true); 
@@ -557,7 +561,8 @@ func WriteTokens(formatData *FormatData, blockData *BlockData) {
 	
 	default:
 	break; 
-		}
+	
+	}
 	
 	formatData.AddToFunctionLog("EXIT WriteTokens")
 	
