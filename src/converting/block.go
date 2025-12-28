@@ -121,7 +121,8 @@ func ProcessBlockData(convertData *ConvertData, blockData *BlockData, nestCount 
 	convertData.ErrorDetail = "unexpected node type '{nodeType}' in block data"; 
 	convertData.ErrorToken = blockData.StartingToken; 
 	break; 
-		}
+	
+	}
 	
 	
 	AddSpaceAfterBlock(convertData, blockData.NodeType, nestCount); 
@@ -156,7 +157,8 @@ func ProcessBlock(convertData *ConvertData, codeBlock *CodeBlock, nestCount int,
 		if convertData.IsError() {
 			return 
 		}
-			}
+		
+	}
 	
 	
 }
