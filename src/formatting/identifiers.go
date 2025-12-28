@@ -41,7 +41,8 @@ func ProcessIdentifier(formatData *FormatData, firstToken Token) BlockData {
 		
 		formatData.Increment(); 
 		lastTokenType = thisToken.Type; 
-			}
+		
+	}
 	
 	
 	if loopAction == IdentLoopAction.Error {
@@ -81,7 +82,8 @@ func IdentifierLoopCode(formatData *FormatData, thisToken Token, lastTokenType I
 	
 	if lastTokenType == TokenType.Identifier {
 	return IdentLoopAction.Declaration; 
-		}
+	
+	}
 	
 	return IdentLoopAction.Continue; 
 	
@@ -106,7 +108,8 @@ func IdentifierLoopCode(formatData *FormatData, thisToken Token, lastTokenType I
 	default:
 	formatData.UnexpectedTypeError(thisToken, "type: " +thisToken.Type.ToString()); 
 	return IdentLoopAction.Error; 
-		}
+	
+	}
 	
 	
 	formatData.SetError(FormatResult.UnexpectedType, "'" +thisToken.Text + "' after identifier")
