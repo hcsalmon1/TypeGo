@@ -17,14 +17,16 @@ func JoinTextInListOfTokens(tokenList *[]Token) string {
 	
 		outputSB = append(outputSB, (*tokenList)[i].Text)
 		
-			}
+		
+	}
 	
 	var result string  = ""
 	
 	for i := 0; i < len(outputSB); i++ {
 	
 		result += outputSB[i]
-			}
+		
+	}
 	
 	return result
 }
@@ -49,11 +51,13 @@ func JoinTextInListOfTokensWithSpaces(tokenList []Token) string {
 		
 			outputSB = append(outputSB, text[j])
 			
-					}
+			
+		}
 		
 		outputSB = append(outputSB, ' ')
 		
-			}
+		
+	}
 	
 	return string(outputSB)
 }
@@ -69,7 +73,8 @@ func AppendStringToSlice(slice *[]byte, input string) {
 		var c byte  = input[i]
 		
 		* slice = append(* slice, c)
-			}
+		
+	}
 	
 	
 }
@@ -87,7 +92,8 @@ func CopyTokenList(tokenList []Token) []Token {
 	
 		copyTokenList = append(copyTokenList, tokenList[i])
 		
-			}
+		
+	}
 	
 	return copyTokenList; 
 }
@@ -102,7 +108,8 @@ func IsVarTypePart(token Token) bool {
 	return true; 
 	default:
 	return false; 
-		}
+	
+	}
 	
 	
 }
@@ -120,7 +127,8 @@ func IsVarType(token Token) bool {
 	
 	default:
 	return false; 
-		}
+	
+	}
 	
 	
 }
@@ -144,7 +152,8 @@ func IsVarTypeEnum(tokenType IntTokenType) bool {
 	return true; 
 	default:
 	return false; 
-		}
+	
+	}
 	
 	
 }
