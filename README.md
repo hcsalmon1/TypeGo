@@ -20,10 +20,10 @@ TypeGo:
 	struct Person {
 		string Name
 		int Age
-		int Role
+		IntRole Role
 		
 		fn string Greet() {
-			return fmt.Sprintf("Hi, I'm %s, I'm %d years old, and my role is %s.", p.Name, p.Age, RoleToString(p.Role))
+			return fmt.Sprintf("Hi, I'm %s, I'm %d years old, and my role is %s.", self.Name, self.Age, self.Role.ToString())
 		}
 	}
 		
@@ -44,55 +44,61 @@ TypeGo:
 Converts to Go:
 
 ```go
-	package main
-	
-	import "fmt"
-	
-	var Role = struct {
-	    Admin int
-	    Guest int
-	    Member int
-	}{
-	    Admin: 0,
-	    Guest: 1,
-	    Member: 2,
+package main
+
+import "fmt"
+
+
+type IntRole int
+var Role = struct {
+	Admin IntRole
+	Guest IntRole
+	Member IntRole
+}{
+	Admin: 0,
+	Guest: 1,
+	Member: 2,
+}
+
+func (self IntRole) ToString() string {
+	switch self {
+	case Role.Admin:
+		return "Admin"
+	case Role.Guest:
+		return "Guest"
+	case Role.Member:
+		return "Member"
+	default:
+		return "Unknown"
 	}
+}
+
+
+type Person struct {
+	Name string
+	Age int
+	Role IntRole
+}
+
+
+func (self *Person) Greet() string {
+	return fmt.Sprintf("Hi, I'm %s, I'm %d years old, and my role is %s.", self.Name, self.Age, self.Role.ToString())
+}
+
+
+func main() {
 	
-	func RoleToString(role int) string {
-	        switch role {
-		case Role.Admin:
-			return "Admin"
-		case Role.Guest:
-			return "Guest"
-		case Role.Member:
-			return "Member"
-		default:
-			return "Unknown"
-		}
-	}
+	var people []Person  = make([]Person, 0)
 	
-	type Person struct {
-	    Name string
-	    Age int
-	    Role int
-	}
 	
-	func (p *Person) Greet() string {
-	    return fmt.Sprintf("Hi, I'm %s, I'm %d years old, and my role is %s." , p.Name , p.Age , RoleToString(p.Role))
-	}
+	people = append(people, Person{Name:"Alice",Age:30,Role:Role.Admin})
+	people = append(people, Person{Name:"Bob",Age:25,Role:Role.Member})
+	people = append(people, Person{Name:"Charlie",Age:40,Role:Role.Guest})
 	
-	func main() {
-	    
-	    var people []Person = make([]Person, 0)
-		
-	    people = append(people, Person{Name:"Alice",Age:30,Role:Role.Admin})
-	    people = append(people, Person{Name:"Bob",Age:25,Role:Role.Member})
-	    people = append(people, Person{Name:"Charlie",Age:40,Role:Role.Guest})
-		
-            for i := 0; i < len(people); i++ {
+	for i := 0; i < len(people); i++ {
 		fmt.Println(people[i].Greet())
-	    }
 	}
+}
 ```
 
 Questions and Answers:
