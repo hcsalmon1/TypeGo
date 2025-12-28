@@ -96,7 +96,8 @@ func LoopTokensUntilLineEnd(formatData *FormatData, blockData *BlockData, stopAt
 		blockData.Tokens = append(blockData.Tokens, token)
 		
 		lastTokenType = token.Type; 
-			}
+		
+	}
 	
 	
 	if lastTokenType == TokenType.Semicolon {
@@ -126,7 +127,8 @@ func IsLineContinuingToken(token_type IntTokenType) bool {
 	
 	default:
 	return false; 
-		}
+	
+	}
 	
 	return false
 }
@@ -172,7 +174,8 @@ func IsPointerDeclaration(formatData *FormatData) bool {
 		}
 		lastType = token.Type; 
 		index += 1; 
-			}
+		
+	}
 	
 	return false; 
 }
@@ -277,7 +280,8 @@ func FillVarType(formatData *FormatData, returnTypeTokenList *[]Token) {
 		if iterationResult == LoopAction.Return {
 			return; 
 		}
-			}
+		
+	}
 	
 	
 }
@@ -327,7 +331,8 @@ func LoopUntilRightParenthesis(formatData *FormatData, returnTypeTokenList *[]To
 			break
 			
 		}
-			}
+		
+	}
 	
 	
 }
@@ -352,7 +357,8 @@ func FindParameters(formatData *FormatData, parameters *[]Variable) {
 		if iterationResult == LoopAction.Return {
 			return; 
 		}
-			}
+		
+	}
 	
 	
 }
@@ -459,7 +465,8 @@ func AddParameter(parameters *[]Variable, tempParameter *Variable) {
 	
 		parameterCopy.TypeList = append(parameterCopy.TypeList, tempParameter.TypeList[i])
 		
-			}
+		
+	}
 	
 	parameterCopy.NameToken = CopyTokenList(tempParameter.NameToken); 
 	
@@ -473,7 +480,8 @@ func ConcatStrings(slice []string) string {
 	for _, s := range slice {
 	
 		result.WriteString(s)
-			}
+		
+	}
 	
 	return result.String()
 }
