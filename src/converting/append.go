@@ -34,7 +34,8 @@ func PrintAppend(convertData *ConvertData, blockData *BlockData, nestCount int) 
 	for i := 0; i < len(blockData.Tokens); i++ {
 	
 		convertData.AppendToken(blockData.Tokens[i]); 
-			}
+		
+	}
 	
 	
 	convertData.AppendChar(')'); 
