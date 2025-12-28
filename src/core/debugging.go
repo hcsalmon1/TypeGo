@@ -17,7 +17,8 @@ func PrintTokenList(token_list []Token) {
 	for i := 0; i < list_count; i++ {
 	
 		fmt.Printf("\t%sToken:%s %s'%s'%s, %stype:%s %s'%s'%s, %sline number:%s %s%d%s, %schar count:%s %s%d%s\n", GREY_TEXT, RESET_TEXT, ORANGE_TEXT, token_list[i].Text, RESET_TEXT, GREY_TEXT, RESET_TEXT, CREAM_TEXT, token_list[i].Type.ToString(), RESET_TEXT, GREY_TEXT, RESET_TEXT, LIGHT_GREEN_TEXT, token_list[i].LineNumber, RESET_TEXT, GREY_TEXT, RESET_TEXT, LIGHT_GREEN_TEXT, token_list[i].CharNumber, RESET_TEXT, ); 
-			}
+		
+	}
 	
 	fmt.Println(); 
 	
