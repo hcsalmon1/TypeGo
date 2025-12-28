@@ -10,7 +10,8 @@ import (
 type CodeFormat struct {
 GlobalBlock CodeBlock
 Functions []Function
-}
+
+}
 
 
 func (self *CodeFormat) Print() {
@@ -30,7 +31,8 @@ func (self *CodeFormat) Print() {
 		var function Function  = self.Functions[i]
 		
 		function.Print(indent)
-			}
+		
+	}
 	
 	
 }
@@ -45,7 +47,8 @@ func (self *CodeFormat) PrintFunctions() {
 		var function Function  = self.Functions[i]
 		
 		function.PrintData(); 
-			}
+		
+	}
 	
 	
 }
@@ -61,7 +64,8 @@ func (self *CodeFormat) PrintNodeData() {
 		var function Function  = self.Functions[i]
 		
 		function.PrintData()
-			}
+		
+	}
 	
 	
 }
@@ -77,7 +81,8 @@ func (self *CodeFormat) PrintNodeType() {
 		var function Function  = self.Functions[i]
 		
 		function.PrintNodeTypes()
-			}
+		
+	}
 	
 	
 }
@@ -85,7 +90,8 @@ func (self *CodeFormat) PrintNodeType() {
 type CodeBlock struct {
 BlockDataList []BlockData
 MethodList []Function
-}
+
+}
 
 
 func (self *CodeBlock) Print(indent int) {
@@ -105,7 +111,8 @@ func (self *CodeBlock) Print(indent int) {
 			fmt.Print(addTabs(indent))
 			
 			block_data.Print(indent + 1)
-					}
+			
+		}
 		
 		
 	}
@@ -119,7 +126,8 @@ func (self *CodeBlock) Print(indent int) {
 			var function Function  = self.MethodList[i]
 			
 			function.Print(indent)
-					}
+			
+		}
 		
 		
 	}
@@ -140,7 +148,8 @@ func (self *CodeBlock) PrintData() {
 	
 		self.BlockDataList[i].Print(0); 
 		fmt.Println(); 
-			}
+		
+	}
 	
 	fmt.Println(); 
 	
@@ -153,7 +162,8 @@ StartingToken Token
 Block *CodeBlock
 Variables []Variable
 VarName string
-}
+
+}
 
 
 func (self *BlockData) Print(indent int) {
@@ -167,12 +177,14 @@ func (self *BlockData) Print(indent int) {
 	for i := 0; i < len(self.Variables); i++ {
 	
 		self.Variables[i].Print()
-			}
+		
+	}
 	
 	for i := 0; i < token_count; i++ {
 	
 		fmt.Printf("%s ", self.Tokens[i].Text)
-			}
+		
+	}
 	
 	if self.Block != nil {
 		self.Block.Print(indent + 1)
@@ -235,7 +247,8 @@ func (self *BlockData) PrintTokens(newLine bool) {
 	for i := 0; i < count; i++ {
 	
 		fmt.Print("'{Tokens[i].Text}' "); 
-			}
+		
+	}
 	
 	self.AddNewLine(newLine); 
 	
@@ -278,7 +291,8 @@ func (self *BlockData) PrintVariables(newLine bool) {
 	for i := 0; i < count; i++ {
 	
 		self.Variables[i].Print(); 
-			}
+		
+	}
 	
 	self.AddNewLine(newLine); 
 	
@@ -302,7 +316,8 @@ func (self *BlockData) Validate(formatData *FormatData) bool {
 	if err != nil {
 	formatData.SetError(FormatResult.Invalid_Node, err.Error())
 	return false
-		}
+	
+	}
 	return true
 	case NodeType.Single_Declaration_No_Value:
 	case NodeType.Multiple_Declarations_No_Value:
@@ -340,7 +355,8 @@ func (self *BlockData) Validate(formatData *FormatData) bool {
 	case NodeType.Break:
 	default:
 	return true
-		}
+	
+	}
 	
 	return true
 }
@@ -348,7 +364,8 @@ func (self *BlockData) Validate(formatData *FormatData) bool {
 type Variable struct {
 TypeList []Token
 NameToken []Token
-}
+
+}
 
 
 func (self *Variable) SetToDefaults() {
@@ -388,7 +405,8 @@ func (self *Variable) PrintTypeList() {
 	for i := 0; i < count; i++ {
 	
 		fmt.Print(" '{TypeList[i].Text}', "); 
-			}
+		
+	}
 	
 	
 }
@@ -422,7 +440,8 @@ func (self *Variable) Print() {
 	for i := 0; i < type_list_count; i++ {
 	
 		fmt.Printf("%s", self.TypeList[i].Text)
-			}
+		
+	}
 	
 	fmt.Printf(" %s\n", self.NameToken[0].Text)
 	
@@ -449,7 +468,8 @@ func (self *Variable) ConvertToString() string {
 		
 			sb = append(sb, input[i])
 			
-					}
+			
+		}
 		
 		
 	}
@@ -458,7 +478,8 @@ func (self *Variable) ConvertToString() string {
 		var token Token  = self.TypeList[i]
 		
 		AppendStringToSlice( &sb, token.Text)
-			}
+		
+	}
 	
 	sb = append(sb, ' ')
 	
@@ -471,7 +492,8 @@ func (self *Variable) ConvertToString() string {
 		
 			sb = append(sb, input[i])
 			
-					}
+			
+		}
 		
 		
 	} else  {
@@ -483,7 +505,8 @@ func (self *Variable) ConvertToString() string {
 	
 		sb = append(sb, input[i])
 		
-			}
+		
+	}
 	
 	
 	}
@@ -509,7 +532,8 @@ Name string
 Parameters []Variable
 InnerBlock *CodeBlock
 StartingToken Token
-}
+
+}
 
 
 func (self *Function) Print(indent int) {
@@ -529,7 +553,8 @@ func (self *Function) Print(indent int) {
 		
 		parameter.Print()
 		fmt.Print(", ")
-			}
+		
+	}
 	
 	
 	fmt.Printf("%c %c", ')', '{')
@@ -550,7 +575,8 @@ func (self *Function) PrintData() {
 		
 		parameter.Print(); 
 		fmt.Print(", "); 
-			}
+		
+	}
 	
 	fmt.Println(')'); 
 	self.InnerBlock.PrintData(); 
@@ -577,7 +603,8 @@ func (self *Function) PrintNodeTypes() {
 	
 		var blockData BlockData  = block.BlockDataList[i]; 
 		fmt.Printf("\t%s\n", blockData.NodeType.ToString()); 
-			}
+		
+	}
 	
 	
 }
@@ -587,7 +614,8 @@ Text string
 Type IntTokenType
 LineNumber int
 CharNumber int
-}
+
+}
 
 
 func (self *Token) IsType(token_type IntTokenType) bool {
@@ -608,7 +636,8 @@ LineCount int
 CharCount int
 ParseResult IntParseResult
 CodeLength int
-}
+
+}
 
 
 func (self *ParseData) IsError() bool {
@@ -627,7 +656,8 @@ LogIndent int
 ErrorToken Token
 TokenIndex int
 TempToken Token
-}
+
+}
 
 
 func (self *FormatData) IndexInBounds() bool {
@@ -815,7 +845,8 @@ func (self *FormatData) PrintProcessLog() {
 		var log string  = self.ProcessLog[i]
 		
 		fmt.Printf("\t%s\n", log)
-			}
+		
+	}
 	
 	fmt.Println()
 	
@@ -844,7 +875,8 @@ func (self *FormatData) PrintFunctionLog() {
 	
 		fmt.Print("\t")
 		fmt.Println(self.FunctionLog[i])
-			}
+		
+	}
 	
 	fmt.Println()
 	
@@ -865,7 +897,8 @@ MethodVarNames []string
 MethodType IntMethodType
 StructName string
 NestCount int
-}
+
+}
 
 
 func (self *ConvertData) IsInfiniteWhileLoop(count *int, max int) bool {
@@ -918,7 +951,8 @@ func (self *ConvertData) NewLineWithTabs() {
 	for i := 0; i < self.NestCount; i++ {
 	
 		self.AppendChar('\t'); 
-			}
+		
+	}
 	
 	
 }
@@ -927,7 +961,8 @@ func (self *ConvertData) AddTabs() {
 	for i := 0; i < self.NestCount; i++ {
 	
 		self.AppendChar('\t'); 
-			}
+		
+	}
 	
 	
 }
@@ -962,7 +997,8 @@ func (self *ConvertData) AppendString(input string) {
 	for i := 0; i < len(input); i++ {
 	
 		self.GeneratedCode = append(self.GeneratedCode, input[i])
-			}
+		
+	}
 	
 	
 }
@@ -986,7 +1022,8 @@ func (self *ConvertData) SetErrorFunction(function string) {
 }
 
 type NodeValidator struct {
-}
+
+}
 
 
 func (self *NodeValidator) ValidateSingleDeclarationWithValue(block_data *BlockData) error {
@@ -1141,7 +1178,8 @@ type BracketCounts struct {
 OpenSqCount int
 OpenBraceCount int
 OpenBracketCount int
-}
+
+}
 
 
 func (self *BracketCounts) AreAllZero() bool {
