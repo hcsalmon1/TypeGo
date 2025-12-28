@@ -145,6 +145,7 @@ There are four commands:
  	tgo version
   	tgo convertfile file.tgo
    	tgo convertdir
+	tgo convertfileabs file.tgo
 
 Basically you create a file with the extension .tgo in a new or existing Go project.  
 Write the code in that .tgo file and then run the command 'convertfile' with the file name or 'convertdir'.  
@@ -161,10 +162,19 @@ The rest of your project will be untouched.
 
 **Q. Does TypeGo have a Language Server?**
 
+I has decent syntax highlighting in VSCode. You can also enable conversion on save using the "Run on Save" extension in VSCode. You then put this in your settings.json:
 
-It only has basic syntax highlighting in VSCode. I would probably never finish this project if I tried to recreate the Go language server.
-Just convert the file to Go and open that to see errors highlighted in VSCode.
-
+`json
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "\\.tgo$",
+        "cmd": "tgo convertfileabs ${file}"
+      }
+    ]
+  }
+`
+TypeGo lets Go handle the errors. I may experiment with a way to see errors inside TypeGo files later.
 
 **Q. What's wrong with ':=' and inferred types?**
 
@@ -331,26 +341,26 @@ TypeGo:
 ```
 This will convert to:
 ```go
-	type UserType int
+type UserType int
 
-	const (
-		UserTypeRegular = UserType iota
-		UserTypeGuest
-		UserTypeAdmin
-	)
+const (
+	UserTypeRegular = 0
+	UserTypeGuest = 1
+	UserTypeAdmin = 2
+)
 
-	func UserTypeToString(user_type int) string {
-		switch user_type {
-    			case UserTypeRegular:
-        			return "Regular"
-    			case UserTypeGuest:
-        			return "Guest"
-    			case UserTypeAdmin:
-        			return "Admin"
-    			default:
-        			return "Unknown"
-    		}
+func (self UserType) ToString() string {
+	switch self {
+	case UserTypeRegular:
+		return "Regular"
+	case UserTypeGuest:
+		return "Guest"
+	case UserTypeAdmin:
+		return "Admin"
+	default:
+		return "Unknown"
 	}
+}
 
 ```
 
@@ -372,27 +382,30 @@ The other option is 'enumstruct', taken as an idea from 'enumclass' in C++.
 This will generate the following Go code:
 
 ```go
+	type IntUserType int
 	var UserType = struct {
-	        Regular int
-	        Guest int
-	        Admin int
+		Regular IntUserType
+		Guest IntUserType
+		Admin IntUserType
+
 	}{
-	        Regular: 0,
-	        Guest: 1,
-	        Admin: 2,
+		Regular: 0,
+		Guest: 1,
+		Admin: 2,
 	}
 
-	func UserTypeToString(user_type int) string {
-		switch user_type {
-    			case UserType.Regular:
-        			return "Regular"
-    			case UserType.Guest:
-        			return "Guest"
-    			case UserType.Admin:
-        			return "Admin"
-    			default:
-        			return "Unknown"
-    		}
+	func (self IntUserType) ToString() string {
+		switch self {
+			case UserType.Regular:
+				return "Regular"
+			case UserType.Guest:
+				return "Guest"
+			case UserType.Admin:
+				return "Admin"
+			default:
+				return "Unknown"
+		}
+
 	}
 ```
 
@@ -401,24 +414,30 @@ You then access these values like so:
 ```go
 
 	func main() {
-		int user_type = UserType.Regular
-		fmt.Println("user_type:", UserTypeToString(user_type));
+		IntUserType user_type = UserType.Regular
+		fmt.Println("user_type:", user_type.ToString());
 	}
 
 ```
 
 So enumstructs will never conflict with any other global variable.
 
-The one downside is that you can't give the type a custom name, but this is only cosmetic anyway and for the programmer only.  
-The compiler treats everything as 'int' anyway, so it has no actual effect.
+By default enumstruct will generate an alias for you. Int+EnumName.
+If you want to specify the alias, use this:
+
+```go
+
+	enumstruct UserType : i_user_type {
+
+	}
+
+```
 
 Issue with enums that can't be fixed:
 **Incompatible values being set to enums**
 
 ```go
-	int user_type = 99999999
-	or:
-	var user_type UserType = 9999999
+	IntUserType user_type = 99999999
 ```
 
 There's nothing that can stop this, as the Go compiler doesn't bother checking these things and it's too complicated to make for me.
@@ -452,15 +471,14 @@ The TypeGo way:
         int Age
         string Name
         fn Greet() {
-            fmt.Println("My name is", p.Name, "and I am ", p.Age, "years old");
+            fmt.Println("My name is", self.Name, "and I am ", self.Age, "years old");
         }
     }
 
 ```
 
-Methods now go inside of structs directly. The name of the object will be the first letter of the struct name.
-Person - object name = p
-This TypeGo code will generate the above Go code.
+Methods now go inside of structs directly. The name of the object will be the 'self' for consistency.
+This will generate methods for you with a reference to the original object.
 
 You then declare structs like this:  
 
@@ -479,6 +497,31 @@ Converted Go:
                 Age: 20,
                 Name: "John",
         }
+```
+
+You can also use methods in enum/enumstruct:
+
+```go
+
+enumstruct ConvertResult : IntConvertResult {
+    Ok,
+    Missing_Expected_Type,
+    Unexpected_Type,
+    Unexpected_End_Of_File,
+    No_Token_In_Node,
+    Null_Token,
+    Invalid_Node_Type,
+    Unsupported_Type,
+    Internal_Error,
+
+	fn bool IsError() {
+		return self != ConvertResult.Ok
+	}
+	fn Print() {
+		fmt.Printf("error: %s", self.ToString())
+	}
+}
+
 ```
 
 
