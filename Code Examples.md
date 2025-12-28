@@ -65,15 +65,15 @@ Structs:
     struct Game {
         int player_count
         bool game_started
-        int game_result
+        IntGameResult game_result
 
         fn StartGame(int _player_count) {
-            g.game_started = true
-            g.player_count = _player_count
+            self.game_started = true
+            self.player_count = _player_count
         }
         fn EndGame() {
-            g.game_started = false
-            g.player_count = 0
+            self.game_started = false
+            self.player_count = 0
         }
     }
 
