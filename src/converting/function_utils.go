@@ -18,7 +18,8 @@ func AddParameter(parameters []Variable, tempParameter *Variable) {
 	
 		parameterCopy.TypeList = append(parameterCopy.TypeList, tempParameter.TypeList[i])
 		
-			}
+		
+	}
 	
 	parameterCopy.NameToken = CopyTokenList(tempParameter.NameToken); 
 	
@@ -137,7 +138,8 @@ func FindParameters(formatData *FormatData, parameters []Variable) {
 		if iterationResult == LoopAction.Return {
 			return; 
 		}
-			}
+		
+	}
 	
 	
 }
