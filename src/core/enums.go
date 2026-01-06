@@ -103,7 +103,8 @@ Comment IntTokenType
 EndComment IntTokenType
 NewLine IntTokenType
 NA IntTokenType
-}{
+
+}{
 Fn: 0,
 IntegerValue: 1,
 DecimalValue: 2,
@@ -204,7 +205,8 @@ Comment: 96,
 EndComment: 97,
 NewLine: 98,
 NA: 99,
-}
+
+}
 
 func (self IntTokenType) ToString() string {
 	switch self {
@@ -411,7 +413,8 @@ func (self IntTokenType) ToString() string {
 	default:
 		return "Unknown"
 }
-}
+
+}
 
 type IntLastTokenType int
 var LastTokenType = struct {
@@ -433,7 +436,8 @@ FullStop IntLastTokenType
 Interface IntLastTokenType
 LeftBrace IntLastTokenType
 RightBrace IntLastTokenType
-}{
+
+}{
 Null: 0,
 Identifier: 1,
 CustomVarType: 2,
@@ -452,7 +456,8 @@ FullStop: 14,
 Interface: 15,
 LeftBrace: 16,
 RightBrace: 17,
-}
+
+}
 
 func (self IntLastTokenType) ToString() string {
 	switch self {
@@ -495,7 +500,8 @@ func (self IntLastTokenType) ToString() string {
 	default:
 		return "Unknown"
 }
-}
+
+}
 
 type IntNodeType int
 var NodeType = struct {
@@ -541,7 +547,8 @@ Switch_Case IntNodeType
 Return IntNodeType
 Break IntNodeType
 Continue IntNodeType
-}{
+
+}{
 Invalid: 0,
 Channel_Declaration: 1,
 Channel_Declaration_With_Value: 2,
@@ -584,7 +591,8 @@ Switch_Case: 38,
 Return: 39,
 Break: 40,
 Continue: 41,
-}
+
+}
 
 func (self IntNodeType) ToString() string {
 	switch self {
@@ -675,7 +683,8 @@ func (self IntNodeType) ToString() string {
 	default:
 		return "Unknown"
 }
-}
+
+}
 
 type IntLoopAction int
 var LoopAction = struct {
@@ -683,12 +692,14 @@ var LoopAction = struct {
 Break IntLoopAction
 Return IntLoopAction
 Error IntLoopAction
-}{
+
+}{
 Continue: 0,
 Break: 1,
 Return: 2,
 Error: 3,
-}
+
+}
 
 func (self IntLoopAction) ToString() string {
 	switch self {
@@ -703,7 +714,8 @@ func (self IntLoopAction) ToString() string {
 	default:
 		return "Unknown"
 }
-}
+
+}
 
 type IntIdentLoopAction int
 var IdentLoopAction = struct {
@@ -713,14 +725,16 @@ Declaration IntIdentLoopAction
 Other IntIdentLoopAction
 Append IntIdentLoopAction
 Error IntIdentLoopAction
-}{
+
+}{
 Continue: 0,
 Break: 1,
 Declaration: 2,
 Other: 3,
 Append: 4,
 Error: 5,
-}
+
+}
 
 func (self IntIdentLoopAction) ToString() string {
 	switch self {
@@ -739,16 +753,19 @@ func (self IntIdentLoopAction) ToString() string {
 	default:
 		return "Unknown"
 }
-}
+
+}
 
 type IntParameterPhase int
 var ParameterPhase = struct {
 	TypeOrName IntParameterPhase
 	End IntParameterPhase
-	}{
+	
+}{
 	TypeOrName: 0,
 	End: 1,
-	}
+	
+}
 
 func (self IntParameterPhase) ToString() string {
 	switch self {
@@ -759,7 +776,8 @@ func (self IntParameterPhase) ToString() string {
 	default:
 		return "Unknown"
 	}
-}
+
+}
 
 
 type IntMethodType int
@@ -767,11 +785,13 @@ var MethodType = struct {
 	None IntMethodType
 Struct IntMethodType
 Enum IntMethodType
-}{
+
+}{
 None: 0,
 Struct: 1,
 Enum: 2,
-}
+
+}
 
 func (self IntMethodType) ToString() string {
 	switch self {
@@ -784,5 +804,6 @@ func (self IntMethodType) ToString() string {
 	default:
 		return "Unknown"
 }
-}
+
+}
 
