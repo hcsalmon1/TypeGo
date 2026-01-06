@@ -112,7 +112,8 @@ func ConvertDirectory(currentDirectory string) bool {
 		}
 		
 		
-			}
+		
+	}
 	
 	return true
 }
