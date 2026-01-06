@@ -47,7 +47,8 @@ func PrintCodeFormat(convertData *ConvertData) {
 		if convertData.IsError() {
 			return; 
 		}
-			}
+		
+	}
 	
 	
 }
