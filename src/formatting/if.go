@@ -87,7 +87,8 @@ func IsDeclarationIf(formatData *FormatData) bool {
 			
 		}
 		index += 1; 
-			}
+		
+	}
 	
 	return false; 
 }
@@ -108,7 +109,8 @@ func AddIfCondition(formatData *FormatData, blockData *BlockData) {
 		blockData.Tokens = append(blockData.Tokens, token)
 		
 		formatData.Increment(); 
-			}
+		
+	}
 	
 	
 }
