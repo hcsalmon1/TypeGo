@@ -88,7 +88,8 @@ func ProcessEnum(convertData *ConvertData, blockData *BlockData, nestCount int) 
 			convertData.NewLineWithTabs(); 
 			
 		}
-			}
+		
+	}
 	
 	convertData.DecrementNestCount()
 	
@@ -107,9 +108,11 @@ func ProcessEnum(convertData *ConvertData, blockData *BlockData, nestCount int) 
 			convertData.AppendString("case " +enumNameText + token.Text + ":\n\t\t"); 
 			convertData.AppendString("return \"" +token.Text + "\"\n\t"); 
 			break
-					}
+			
+		}
 		
-			}
+		
+	}
 	
 	convertData.AppendString("default:\n\t\t"); 
 	convertData.AppendString("return \"Unknown\"\n\t"); 
@@ -173,9 +176,11 @@ func ProcessEnumstruct(convertData *ConvertData, blockData *BlockData, nestCount
 			convertData.AppendString(" " +alias_name); 
 			convertData.NewLineWithTabs(); 
 			break
-					}
+			
+		}
 		
-			}
+		
+	}
 	
 	
 	convertData.AppendChar('\r'); 
@@ -227,7 +232,8 @@ func ProcessEnumstruct(convertData *ConvertData, blockData *BlockData, nestCount
 			convertData.NewLineWithTabs(); 
 			
 		}
-			}
+		
+	}
 	
 	convertData.DecrementNestCount()
 	
@@ -246,9 +252,11 @@ func ProcessEnumstruct(convertData *ConvertData, blockData *BlockData, nestCount
 			convertData.AppendString("case " +enumNameText + "." +token.Text + ":\n\t\t"); 
 			convertData.AppendString("return \"" +token.Text + "\"\n\t"); 
 			break
-					}
+			
+		}
 		
-			}
+		
+	}
 	
 	convertData.AppendString("default:\n\t\t"); 
 	convertData.AppendString("return \"Unknown\"\n"); 
@@ -320,9 +328,11 @@ func ProcessEnumstructWithAlias(convertData *ConvertData, blockData *BlockData, 
 			convertData.AppendString(" " +var_type); 
 			convertData.NewLineWithTabs(); 
 			break
-					}
+			
+		}
 		
-			}
+		
+	}
 	
 	
 	convertData.AppendChar('\r'); 
@@ -372,7 +382,8 @@ func ProcessEnumstructWithAlias(convertData *ConvertData, blockData *BlockData, 
 			convertData.NewLineWithTabs(); 
 			
 		}
-			}
+		
+	}
 	
 	
 	convertData.AppendChar('\r'); 
@@ -390,9 +401,11 @@ func ProcessEnumstructWithAlias(convertData *ConvertData, blockData *BlockData, 
 			convertData.AppendString("case " +enumNameText + "." +token.Text + ":\n\t\t"); 
 			convertData.AppendString("return \"" +token.Text + "\"\n\t"); 
 			break
-					}
+			
+		}
 		
-			}
+		
+	}
 	
 	convertData.AppendString("default:\n\t\t"); 
 	convertData.AppendString("return \"Unknown\"\n"); 
@@ -421,7 +434,8 @@ func PrintEnumMethods(convertData *ConvertData, enumBlock *CodeBlock, nestCount 
 	for i := 0; i < len(functions); i++ {
 	
 		ProcessFunction(convertData, &functions[i]); 
-			}
+		
+	}
 	
 	convertData.MethodType = MethodType.None; 
 	convertData.MethodVarNames = nil
