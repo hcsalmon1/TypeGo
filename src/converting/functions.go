@@ -94,7 +94,8 @@ func PrintParameters(convertData *ConvertData, function *Function) {
 			return; 
 		}
 		convertData.AppendString(parameter.NameToken[0].Text + " " +typeAsText); 
-			}
+		
+	}
 	
 	
 }
