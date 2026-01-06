@@ -30,7 +30,8 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 			
 		}
 		formatData.Increment(); 
-			}
+		
+	}
 	
 	
 	if appendIndex == -1 {
@@ -59,7 +60,8 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 		}
 		nameTextBuilder = append(nameTextBuilder, tempToken.Text)
 		
-			}
+		
+	}
 	
 	
 	var name_token Token  = Token{
@@ -111,7 +113,8 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 		
 		
 		formatData.Increment(); 
-			}
+		
+	}
 	
 	
 	
@@ -135,7 +138,8 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 		}
 		
 		formatData.Increment(); 
-			}
+		
+	}
 	
 	formatData.AddToFunctionLog("EXIT FillAppend")
 	
