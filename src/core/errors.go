@@ -15,7 +15,8 @@ Null_Token IntConvertResult
 Invalid_Node_Type IntConvertResult
 Unsupported_Type IntConvertResult
 Internal_Error IntConvertResult
-}{
+
+}{
 Ok: 0,
 Missing_Expected_Type: 1,
 Unexpected_Type: 2,
@@ -25,7 +26,8 @@ Null_Token: 5,
 Invalid_Node_Type: 6,
 Unsupported_Type: 7,
 Internal_Error: 8,
-}
+
+}
 
 func (self IntConvertResult) ToString() string {
 	switch self {
@@ -50,7 +52,8 @@ func (self IntConvertResult) ToString() string {
 	default:
 		return "Unknown"
 }
-}
+
+}
 
 
 func (self IntConvertResult) IsError() bool {
@@ -75,7 +78,8 @@ Unterminated_Char IntParseResult
 Unterminated_String IntParseResult
 Unterminated_Comment IntParseResult
 Infinite_While_Loop IntParseResult
-}{
+
+}{
 Ok: 0,
 String_Length_Zero: 1,
 Starting_Index_Out_Of_Range_Of_String: 2,
@@ -88,7 +92,8 @@ Unterminated_Char: 8,
 Unterminated_String: 9,
 Unterminated_Comment: 10,
 Infinite_While_Loop: 11,
-}
+
+}
 
 func (self IntParseResult) ToString() string {
 	switch self {
@@ -119,7 +124,8 @@ func (self IntParseResult) ToString() string {
 	default:
 		return "Unknown"
 }
-}
+
+}
 
 
 func (self IntParseResult) IsError() bool {
@@ -141,7 +147,8 @@ UnsupportedFeature IntFormatResult
 Infinite_While_Loop IntFormatResult
 Internal_Error IntFormatResult
 Invalid_Node IntFormatResult
-}{
+
+}{
 Ok: 0,
 NoTokens: 1,
 MissingExpectedType: 2,
@@ -151,7 +158,8 @@ UnsupportedFeature: 5,
 Infinite_While_Loop: 6,
 Internal_Error: 7,
 Invalid_Node: 8,
-}
+
+}
 
 func (self IntFormatResult) ToString() string {
 	switch self {
@@ -176,7 +184,8 @@ func (self IntFormatResult) ToString() string {
 	default:
 		return "Unknown"
 }
-}
+
+}
 
 
 func (self IntFormatResult) IsError() bool {
