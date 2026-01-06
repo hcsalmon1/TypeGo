@@ -163,19 +163,9 @@ The rest of your project will be untouched.
 
 **Q. Does TypeGo have a Language Server?**
 
-It has decent syntax highlighting in VSCode. You can also enable conversion on save using the "Run on Save" extension in VSCode. You then put this in your settings.json:
-
-```json
-  "emeraldwalk.runonsave": {
-    "commands": [
-      {
-        "match": "\\.tgo$",
-        "cmd": "tgo convertfileabs ${file}"
-      }
-    ]
-  }
-```
-TypeGo lets Go handle the errors. I may experiment with a way to see errors inside TypeGo files later.
+Yes, it's simply called TypeGo on VSCode. It has:
+-Syntax highlighting
+-Auto tgo -> go files on save
 
 **Q. What's wrong with ':=' and inferred types?**
 
