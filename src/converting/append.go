@@ -14,7 +14,6 @@ func PrintAppend(convertData *ConvertData, blockData *BlockData, nestCount int) 
 	}
 	
 	var variable Variable  = blockData.Variables[0]; 
-	
 	if variable.NameToken[0].Text == "" {
 		convertData.ConvertResult = ConvertResult.Internal_Error; 
 		convertData.ErrorDetail = "NameToken is null in PrintAppend"; 
@@ -22,7 +21,6 @@ func PrintAppend(convertData *ConvertData, blockData *BlockData, nestCount int) 
 	}
 	
 	var variableName string  = variable.NameToken[0].Text; 
-	
 	convertData.AppendString(variableName + " = append(" +variableName + ", "); 
 	
 	if len(blockData.Tokens) == 0 {
@@ -34,8 +32,7 @@ func PrintAppend(convertData *ConvertData, blockData *BlockData, nestCount int) 
 	for i := 0; i < len(blockData.Tokens); i++ {
 	
 		convertData.AppendToken(blockData.Tokens[i]); 
-		
-	}
+			}
 	
 	
 	convertData.AppendChar(')'); 

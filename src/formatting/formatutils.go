@@ -4,7 +4,6 @@ package formatting
 import (
 ."TypeGo/core"
 "strings"
-"fmt"
 )
 
 
@@ -71,7 +70,6 @@ func LoopTokensUntilLineEnd(formatData *FormatData, blockData *BlockData, stopAt
 	formatData.SetErrorFunction("LoopTokensUntilLineEnd"); 
 	
 	var lastTokenType IntTokenType  = TokenType.NA; 
-	
 	var bracket_counts BracketCounts
 	bracket_counts.OpenBraceCount = 0
 	bracket_counts.OpenBracketCount = 0
@@ -79,14 +77,11 @@ func LoopTokensUntilLineEnd(formatData *FormatData, blockData *BlockData, stopAt
 	
 	for formatData.IndexInBounds() {
 	
-		var tempToken Token  = formatData.GetToken(); 
-		if formatData.IsValidToken(tempToken) == false {
+		var tempToken Token  = formatData.GetToken(); if formatData.IsValidToken(tempToken) == false {
 			break
 			
 		}
-		var token Token  = tempToken; 
-		var loopResult IntLoopAction  = LoopUntilEndInner(formatData, blockData, token, lastTokenType, &bracket_counts, stopAtSemicolon); 
-		if loopResult == LoopAction.Break {
+		var token Token  = tempToken; var loopResult IntLoopAction  = LoopUntilEndInner(formatData, blockData, token, lastTokenType, &bracket_counts, stopAtSemicolon); if loopResult == LoopAction.Break {
 			lastTokenType = token.Type; 
 			break
 			
@@ -96,14 +91,12 @@ func LoopTokensUntilLineEnd(formatData *FormatData, blockData *BlockData, stopAt
 		blockData.Tokens = append(blockData.Tokens, token)
 		
 		lastTokenType = token.Type; 
-		
-	}
+			}
 	
 	
 	if lastTokenType == TokenType.Semicolon {
 		formatData.Increment(); 
-		var tempToken Token  = formatData.GetToken(); 
-		if formatData.IsValidToken(tempToken) {
+		var tempToken Token  = formatData.GetToken(); if formatData.IsValidToken(tempToken) {
 			if tempToken.Type == TokenType.NewLine {
 				formatData.Increment(); 
 				
@@ -117,17 +110,17 @@ func LoopTokensUntilLineEnd(formatData *FormatData, blockData *BlockData, stopAt
 
 func IsLineContinuingToken(token_type IntTokenType) bool {
 	switch token_type {
-	
-	case TokenType.Minus, TokenType.Plus, TokenType.Divide, TokenType.Multiply, TokenType.Equals, TokenType.And, 
-	TokenType.AndAnd, TokenType.Or, TokenType.OrOr, TokenType.PlusEquals, TokenType.MinusEquals, TokenType.MultiplyEquals, 
-	TokenType.DivideEquals, TokenType.GreaterThan, TokenType.LessThan, TokenType.EqualsEquals, TokenType.GreaterThanEquals, 
-	TokenType.LessThanEquals, TokenType.Modulus, TokenType.ModulusEquals, TokenType.NotEquals, TokenType.LeftBrace, 
-	TokenType.LeftSquareBracket, TokenType.Comma, TokenType.FullStop:
-	return true; 
-	
-	default:
-	return false; 
-	
+		
+		
+		case TokenType.Minus, TokenType.Plus, TokenType.Divide, TokenType.Multiply, TokenType.Equals, TokenType.And, 
+		TokenType.AndAnd, TokenType.Or, TokenType.OrOr, TokenType.PlusEquals, TokenType.MinusEquals, TokenType.MultiplyEquals, 
+		TokenType.DivideEquals, TokenType.GreaterThan, TokenType.LessThan, TokenType.EqualsEquals, TokenType.GreaterThanEquals, 
+		TokenType.LessThanEquals, TokenType.Modulus, TokenType.ModulusEquals, TokenType.NotEquals, TokenType.LeftBrace, 
+		TokenType.LeftSquareBracket, TokenType.Comma, TokenType.FullStop:
+			return true; 
+			
+		default:
+			return false; 
 	}
 	
 	return false
@@ -142,18 +135,14 @@ func IsPointerDeclaration(formatData *FormatData) bool {
 	
 	formatData.SetErrorFunction("IsPointerDeclaration"); 
 	
-	var index int  = formatData.TokenIndex; 
-	var lastType IntTokenType  = TokenType.NA; 
-	var identifierFound bool  = false; 
-	
+	var index int  = formatData.TokenIndex; var lastType IntTokenType  = TokenType.NA; var identifierFound bool  = false; 
 	for formatData.IndexInBounds() {
 	
 		if index >= len(formatData.TokenList) {
 			formatData.EndOfFileError(EmptyToken()); 
 			return false; 
 		}
-		var token Token  = formatData.TokenList[index]; 
-		if token.Type == TokenType.LeftSquareBracket {
+		var token Token  = formatData.TokenList[index]; if token.Type == TokenType.LeftSquareBracket {
 			if identifierFound == true {
 				return false; 
 			}
@@ -174,8 +163,7 @@ func IsPointerDeclaration(formatData *FormatData) bool {
 		}
 		lastType = token.Type; 
 		index += 1; 
-		
-	}
+			}
 	
 	return false; 
 }
@@ -197,17 +185,11 @@ func HandleToken(formatData *FormatData, token Token, returnTypeTokenList *[]Tok
 		}
 		
 		var wasPartOfType bool  = 
-		
 		* lastType == TokenType.FullStop || 
-		
 		* lastType == TokenType.RightSquareBracket || 
-		
 		* lastType == TokenType.Multiply || 
-		
 		* lastType == TokenType.LeftParenthesis || 
-		
 		* lastType == TokenType.NA; 
-		
 		if wasPartOfType {
 			* returnTypeTokenList = append(* returnTypeTokenList, token); 
 			return false; 
@@ -217,15 +199,10 @@ func HandleToken(formatData *FormatData, token Token, returnTypeTokenList *[]Tok
 		return true; 
 	}
 	var isSkippableToken bool  = 
-	
 	token.Type == TokenType.Tab || 
-	
 	token.Type == TokenType.NewLine || 
-	
 	token.Type == TokenType.RightParenthesis || 
-	
 	token.Type == TokenType.Comma; 
-	
 	if isSkippableToken {
 		return false; 
 	}
@@ -237,22 +214,18 @@ func VarTypeInnerCode(formatData *FormatData, returnTypeTokenList *[]Token, whil
 	formatData.SetErrorFunction("VarTypeInnerCode"); 
 	
 	var MAX int  = 10000; 
-	
 	if IsInfiniteWhile(whileCount, MAX) {
 		formatData.Result = FormatResult.Internal_Error; 
 		formatData.ErrorDetail = "Infinite while loop in VarTypeInnerLoop, FormatUtils"; 
 		return LoopAction.Error; 
 	}
 	var indexBefore int  = formatData.TokenIndex; 
-	
-	var token Token  = formatData.GetToken(); 
-	if formatData.IsValidToken(token) == false {
+	var token Token  = formatData.GetToken(); if formatData.IsValidToken(token) == false {
 		formatData.EndOfFileError(token); 
 		return LoopAction.Return; 
 	}
 	
-	var shouldBreak bool  = HandleToken(formatData, token, returnTypeTokenList, lastType); 
-	if shouldBreak == true {
+	var shouldBreak bool  = HandleToken(formatData, token, returnTypeTokenList, lastType); if shouldBreak == true {
 		return LoopAction.Break; 
 	}
 	
@@ -266,22 +239,18 @@ func FillVarType(formatData *FormatData, returnTypeTokenList *[]Token) {
 	formatData.SetErrorFunction("FillVarType"); 
 	
 	var whileCount int  = 0; 
-	
 	var lastType IntTokenType  = TokenType.NA; 
-	
 	//Get to ')' and then don't increment
 	for formatData.IndexInBounds() {
 	
-		var iterationResult IntLoopAction  = VarTypeInnerCode(formatData, returnTypeTokenList, &whileCount, &lastType); 
-		if iterationResult == LoopAction.Break {
+		var iterationResult IntLoopAction  = VarTypeInnerCode(formatData, returnTypeTokenList, &whileCount, &lastType); if iterationResult == LoopAction.Break {
 			break
 			
 		}
 		if iterationResult == LoopAction.Return {
 			return; 
 		}
-		
-	}
+			}
 	
 	
 }
@@ -290,27 +259,20 @@ func LoopUntilRightParenthesis(formatData *FormatData, returnTypeTokenList *[]To
 	formatData.SetErrorFunction("LoopUntilRightParenthesis"); 
 	
 	var whileCount int  = 0; 
-	
 	var openParenthesisCount int  = 1; 
-	
-	fmt.Println("looping until right parenthesis")
 	for formatData.IndexInBounds() {
 	
 		var MAX int  = 10000; 
-		
 		if IsInfiniteWhile( &whileCount, MAX) {
 			formatData.Result = FormatResult.Internal_Error; 
 			formatData.ErrorDetail = "Infinite while loop in LoopUntilRightParenthesis, FormatUtils"; 
 			return; 
 		}
 		var indexBefore int  = formatData.TokenIndex; 
-		
-		var token Token  = formatData.GetToken(); 
-		if formatData.IsValidToken(token) == false {
+		var token Token  = formatData.GetToken(); if formatData.IsValidToken(token) == false {
 			formatData.EndOfFileError(token); 
 			return; 
 		}
-		fmt.Printf("\t%s\n", token.Text)
 		
 		* returnTypeTokenList = append(* returnTypeTokenList, token); 
 		
@@ -324,15 +286,13 @@ func LoopUntilRightParenthesis(formatData *FormatData, returnTypeTokenList *[]To
 		if token.Type == TokenType.RightParenthesis {
 			if openParenthesisCount != 1 {
 				openParenthesisCount -= 1; 
-				continue 
-				
+				continue
 				
 			}
 			break
 			
 		}
-		
-	}
+			}
 	
 	
 }
@@ -341,89 +301,92 @@ func FindParameters(formatData *FormatData, parameters *[]Variable) {
 	formatData.SetErrorFunction("FindParameters"); 
 	
 	var whileCount int  = 0; 
+	var parameter_data ParameterData
 	
-	var tempParameter Variable
-	tempParameter.SetToDefaults(); 
-	var lastType IntTokenType  = TokenType.LeftParenthesis; 
+	parameter_data.TempParameter = Variable {}
+	parameter_data.TempParameter.SetToDefaults()
+	parameter_data.LastTokenType = TokenType.LeftParenthesis
+	parameter_data.ParameterPhase = ParameterPhase.TypeOrName
+	parameter_data.Parameters = parameters
 	
 	//Get to ')' and then don't increment
 	for formatData.IndexInBounds() {
 	
-		var iterationResult IntLoopAction  = ParameterInnerLoop(formatData, parameters, &tempParameter, &whileCount, &lastType); 
-		if iterationResult == LoopAction.Break {
+		var iterationResult IntLoopAction  = ParameterInnerLoop(formatData, &parameter_data, &whileCount); if iterationResult == LoopAction.Break {
 			break
 			
 		}
 		if iterationResult == LoopAction.Return {
 			return; 
 		}
-		
-	}
+			}
 	
 	
 }
 
-func ParameterInnerLoop(formatData *FormatData, parameters *[]Variable, tempParameter *Variable, whileCount *int, lastType *IntTokenType) IntLoopAction {
+func ParameterInnerLoop(formatData *FormatData, parameter_data *ParameterData, whileCount *int) IntLoopAction {
 	formatData.SetErrorFunction("ParameterInnerLoop"); 
 	var MAX int  = 10000; 
-	
 	if IsInfiniteWhile(whileCount, MAX) {
 		formatData.Result = FormatResult.Internal_Error; 
 		formatData.ErrorDetail = "infinite while loop in ParameterInnerLoop, FunctionUtils"; 
 		return LoopAction.Error; 
 	}
 	var indexBefore int  = formatData.TokenIndex; 
-	
-	var token Token  = formatData.GetToken(); 
-	if formatData.IsValidToken(token) == false {
+	var token Token  = formatData.GetToken(); if formatData.IsValidToken(token) == false {
 		formatData.EndOfFileError(token); 
 		return LoopAction.Return; 
 	}
 	
-	HandleParameterToken(formatData, token, tempParameter, lastType); 
+	HandleParameterToken(formatData, token, parameter_data); 
+	
+	if formatData.IsError() {
+		return LoopAction.Return
+	}
 	
 	if token.Type == TokenType.Comma {
-		AddParameter(parameters, tempParameter); 
+		AddParameter(parameter_data); 
+		parameter_data.ParameterPhase = ParameterPhase.TypeOrName
 		
 	}
 	if token.Type == TokenType.RightParenthesis {
-		AddParameter(parameters, tempParameter); 
+		AddParameter(parameter_data); 
 		return LoopAction.Break; 
 	}
 	
 	formatData.IncrementIfSame(indexBefore); 
-	* lastType = token.Type; 
+	parameter_data.LastTokenType = token.Type; 
 	return LoopAction.Continue; 
 }
 
-func HandleParameterToken(formatData *FormatData, token Token, tempParameter *Variable, lastType *IntTokenType) {
+func HandleParameterToken(formatData *FormatData, token Token, parameter_data *ParameterData) {
 	
 	if token.Type == TokenType.Identifier {
-		if * lastType == TokenType.Identifier || * lastType == TokenType.RightBrace {
-			tempParameter.NameToken = append(tempParameter.NameToken, token)
+		if parameter_data.ParameterPhase == ParameterPhase.End {
+			formatData.UnexpectedTypeError(token, "expected comma or ) in parameters")
+			return 
+		}
+		
+		if parameter_data.LastTokenType == TokenType.Identifier || parameter_data.LastTokenType == TokenType.RightBrace {
+			parameter_data.TempParameter.NameToken = append(parameter_data.TempParameter.NameToken, token)
 			
+			parameter_data.ParameterPhase = ParameterPhase.End
 			return; 
 		}
-		if IsVarTypeEnum(* lastType) {
-			tempParameter.NameToken = append(tempParameter.NameToken, token)
+		if IsVarTypeEnum(parameter_data.LastTokenType) {
+			parameter_data.TempParameter.NameToken = append(parameter_data.TempParameter.NameToken, token)
 			
 			return; 
 		}
 		
 		var wasPartOfType bool  = 
-		
-		* lastType == TokenType.FullStop || 
-		
-		* lastType == TokenType.RightSquareBracket || 
-		
-		* lastType == TokenType.Multiply || 
-		
-		* lastType == TokenType.Comma || 
-		
-		* lastType == TokenType.LeftParenthesis; 
-		
+		parameter_data.LastTokenType == TokenType.FullStop || 
+		parameter_data.LastTokenType == TokenType.RightSquareBracket || 
+		parameter_data.LastTokenType == TokenType.Multiply || 
+		parameter_data.LastTokenType == TokenType.Comma || 
+		parameter_data.LastTokenType == TokenType.LeftParenthesis; 
 		if wasPartOfType {
-			tempParameter.TypeList = append(tempParameter.TypeList, token)
+			parameter_data.TempParameter.TypeList = append(parameter_data.TempParameter.TypeList, token)
 			
 			return; 
 		}
@@ -432,30 +395,24 @@ func HandleParameterToken(formatData *FormatData, token Token, tempParameter *Va
 		return; 
 	}
 	var isSkippableToken bool  = 
-	
 	token.Type == TokenType.Tab || 
-	
 	token.Type == TokenType.NewLine || 
-	
 	token.Type == TokenType.RightParenthesis || 
-	
 	token.Type == TokenType.Comma; 
-	
 	if isSkippableToken {
 		return; 
 	}
-	tempParameter.TypeList = append(tempParameter.TypeList, token)
+	parameter_data.TempParameter.TypeList = append(parameter_data.TempParameter.TypeList, token)
 	
 	
 }
 
-func AddParameter(parameters *[]Variable, tempParameter *Variable) {
+func AddParameter(parameter_data *ParameterData) {
 	
-	if tempParameter.NameToken == nil {
+	if parameter_data.TempParameter.NameToken == nil {
 		return; 
 	}
-	var parameter_count int  = len(tempParameter.TypeList)
-	
+	var parameter_count int  = len(parameter_data.TempParameter.TypeList)
 	if parameter_count == 0 {
 		return; 
 	}
@@ -463,15 +420,14 @@ func AddParameter(parameters *[]Variable, tempParameter *Variable) {
 	parameterCopy.TypeList = make([]Token, 0)
 	for i := 0; i < parameter_count; i++ {
 	
-		parameterCopy.TypeList = append(parameterCopy.TypeList, tempParameter.TypeList[i])
+		parameterCopy.TypeList = append(parameterCopy.TypeList, parameter_data.TempParameter.TypeList[i])
 		
-		
-	}
+			}
 	
-	parameterCopy.NameToken = CopyTokenList(tempParameter.NameToken); 
+	parameterCopy.NameToken = CopyTokenList(parameter_data.TempParameter.NameToken); 
 	
-	* parameters = append(* parameters, parameterCopy); 
-	tempParameter.SetToDefaults(); 
+	* parameter_data.Parameters = append(* parameter_data.Parameters, parameterCopy); 
+	parameter_data.TempParameter.SetToDefaults(); 
 	
 }
 
@@ -480,8 +436,7 @@ func ConcatStrings(slice []string) string {
 	for _, s := range slice {
 	
 		result.WriteString(s)
-		
-	}
+			}
 	
 	return result.String()
 }

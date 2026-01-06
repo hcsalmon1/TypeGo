@@ -15,6 +15,7 @@ Channel_Setter IntTokenType
 ErrReturn IntTokenType
 ErrCheck IntTokenType
 Case IntTokenType
+Default IntTokenType
 Int IntTokenType
 Int8 IntTokenType
 Int16 IntTokenType
@@ -102,8 +103,7 @@ Comment IntTokenType
 EndComment IntTokenType
 NewLine IntTokenType
 NA IntTokenType
-
-}{
+}{
 Fn: 0,
 IntegerValue: 1,
 DecimalValue: 2,
@@ -116,95 +116,95 @@ Channel_Setter: 8,
 ErrReturn: 9,
 ErrCheck: 10,
 Case: 11,
-Int: 12,
-Int8: 13,
-Int16: 14,
-Int32: 15,
-Int64: 16,
-Uint: 17,
-Uint8: 18,
-Uint16: 19,
-Uint32: 20,
-Uint64: 21,
-Float32: 22,
-Float64: 23,
-String: 24,
-Byte: 25,
-Rune: 26,
-Bool: 27,
-Void: 28,
-Struct: 29,
-Enum: 30,
-Enumstruct: 31,
-Error: 32,
-Map: 33,
-Chan: 34,
-Var: 35,
-Type: 36,
-Interface: 37,
-Goto: 38,
-If: 39,
-Else: 40,
-For: 41,
-While: 42,
-Return: 43,
-Break: 44,
-Continue: 45,
-Defer: 46,
-Go: 47,
-Not: 48,
-Minus: 49,
-Plus: 50,
-PlusPlus: 51,
-Divide: 52,
-Multiply: 53,
-Equals: 54,
-And: 55,
-AndAnd: 56,
-Or: 57,
-OrOr: 58,
-PlusEquals: 59,
-MinusEquals: 60,
-MultiplyEquals: 61,
-DivideEquals: 62,
-GreaterThan: 63,
-LessThan: 64,
-EqualsEquals: 65,
-GreaterThanEquals: 66,
-LessThanEquals: 67,
-Modulus: 68,
-ModulusEquals: 69,
-NotEquals: 70,
-Colon: 71,
-ColonEquals: 72,
-MinusMinus: 73,
-Identifier: 74,
-Print: 75,
-Println: 76,
-LeftParenthesis: 77,
-RightParenthesis: 78,
-LeftBrace: 79,
-RightBrace: 80,
-LeftSquareBracket: 81,
-RightSquareBracket: 82,
-Make: 83,
-Append: 84,
-Semicolon: 85,
-Package: 86,
-Import: 87,
-Comma: 88,
-FullStop: 89,
-In: 90,
-Const: 91,
-Tab: 92,
-MultiLineStart: 93,
-MultiLineEnd: 94,
-Comment: 95,
-EndComment: 96,
-NewLine: 97,
-NA: 98,
-
-}
+Default: 12,
+Int: 13,
+Int8: 14,
+Int16: 15,
+Int32: 16,
+Int64: 17,
+Uint: 18,
+Uint8: 19,
+Uint16: 20,
+Uint32: 21,
+Uint64: 22,
+Float32: 23,
+Float64: 24,
+String: 25,
+Byte: 26,
+Rune: 27,
+Bool: 28,
+Void: 29,
+Struct: 30,
+Enum: 31,
+Enumstruct: 32,
+Error: 33,
+Map: 34,
+Chan: 35,
+Var: 36,
+Type: 37,
+Interface: 38,
+Goto: 39,
+If: 40,
+Else: 41,
+For: 42,
+While: 43,
+Return: 44,
+Break: 45,
+Continue: 46,
+Defer: 47,
+Go: 48,
+Not: 49,
+Minus: 50,
+Plus: 51,
+PlusPlus: 52,
+Divide: 53,
+Multiply: 54,
+Equals: 55,
+And: 56,
+AndAnd: 57,
+Or: 58,
+OrOr: 59,
+PlusEquals: 60,
+MinusEquals: 61,
+MultiplyEquals: 62,
+DivideEquals: 63,
+GreaterThan: 64,
+LessThan: 65,
+EqualsEquals: 66,
+GreaterThanEquals: 67,
+LessThanEquals: 68,
+Modulus: 69,
+ModulusEquals: 70,
+NotEquals: 71,
+Colon: 72,
+ColonEquals: 73,
+MinusMinus: 74,
+Identifier: 75,
+Print: 76,
+Println: 77,
+LeftParenthesis: 78,
+RightParenthesis: 79,
+LeftBrace: 80,
+RightBrace: 81,
+LeftSquareBracket: 82,
+RightSquareBracket: 83,
+Make: 84,
+Append: 85,
+Semicolon: 86,
+Package: 87,
+Import: 88,
+Comma: 89,
+FullStop: 90,
+In: 91,
+Const: 92,
+Tab: 93,
+MultiLineStart: 94,
+MultiLineEnd: 95,
+Comment: 96,
+EndComment: 97,
+NewLine: 98,
+NA: 99,
+}
 
 func (self IntTokenType) ToString() string {
 	switch self {
@@ -232,6 +232,8 @@ func (self IntTokenType) ToString() string {
 		return "ErrCheck"
 	case TokenType.Case:
 		return "Case"
+	case TokenType.Default:
+		return "Default"
 	case TokenType.Int:
 		return "Int"
 	case TokenType.Int8:
@@ -409,8 +411,7 @@ func (self IntTokenType) ToString() string {
 	default:
 		return "Unknown"
 }
-
-}
+}
 
 type IntLastTokenType int
 var LastTokenType = struct {
@@ -432,8 +433,7 @@ FullStop IntLastTokenType
 Interface IntLastTokenType
 LeftBrace IntLastTokenType
 RightBrace IntLastTokenType
-
-}{
+}{
 Null: 0,
 Identifier: 1,
 CustomVarType: 2,
@@ -452,8 +452,7 @@ FullStop: 14,
 Interface: 15,
 LeftBrace: 16,
 RightBrace: 17,
-
-}
+}
 
 func (self IntLastTokenType) ToString() string {
 	switch self {
@@ -496,8 +495,7 @@ func (self IntLastTokenType) ToString() string {
 	default:
 		return "Unknown"
 }
-
-}
+}
 
 type IntNodeType int
 var NodeType = struct {
@@ -538,10 +536,12 @@ Append IntNodeType
 Package IntNodeType
 Other IntNodeType
 Switch IntNodeType
+Switch_Case_Body IntNodeType
+Switch_Case IntNodeType
 Return IntNodeType
 Break IntNodeType
-
-}{
+Continue IntNodeType
+}{
 Invalid: 0,
 Channel_Declaration: 1,
 Channel_Declaration_With_Value: 2,
@@ -579,10 +579,12 @@ Append: 33,
 Package: 34,
 Other: 35,
 Switch: 36,
-Return: 37,
-Break: 38,
-
-}
+Switch_Case_Body: 37,
+Switch_Case: 38,
+Return: 39,
+Break: 40,
+Continue: 41,
+}
 
 func (self IntNodeType) ToString() string {
 	switch self {
@@ -660,15 +662,20 @@ func (self IntNodeType) ToString() string {
 		return "Other"
 	case NodeType.Switch:
 		return "Switch"
+	case NodeType.Switch_Case_Body:
+		return "Switch_Case_Body"
+	case NodeType.Switch_Case:
+		return "Switch_Case"
 	case NodeType.Return:
 		return "Return"
 	case NodeType.Break:
 		return "Break"
+	case NodeType.Continue:
+		return "Continue"
 	default:
 		return "Unknown"
 }
-
-}
+}
 
 type IntLoopAction int
 var LoopAction = struct {
@@ -676,14 +683,12 @@ var LoopAction = struct {
 Break IntLoopAction
 Return IntLoopAction
 Error IntLoopAction
-
-}{
+}{
 Continue: 0,
 Break: 1,
 Return: 2,
 Error: 3,
-
-}
+}
 
 func (self IntLoopAction) ToString() string {
 	switch self {
@@ -698,8 +703,7 @@ func (self IntLoopAction) ToString() string {
 	default:
 		return "Unknown"
 }
-
-}
+}
 
 type IntIdentLoopAction int
 var IdentLoopAction = struct {
@@ -709,16 +713,14 @@ Declaration IntIdentLoopAction
 Other IntIdentLoopAction
 Append IntIdentLoopAction
 Error IntIdentLoopAction
-
-}{
+}{
 Continue: 0,
 Break: 1,
 Declaration: 2,
 Other: 3,
 Append: 4,
 Error: 5,
-
-}
+}
 
 func (self IntIdentLoopAction) ToString() string {
 	switch self {
@@ -737,21 +739,39 @@ func (self IntIdentLoopAction) ToString() string {
 	default:
 		return "Unknown"
 }
+}
 
-}
+type IntParameterPhase int
+var ParameterPhase = struct {
+	TypeOrName IntParameterPhase
+	End IntParameterPhase
+	}{
+	TypeOrName: 0,
+	End: 1,
+	}
+
+func (self IntParameterPhase) ToString() string {
+	switch self {
+	case ParameterPhase.TypeOrName:
+		return "TypeOrName"
+	case ParameterPhase.End:
+		return "End"
+	default:
+		return "Unknown"
+	}
+}
+
 
 type IntMethodType int
 var MethodType = struct {
 	None IntMethodType
 Struct IntMethodType
 Enum IntMethodType
-
-}{
+}{
 None: 0,
 Struct: 1,
 Enum: 2,
-
-}
+}
 
 func (self IntMethodType) ToString() string {
 	switch self {
@@ -764,6 +784,5 @@ func (self IntMethodType) ToString() string {
 	default:
 		return "Unknown"
 }
-
-}
+}
 

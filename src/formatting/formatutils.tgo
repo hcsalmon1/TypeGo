@@ -3,7 +3,6 @@ package formatting
 import (
     . "TypeGo/core"
     "strings"
-    "fmt"
 )
 
 fn IntLoopAction LoopUntilEndInner(*FormatData formatData, *BlockData blockData, Token token, IntTokenType lastTokenType, *BracketCounts bracket_counts, bool stopAtSemicolon) {
@@ -268,7 +267,6 @@ fn LoopUntilRightParenthesis(*FormatData formatData, *[]Token returnTypeTokenLis
 
     int openParenthesisCount = 1;
 
-    fmt.Println("looping until right parenthesis")
     for formatData.IndexInBounds() {
         int MAX = 10000;
 
@@ -284,7 +282,6 @@ fn LoopUntilRightParenthesis(*FormatData formatData, *[]Token returnTypeTokenLis
             formatData.EndOfFileError(token);
             return;
         }
-        fmt.Printf("\t%s\n", token.Text)
 
         *returnTypeTokenList = append(*returnTypeTokenList, token);
 
@@ -309,14 +306,18 @@ fn FindParameters(*FormatData formatData, *[]Variable parameters) {
 
     int whileCount = 0;
 
-    Variable tempParameter
-    tempParameter.SetToDefaults();
-    IntTokenType lastType = TokenType.LeftParenthesis;
+    ParameterData parameter_data
+
+    parameter_data.TempParameter = Variable{}
+    parameter_data.TempParameter.SetToDefaults()
+    parameter_data.LastTokenType = TokenType.LeftParenthesis
+    parameter_data.ParameterPhase = ParameterPhase.TypeOrName
+    parameter_data.Parameters = parameters
 
     //Get to ')' and then don't increment
     for formatData.IndexInBounds() {
 
-        IntLoopAction iterationResult = ParameterInnerLoop(formatData, parameters, &tempParameter, &whileCount, &lastType);
+        IntLoopAction iterationResult = ParameterInnerLoop(formatData, &parameter_data, &whileCount);
         if iterationResult == LoopAction.Break {
             break;
         }
@@ -326,7 +327,7 @@ fn FindParameters(*FormatData formatData, *[]Variable parameters) {
     }
 }
 
-fn IntLoopAction ParameterInnerLoop(*FormatData formatData, *[]Variable parameters, *Variable tempParameter, *int whileCount, *IntTokenType lastType) {
+fn IntLoopAction ParameterInnerLoop(*FormatData formatData, *ParameterData parameter_data, *int whileCount) {
     formatData.SetErrorFunction("ParameterInnerLoop");
     int MAX = 10000;
 
@@ -343,43 +344,54 @@ fn IntLoopAction ParameterInnerLoop(*FormatData formatData, *[]Variable paramete
         return LoopAction.Return;
     }
 
-    HandleParameterToken(formatData, token, tempParameter, lastType);
+    HandleParameterToken(formatData, token, parameter_data);
+
+    if formatData.IsError() {
+        return LoopAction.Return
+    }
 
     if token.Type == TokenType.Comma {
-        AddParameter(parameters, tempParameter);
+        AddParameter(parameter_data);
+        parameter_data.ParameterPhase = ParameterPhase.TypeOrName
     }
     if token.Type == TokenType.RightParenthesis {
-        AddParameter(parameters, tempParameter);
+        AddParameter(parameter_data);
         return LoopAction.Break;
     }
 
     formatData.IncrementIfSame(indexBefore);
-    *lastType = token.Type;
+    parameter_data.LastTokenType = token.Type;
     return LoopAction.Continue;
 }
 
-fn HandleParameterToken(*FormatData formatData, Token token, *Variable tempParameter, *IntTokenType lastType) {
+fn HandleParameterToken(*FormatData formatData, Token token, *ParameterData parameter_data) {
 
     if token.Type == TokenType.Identifier {
 
-        if *lastType == TokenType.Identifier || *lastType == TokenType.RightBrace {
-            tempParameter.NameToken.append(token);
+        if parameter_data.ParameterPhase == ParameterPhase.End {
+			formatData.UnexpectedTypeError(token, "expected comma or ) in parameters")
+            return
+        }
+
+        if parameter_data.LastTokenType == TokenType.Identifier || parameter_data.LastTokenType == TokenType.RightBrace {
+            parameter_data.TempParameter.NameToken.append(token);
+            parameter_data.ParameterPhase = ParameterPhase.End
             return;
         }
-        if IsVarTypeEnum(*lastType) {
-            tempParameter.NameToken.append(token);
+        if IsVarTypeEnum(parameter_data.LastTokenType) {
+            parameter_data.TempParameter.NameToken.append(token);
             return;
         }
 
         bool wasPartOfType =
-            *lastType == TokenType.FullStop ||
-            *lastType == TokenType.RightSquareBracket ||
-            *lastType == TokenType.Multiply ||
-            *lastType == TokenType.Comma ||
-            *lastType == TokenType.LeftParenthesis;
+            parameter_data.LastTokenType == TokenType.FullStop ||
+            parameter_data.LastTokenType == TokenType.RightSquareBracket ||
+            parameter_data.LastTokenType == TokenType.Multiply ||
+            parameter_data.LastTokenType == TokenType.Comma ||
+            parameter_data.LastTokenType == TokenType.LeftParenthesis;
 
         if wasPartOfType {
-            tempParameter.TypeList.append(token);
+            parameter_data.TempParameter.TypeList.append(token);
             return;
         }
 
@@ -395,27 +407,27 @@ fn HandleParameterToken(*FormatData formatData, Token token, *Variable tempParam
     if isSkippableToken {
         return;
     }
-    tempParameter.TypeList.append(token);
+    parameter_data.TempParameter.TypeList.append(token);
 }
 
-fn AddParameter(*[]Variable parameters, *Variable tempParameter) {
+fn AddParameter(*ParameterData parameter_data) {
 
-    if tempParameter.NameToken == nil {
+    if parameter_data.TempParameter.NameToken == nil {
         return;
     }
-    int parameter_count = len(tempParameter.TypeList)
+    int parameter_count = len(parameter_data.TempParameter.TypeList)
     if parameter_count == 0 {
         return;
     }
     Variable parameterCopy;
     parameterCopy.TypeList = make([]Token, 0)
     for i := 0; i < parameter_count; i++ {
-        parameterCopy.TypeList.append(tempParameter.TypeList[i]);
+        parameterCopy.TypeList.append(parameter_data.TempParameter.TypeList[i]);
     }
-    parameterCopy.NameToken = CopyTokenList(tempParameter.NameToken);
+    parameterCopy.NameToken = CopyTokenList(parameter_data.TempParameter.NameToken);
 
-    *parameters = append(*parameters, parameterCopy);
-    tempParameter.SetToDefaults();
+    *parameter_data.Parameters = append(*parameter_data.Parameters, parameterCopy);
+    parameter_data.TempParameter.SetToDefaults();
 }
 
 fn string ConcatStrings([]string slice) {

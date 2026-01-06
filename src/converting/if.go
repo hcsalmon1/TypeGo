@@ -48,7 +48,10 @@ func PrintIfStatement(convertData *ConvertData, blockData *BlockData, nestCount 
 	}
 	convertData.DecrementNestCount()
 	
-	convertData.NewLineWithTabs(); 
+	if convertData.WasNewLine() == false {
+		convertData.NewLineWithTabs(); 
+		
+	}
 	convertData.AppendChar('}'); 
 	
 	convertData.LastNodeType = NodeType.If_Statement; 
@@ -74,10 +77,12 @@ func PrintElseStatement(convertData *ConvertData, blockData *BlockData, nestCoun
 	
 	convertData.AppendChar(' '); 
 	convertData.AppendChar('{'); 
+	convertData.IncrementNestCount()
 	if blockData.Block != nil {
 		ProcessBlock(convertData, blockData.Block, nestCount + 1, false); 
 		
 	}
+	convertData.DecrementNestCount()
 	convertData.NewLineWithTabs(); 
 	convertData.AppendChar('}'); 
 	

@@ -10,13 +10,12 @@ func FormatInterfaceVar(formatData *FormatData, firstToken Token) BlockData {
 	formatData.SetErrorFunction("FormatInterfaceVar"); 
 	
 	var blockData BlockData  = BlockData{
-	Block:nil, 
-	NodeType:NodeType.Single_Declaration_No_Value, 
-	StartingToken:firstToken, 
-	Tokens:make([]Token, 0), 
-	Variables:make([]Variable, 0), 
+		Block:nil, 
+		NodeType:NodeType.Single_Declaration_No_Value, 
+		StartingToken:firstToken, 
+		Tokens:make([]Token, 0), 
+		Variables:make([]Variable, 0), 
 	}; 
-	
 	var variable Variable
 	variable.TypeList = make([]Token, 0)
 	variable.TypeList = append(variable.TypeList, firstToken)
@@ -24,7 +23,6 @@ func FormatInterfaceVar(formatData *FormatData, firstToken Token) BlockData {
 	
 	formatData.Increment(); 
 	var tempToken Token  = formatData.GetToken(); 
-	
 	if formatData.IsValidToken(tempToken) == false {
 		formatData.EndOfFileError(firstToken); 
 		return blockData; 

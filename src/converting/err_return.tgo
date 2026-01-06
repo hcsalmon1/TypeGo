@@ -3,7 +3,8 @@ package converting
 import . "TypeGo/core"
 
 fn Process(*ConvertData convertData, *BlockData blockData, int nestCount) {
-    convertData.AppendString("if err != nil {{");
+    convertData.AppendString("if err != nil {");
+    convertData.IncrementNestCount()
     convertData.NewLineWithTabs();
     convertData.AppendString("return ");
 
@@ -11,6 +12,7 @@ fn Process(*ConvertData convertData, *BlockData blockData, int nestCount) {
     if len(tokenList) != 0 {
         PrintTokens(convertData, blockData, nestCount);
     }
+    convertData.DecrementNestCount()
     convertData.NewLineWithTabs();
     convertData.AppendChar('}');
 }

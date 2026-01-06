@@ -8,9 +8,9 @@ import (
 )
 
 type CodeFormat struct {
-GlobalBlock CodeBlock
-Functions []Function
-
+	GlobalBlock CodeBlock
+	Functions []Function
+	
 }
 
 
@@ -19,20 +19,16 @@ func (self *CodeFormat) Print() {
 	fmt.Println("Printing Code Format:")
 	
 	var indent int  = 1
-	
 	self.GlobalBlock.Print(0)
 	fmt.Println()
 	
 	var count int  = len(self.Functions)
 	
-	
 	for i := 0; i < count; i++ {
 	
 		var function Function  = self.Functions[i]
-		
 		function.Print(indent)
-		
-	}
+			}
 	
 	
 }
@@ -41,14 +37,11 @@ func (self *CodeFormat) PrintFunctions() {
 	fmt.Println("Printing Functions:"); 
 	
 	var count int  = len(self.Functions)
-	
 	for i := 0; i < count; i++ {
 	
 		var function Function  = self.Functions[i]
-		
 		function.PrintData(); 
-		
-	}
+			}
 	
 	
 }
@@ -58,14 +51,11 @@ func (self *CodeFormat) PrintNodeData() {
 	fmt.Println("Printing Node Data:"); 
 	
 	var count int  = len(self.Functions)
-	
 	for i := 0; i < count; i++ {
 	
 		var function Function  = self.Functions[i]
-		
 		function.PrintData()
-		
-	}
+			}
 	
 	
 }
@@ -75,59 +65,49 @@ func (self *CodeFormat) PrintNodeType() {
 	fmt.Println("Printing Functions:"); 
 	
 	var count int  = len(self.Functions)
-	
 	for i := 0; i < count; i++ {
 	
 		var function Function  = self.Functions[i]
-		
 		function.PrintNodeTypes()
-		
-	}
+			}
 	
 	
 }
 
 type CodeBlock struct {
-BlockDataList []BlockData
-MethodList []Function
-
+	BlockDataList []BlockData
+	MethodList []Function
+	
 }
 
 
 func (self *CodeBlock) Print(indent int) {
 	
 	var block_count int  = len(self.BlockDataList)
-	
 	if block_count != 0 {
 		for i := 0; i < block_count; i++ {
 		
 			var block_data BlockData  = self.BlockDataList[i]
-			
 			if block_data.NodeType == NodeType.NewLine {
-				continue 
-				
+				continue
 			}
 			fmt.Println()
 			fmt.Print(addTabs(indent))
 			
 			block_data.Print(indent + 1)
-			
-		}
+					}
 		
 		
 	}
 	
 	var method_count int  = len(self.MethodList)
-	
 	if method_count != 0 {
 		for i := 0; i < method_count; i++ {
 		
 			fmt.Println()
 			var function Function  = self.MethodList[i]
-			
 			function.Print(indent)
-			
-		}
+					}
 		
 		
 	}
@@ -139,7 +119,6 @@ func (self *CodeBlock) Print(indent int) {
 func (self *CodeBlock) PrintData() {
 	fmt.Println("\nPrinting blockdata:"); 
 	var count int  = len(self.BlockDataList)
-	
 	if count == 0 {
 		fmt.Println("\tempty\n"); 
 		
@@ -148,21 +127,20 @@ func (self *CodeBlock) PrintData() {
 	
 		self.BlockDataList[i].Print(0); 
 		fmt.Println(); 
-		
-	}
+			}
 	
 	fmt.Println(); 
 	
 }
 
 type BlockData struct {
-NodeType IntNodeType
-Tokens []Token
-StartingToken Token
-Block *CodeBlock
-Variables []Variable
-VarName string
-
+	NodeType IntNodeType
+	Tokens []Token
+	StartingToken Token
+	Block *CodeBlock
+	Variables []Variable
+	VarName string
+	
 }
 
 
@@ -170,21 +148,18 @@ func (self *BlockData) Print(indent int) {
 	
 	fmt.Printf("%s ", self.NodeType.ToString())
 	var token_count int  = len(self.Tokens)
-	
 	if token_count == 0 {
 		return 
 	}
 	for i := 0; i < len(self.Variables); i++ {
 	
 		self.Variables[i].Print()
-		
-	}
+			}
 	
 	for i := 0; i < token_count; i++ {
 	
 		fmt.Printf("%s ", self.Tokens[i].Text)
-		
-	}
+			}
 	
 	if self.Block != nil {
 		self.Block.Print(indent + 1)
@@ -238,7 +213,6 @@ func (self *BlockData) PrintTokens(newLine bool) {
 	}
 	fmt.Print("tokens: "); 
 	var count int  = len(self.Tokens)
-	
 	if count == 0 {
 		fmt.Print("empty "); 
 		self.AddNewLine(newLine); 
@@ -247,8 +221,7 @@ func (self *BlockData) PrintTokens(newLine bool) {
 	for i := 0; i < count; i++ {
 	
 		fmt.Print("'{Tokens[i].Text}' "); 
-		
-	}
+			}
 	
 	self.AddNewLine(newLine); 
 	
@@ -256,7 +229,6 @@ func (self *BlockData) PrintTokens(newLine bool) {
 
 func (self *BlockData) PrintWithCodeBlock() {
 	var NO_NEW_LINE bool  = false; 
-	
 	fmt.Print("\tNode type: "); 
 	fmt.Printf("%s ", self.NodeType.ToString()); 
 	self.PrintStartingToken(NO_NEW_LINE); 
@@ -267,9 +239,9 @@ func (self *BlockData) PrintWithCodeBlock() {
 		fmt.Print("null "); 
 		
 	} else  {
-	fmt.Print("Block: "); 
-	fmt.Print("not null "); 
-	
+		fmt.Print("Block: "); 
+		fmt.Print("not null "); 
+		
 	}
 	
 	
@@ -282,7 +254,6 @@ func (self *BlockData) PrintVariables(newLine bool) {
 	}
 	fmt.Print("Vars: "); 
 	var count int  = len(self.Variables)
-	
 	if count == 0 {
 		fmt.Print("empty "); 
 		self.AddNewLine(newLine); 
@@ -291,8 +262,7 @@ func (self *BlockData) PrintVariables(newLine bool) {
 	for i := 0; i < count; i++ {
 	
 		self.Variables[i].Print(); 
-		
-	}
+			}
 	
 	self.AddNewLine(newLine); 
 	
@@ -303,90 +273,120 @@ func (self *BlockData) Validate(formatData *FormatData) bool {
 	var validator NodeValidator
 	var err error  = nil
 	
-	
 	switch self.NodeType {
-	case NodeType.Invalid:
-	formatData.Result = FormatResult.Invalid_Node
-	return false
-	case NodeType.Channel_Declaration:
-	case NodeType.Channel_Declaration_With_Value:
-	case NodeType.Interface_Declaration:
-	case NodeType.Single_Declaration_With_Value:
-	err = validator.ValidateSingleDeclarationWithValue(self)
-	if err != nil {
-	formatData.SetError(FormatResult.Invalid_Node, err.Error())
-	return false
-	
-	}
-	return true
-	case NodeType.Single_Declaration_No_Value:
-	case NodeType.Multiple_Declarations_No_Value:
-	case NodeType.Multiple_Declarations_With_Value:
-	case NodeType.Multiple_Declarations_Same_Type_No_Value:
-	case NodeType.Multiple_Declarations_Same_Type_With_Value:
-	case NodeType.Multiple_Declarations_One_Type_One_Set_Value:
-	case NodeType.Constant_Global_Variable:
-	case NodeType.Constant_Global_Variable_With_Type:
-	case NodeType.Struct_Variable_Declaration:
-	case NodeType.If_Statement_With_Declaration:
-	case NodeType.If_Statement:
-	case NodeType.Else_Statement:
-	case NodeType.For_Loop:
-	case NodeType.For_Loop_With_Declaration:
-	case NodeType.Err_Return:
-	case NodeType.Err_Check:
-	case NodeType.Multi_Line_Import:
-	case NodeType.Single_Import:
-	case NodeType.Single_Import_With_Alias:
-	case NodeType.NestedStruct:
-	case NodeType.Struct_Declaration:
-	case NodeType.Enum_Declaration:
-	case NodeType.Enum_Variable:
-	case NodeType.Enum_Variable_With_Value:
-	case NodeType.Enum_Struct_Declaration:
-	case NodeType.Enum_Struct_Declaration_With_Alias:
-	case NodeType.NewLine:
-	case NodeType.Comment:
-	case NodeType.Append:
-	case NodeType.Package:
-	case NodeType.Other:
-	case NodeType.Switch:
-	case NodeType.Return:
-	case NodeType.Break:
-	default:
-	return true
-	
+		
+		case NodeType.Invalid:
+			formatData.Result = FormatResult.Invalid_Node
+			return false
+		case NodeType.Channel_Declaration:
+			
+		case NodeType.Channel_Declaration_With_Value:
+			
+		case NodeType.Interface_Declaration:
+			
+		case NodeType.Single_Declaration_With_Value:
+			err = validator.ValidateSingleDeclarationWithValue(self)
+			if err != nil {
+			formatData.SetError(FormatResult.Invalid_Node, err.Error())
+			return false
+			}
+			
+			return true
+		case NodeType.Single_Declaration_No_Value:
+			
+		case NodeType.Multiple_Declarations_No_Value:
+			
+		case NodeType.Multiple_Declarations_With_Value:
+			
+		case NodeType.Multiple_Declarations_Same_Type_No_Value:
+			
+		case NodeType.Multiple_Declarations_Same_Type_With_Value:
+			
+		case NodeType.Multiple_Declarations_One_Type_One_Set_Value:
+			
+		case NodeType.Constant_Global_Variable:
+			
+		case NodeType.Constant_Global_Variable_With_Type:
+			
+		case NodeType.Struct_Variable_Declaration:
+			
+		case NodeType.If_Statement_With_Declaration:
+			
+		case NodeType.If_Statement:
+			
+		case NodeType.Else_Statement:
+			
+		case NodeType.For_Loop:
+			
+		case NodeType.For_Loop_With_Declaration:
+			
+		case NodeType.Err_Return:
+			
+		case NodeType.Err_Check:
+			
+		case NodeType.Multi_Line_Import:
+			
+		case NodeType.Single_Import:
+			
+		case NodeType.Single_Import_With_Alias:
+			
+		case NodeType.NestedStruct:
+			
+		case NodeType.Struct_Declaration:
+			
+		case NodeType.Enum_Declaration:
+			
+		case NodeType.Enum_Variable:
+			
+		case NodeType.Enum_Variable_With_Value:
+			
+		case NodeType.Enum_Struct_Declaration:
+			
+		case NodeType.Enum_Struct_Declaration_With_Alias:
+			
+		case NodeType.NewLine:
+			
+		case NodeType.Comment:
+			
+		case NodeType.Append:
+			
+		case NodeType.Package:
+			
+		case NodeType.Other:
+			
+		case NodeType.Switch:
+			
+		case NodeType.Return:
+			
+		case NodeType.Break:
+			
+		default:
+			return true
 	}
 	
 	return true
 }
 
-type Variable struct {
-TypeList []Token
-NameToken []Token
+type ParameterData struct {
+	TempParameter Variable
+	LastTokenType IntTokenType
+	Parameters *[]Variable
+	ParameterPhase IntParameterPhase
+	
+}
 
+
+type Variable struct {
+	TypeList []Token
+	NameToken []Token
+	
 }
 
 
 func (self *Variable) SetToDefaults() {
 	
-	if (self.TypeList == nil) {
-		self.TypeList = make([]Token, 0)
-		
-	} else  {
-	self.TypeList = nil
-	
-	}
-	
-	
-	if (self.NameToken == nil) {
-		self.NameToken = make([]Token, 0); 
-		
-	} else  {
-	self.NameToken = nil
-	
-	}
-	
+	self.TypeList = make([]Token, 0)
+	self.NameToken = make([]Token, 0); 
 	
 }
 
@@ -397,7 +397,6 @@ func (self *Variable) PrintTypeList() {
 		return; 
 	}
 	var count int  = len(self.TypeList)
-	
 	if count == 0 {
 		fmt.Print("Typelist empty "); 
 		return; 
@@ -405,8 +404,7 @@ func (self *Variable) PrintTypeList() {
 	for i := 0; i < count; i++ {
 	
 		fmt.Print(" '{TypeList[i].Text}', "); 
-		
-	}
+			}
 	
 	
 }
@@ -418,7 +416,6 @@ func (self *Variable) PrintVarName() {
 		return; 
 	}
 	var count int  = len(self.NameToken)
-	
 	if count == 0 {
 		fmt.Println(" zero"); 
 		return; 
@@ -430,9 +427,7 @@ func (self *Variable) PrintVarName() {
 
 func (self *Variable) Print() {
 	var type_list_count int  = len(self.TypeList)
-	
 	var name_list_count int  = len(self.NameToken)
-	
 	if type_list_count == 0 || name_list_count == 0 {
 		fmt.Printf("Invalid, type count: %d name count: %d", type_list_count, name_list_count)
 		return 
@@ -440,8 +435,7 @@ func (self *Variable) Print() {
 	for i := 0; i < type_list_count; i++ {
 	
 		fmt.Printf("%s", self.TypeList[i].Text)
-		
-	}
+			}
 	
 	fmt.Printf(" %s\n", self.NameToken[0].Text)
 	
@@ -456,59 +450,46 @@ func (self *Variable) Println() {
 
 func (self *Variable) ConvertToString() string {
 	var sb []byte  = make([]byte, 0)
-	
 	var count int  = len(self.TypeList)
-	
 	if count == 0 {
 		var input string  = "INVALID_TYPE "
-		
 		var length int  = len(input)
-		
 		for i := 0; i < length; i++ {
 		
 			sb = append(sb, input[i])
 			
-			
-		}
+					}
 		
 		
 	}
 	for i := 0; i < count; i++ {
 	
 		var token Token  = self.TypeList[i]
-		
 		AppendStringToSlice( &sb, token.Text)
-		
-	}
+			}
 	
 	sb = append(sb, ' ')
 	
 	if self.NameToken == nil {
 		var input string  = "null"
-		
 		var length int  = len(input)
-		
 		for i := 0; i < length; i++ {
 		
 			sb = append(sb, input[i])
 			
-			
-		}
+					}
 		
 		
 	} else  {
-	var input string  = self.NameToken[0].Text
-	
-	var length int  = len(input)
-	
-	for i := 0; i < length; i++ {
-	
-		sb = append(sb, input[i])
+		var input string  = self.NameToken[0].Text
+		var length int  = len(input)
+		for i := 0; i < length; i++ {
+		
+			sb = append(sb, input[i])
+			
+					}
 		
 		
-	}
-	
-	
 	}
 	
 	
@@ -527,12 +508,12 @@ func (self *Variable) MoveTypeToName() {
 }
 
 type Function struct {
-ReturnType string
-Name string
-Parameters []Variable
-InnerBlock *CodeBlock
-StartingToken Token
-
+	ReturnType string
+	Name string
+	Parameters []Variable
+	InnerBlock *CodeBlock
+	StartingToken Token
+	
 }
 
 
@@ -546,15 +527,12 @@ func (self *Function) Print(indent int) {
 	
 	fmt.Printf("%s%s%s(", CREAM_TEXT, self.Name, RESET_TEXT)
 	var count int  = len(self.Parameters)
-	
 	for i := 0; i < count; i++ {
 	
 		var parameter Variable  = self.Parameters[i]
-		
 		parameter.Print()
 		fmt.Print(", ")
-		
-	}
+			}
 	
 	
 	fmt.Printf("%c %c", ')', '{')
@@ -568,15 +546,12 @@ func (self *Function) PrintData() {
 	fmt.Printf("\t%s", self.ReturnType); 
 	fmt.Printf(" %s(", self.Name); 
 	var count int  = len(self.Parameters)
-	
 	for i := 0; i < count; i++ {
 	
 		var parameter Variable  = self.Parameters[i]
-		
 		parameter.Print(); 
 		fmt.Print(", "); 
-		
-	}
+			}
 	
 	fmt.Println(')'); 
 	self.InnerBlock.PrintData(); 
@@ -591,9 +566,7 @@ func (self *Function) PrintNodeTypes() {
 		return; 
 	}
 	var block *CodeBlock  = self.InnerBlock; 
-	
 	var count int  = len(block.BlockDataList)
-	
 	if (count == 0) {
 		fmt.Println("\tblock data list is 0!"); 
 		return; 
@@ -601,20 +574,18 @@ func (self *Function) PrintNodeTypes() {
 	
 	for i := 0; i < count; i++ {
 	
-		var blockData BlockData  = block.BlockDataList[i]; 
-		fmt.Printf("\t%s\n", blockData.NodeType.ToString()); 
-		
-	}
+		var blockData BlockData  = block.BlockDataList[i]; fmt.Printf("\t%s\n", blockData.NodeType.ToString()); 
+			}
 	
 	
 }
 
 type Token struct {
-Text string
-Type IntTokenType
-LineNumber int
-CharNumber int
-
+	Text string
+	Type IntTokenType
+	LineNumber int
+	CharNumber int
+	
 }
 
 
@@ -628,15 +599,15 @@ func (self *Token) PrintText() {
 }
 
 type ParseData struct {
-TokenList []Token
-LastToken Token
-CharacterIndex int
-Code string
-LineCount int
-CharCount int
-ParseResult IntParseResult
-CodeLength int
-
+	TokenList []Token
+	LastToken Token
+	CharacterIndex int
+	Code string
+	LineCount int
+	CharCount int
+	ParseResult IntParseResult
+	CodeLength int
+	
 }
 
 
@@ -645,18 +616,18 @@ func (self *ParseData) IsError() bool {
 }
 
 type FormatData struct {
-TokenList []Token
-Result IntFormatResult
-ErrorDetail string
-ErrorFunction string
-ErrorProcess string
-FunctionLog []string
-ProcessLog []string
-LogIndent int
-ErrorToken Token
-TokenIndex int
-TempToken Token
-
+	TokenList []Token
+	Result IntFormatResult
+	ErrorDetail string
+	ErrorFunction string
+	ErrorProcess string
+	FunctionLog []string
+	ProcessLog []string
+	LogIndent int
+	ErrorToken Token
+	TokenIndex int
+	TempToken Token
+	
 }
 
 
@@ -673,7 +644,6 @@ func (self *FormatData) GetToken() Token {
 		return EmptyToken()
 	}
 	var token Token  = self.TokenList[self.TokenIndex]
-	
 	self.ErrorToken = token
 	return token
 }
@@ -750,8 +720,7 @@ func (self *FormatData) UnexpectedTypeError(errorToken Token, detail string) {
 }
 
 func (self *FormatData) ExpectType(token_type IntTokenType, detail string) bool {
-	var token Token  = self.GetToken(); 
-	if (token.Type == TokenType.NA) {
+	var token Token  = self.GetToken(); if (token.Type == TokenType.NA) {
 		self.EndOfFileError(token); 
 		return false; 
 	}
@@ -764,8 +733,7 @@ func (self *FormatData) ExpectType(token_type IntTokenType, detail string) bool 
 
 func (self *FormatData) ExpectNextType(token_type IntTokenType, detail string) bool {
 	
-	var token Token  = self.GetNextToken(); 
-	if (token.Type == TokenType.NA) {
+	var token Token  = self.GetNextToken(); if (token.Type == TokenType.NA) {
 		self.EndOfFileError(token); 
 		return false; 
 	}
@@ -777,8 +745,7 @@ func (self *FormatData) ExpectNextType(token_type IntTokenType, detail string) b
 }
 
 func (self *FormatData) IncrementIfNewLine() {
-	var token Token  = self.GetToken(); 
-	if (token.Type == TokenType.NA) {
+	var token Token  = self.GetToken(); if (token.Type == TokenType.NA) {
 		return; 
 	}
 	if (token.Type == TokenType.NewLine) {
@@ -827,7 +794,6 @@ func (self *FormatData) DecreaseLogIndent() {
 
 func (self *FormatData) AddToProcessLog(info string) {
 	var info_with_spaces string  = addSpaces(info, self.LogIndent)
-	
 	self.ProcessLog = append(self.ProcessLog, info_with_spaces)
 	
 }
@@ -835,7 +801,6 @@ func (self *FormatData) AddToProcessLog(info string) {
 func (self *FormatData) PrintProcessLog() {
 	fmt.Println("\nPrinting process log:")
 	var count int  = len(self.ProcessLog)
-	
 	if count == 0 {
 		fmt.Println("\tEmpty\n")
 		return 
@@ -843,10 +808,8 @@ func (self *FormatData) PrintProcessLog() {
 	for i := 0; i < count; i++ {
 	
 		var log string  = self.ProcessLog[i]
-		
 		fmt.Printf("\t%s\n", log)
-		
-	}
+			}
 	
 	fmt.Println()
 	
@@ -866,7 +829,6 @@ func (self *FormatData) AddToFunctionLog(function string) {
 func (self *FormatData) PrintFunctionLog() {
 	fmt.Println("Printing function log:")
 	var count int  = len(self.FunctionLog)
-	
 	if count == 0 {
 		fmt.Println("\tEmpty")
 		
@@ -875,29 +837,28 @@ func (self *FormatData) PrintFunctionLog() {
 	
 		fmt.Print("\t")
 		fmt.Println(self.FunctionLog[i])
-		
-	}
+			}
 	
 	fmt.Println()
 	
 }
 
 type ConvertData struct {
-GeneratedCode []byte
-ConvertResult IntConvertResult
-ErrorDetail string
-CodeFormat CodeFormat
-ErrorProcess string
-ErrorFunction string
-ProcessLog []string
-LogIndent int
-ErrorToken Token
-LastNodeType IntNodeType
-MethodVarNames []string
-MethodType IntMethodType
-StructName string
-NestCount int
-
+	GeneratedCode []byte
+	ConvertResult IntConvertResult
+	ErrorDetail string
+	CodeFormat CodeFormat
+	ErrorProcess string
+	ErrorFunction string
+	ProcessLog []string
+	LogIndent int
+	ErrorToken Token
+	LastNodeType IntNodeType
+	MethodVarNames []string
+	MethodType IntMethodType
+	StructName string
+	NestCount int
+	
 }
 
 
@@ -951,18 +912,28 @@ func (self *ConvertData) NewLineWithTabs() {
 	for i := 0; i < self.NestCount; i++ {
 	
 		self.AppendChar('\t'); 
-		
+			}
+	
+	
+}
+
+func (self *ConvertData) WasNewLine() bool {
+	var length int  = len(self.GeneratedCode)
+	if length == 0 {
+		return false
 	}
-	
-	
+	var character byte  = self.GeneratedCode[length - 1]
+	if character == '\n' {
+		return true
+	}
+	return false
 }
 
 func (self *ConvertData) AddTabs() {
 	for i := 0; i < self.NestCount; i++ {
 	
 		self.AppendChar('\t'); 
-		
-	}
+			}
 	
 	
 }
@@ -997,8 +968,7 @@ func (self *ConvertData) AppendString(input string) {
 	for i := 0; i < len(input); i++ {
 	
 		self.GeneratedCode = append(self.GeneratedCode, input[i])
-		
-	}
+			}
 	
 	
 }
@@ -1006,6 +976,18 @@ func (self *ConvertData) AppendString(input string) {
 func (self *ConvertData) AppendChar(input byte) {
 	self.GeneratedCode = append(self.GeneratedCode, input)
 	
+	
+}
+
+func (self *ConvertData) RemoveLastTab() {
+	var length int  = len(self.GeneratedCode)
+	if length > 0 {
+		if self.GeneratedCode[length - 1] != '\t' {
+			return 
+		}
+		self.GeneratedCode = self.GeneratedCode[:len(self.GeneratedCode)-1]
+		
+	}
 	
 }
 
@@ -1022,7 +1004,7 @@ func (self *ConvertData) SetErrorFunction(function string) {
 }
 
 type NodeValidator struct {
-
+	
 }
 
 
@@ -1043,22 +1025,17 @@ func (self *NodeValidator) ValidateSingleDeclarationWithValue(block_data *BlockD
 	}
 	
 	var variables []Variable  = block_data.Variables
-	
 	if variables == nil {
 		return errors.New("variables are nil, single declaration with value")
 	}
 	var variable_count int  = len(variables)
-	
 	if variable_count != 1 {
 		return errors.New("variable count != 1, single declaration with value")
 	}
 	
 	var variable Variable  = variables[0]
-	
 	var type_list []Token  = variable.TypeList
-	
 	var var_names []Token  = variable.NameToken
-	
 	
 	if type_list == nil {
 		return errors.New("Type list is nil, single declaration with value")
@@ -1070,17 +1047,14 @@ func (self *NodeValidator) ValidateSingleDeclarationWithValue(block_data *BlockD
 		return errors.New("Var names is nil, single declaration with value")
 	}
 	var var_name_count int  = len(var_names)
-	
 	if var_name_count == 0 {
 		return errors.New("No var name, single declaration with value")
 	}
 	var tokens []Token  = block_data.Tokens
-	
 	if tokens == nil {
 		return errors.New("tokens is nil, single declaration with value")
 	}
 	var token_count int  = len(tokens)
-	
 	if token_count == 0 {
 		return errors.New("zero tokens, value expected, single declaration with value")
 	}
@@ -1105,22 +1079,18 @@ func (self *NodeValidator) ValidateSingleDeclarationNoValue(block_data *BlockDat
 	}
 	
 	var variables []Variable  = block_data.Variables
-	
 	if variables == nil {
 		return errors.New("variables are nil, single declaration no value")
 	}
 	var variable_count int  = len(variables)
-	
 	if variable_count != 1 {
 		return errors.New("variable count != 1, single declaration no value")
 	}
 	
 	var variable Variable  = variables[0]
 	
-	
 	//TYPE
 	var type_list []Token  = variable.TypeList
-	
 	
 	if type_list == nil {
 		return errors.New("Type list is nil, single declaration no value")
@@ -1131,12 +1101,10 @@ func (self *NodeValidator) ValidateSingleDeclarationNoValue(block_data *BlockDat
 	
 	//NAME
 	var var_names []Token  = variable.NameToken
-	
 	if var_names == nil {
 		return errors.New("Var names is nil, single declaration no value")
 	}
 	var var_name_count int  = len(var_names)
-	
 	if var_name_count == 0 {
 		return errors.New("No var name, single declaration no value")
 	}
@@ -1160,7 +1128,6 @@ func (self *NodeValidator) ValidateIfStatement(block_data *BlockData) error {
 	}
 	var tokens []Token  = block_data.Tokens
 	
-	
 	if tokens != nil {
 		return errors.New("Tokens is nil, no condition, if statement")
 	}
@@ -1175,10 +1142,10 @@ func (self *NodeValidator) ValidateIfStatement(block_data *BlockData) error {
 }
 
 type BracketCounts struct {
-OpenSqCount int
-OpenBraceCount int
-OpenBracketCount int
-
+	OpenSqCount int
+	OpenBraceCount int
+	OpenBracketCount int
+	
 }
 
 

@@ -11,64 +11,70 @@ func ConvertSwitch(convertData *ConvertData, blockData *BlockData, nestCount int
 		convertData.NoTokenError(blockData.StartingToken, "no tokens in blockData"); 
 		return; 
 	}
-	var lastType IntTokenType  = TokenType.NA; 
-	var addedSpace bool  = false; 
 	
 	for i := 0; i < len(blockData.Tokens); i++ {
 	
 		var token Token  = blockData.Tokens[i]; 
-		
 		if token.Type == TokenType.NewLine {
-			convertData.NewLineWithTabs(); 
-			lastType = token.Type; 
-			continue 
-			
+			convertData.NewLineWithTabs()
+			continue
+		}
+		convertData.AppendString(token.Text)
+		if token.Type == TokenType.Switch {
+			convertData.AppendChar(' ')
 			
 		}
-		AddSpaceBefore(convertData, token.Type, lastType, i, addedSpace); 
-		HandleTokenSwitch(convertData, token, &nestCount); 
-		addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i); 
-		lastType = token.Type; 
+			}
+	
+	convertData.AppendChar(' ')
+	convertData.AppendChar('{')
+	convertData.IncrementNestCount()
+	convertData.NewLineWithTabs()
+	if blockData.Block != nil {
+		ProcessBlock(convertData, blockData.Block, nestCount + 1, false); 
 		
 	}
+	convertData.DecrementNestCount()
+	convertData.RemoveLastTab()
+	convertData.AppendChar('}')
 	
-	
-	if lastType != TokenType.NewLine {
-		convertData.NewLineWithTabs(); 
-		
-	}
 	if newLine == true {
 		convertData.NewLineWithTabs(); 
 		
 	}
 	
 	
-	
 }
 
-func HandleTokenSwitch(convertData *ConvertData, token Token, nestCount *int) {
+func ConvertSwitchCase(convertData *ConvertData, blockData *BlockData, nestCount int) {
 	
-	if token.Type == TokenType.Semicolon {
-		var codeLength int  = len(convertData.GeneratedCode)
-		
-		var lastChar byte  = convertData.GeneratedCode[codeLength - 1]
-		
-		if lastChar == ' ' {
-			convertData.GeneratedCode[codeLength - 1] = ';'
-			return 
+	if len(blockData.Tokens) == 0 {
+		convertData.NoTokenError(blockData.StartingToken, "no tokens in blockData"); 
+		return; 
+	}
+	
+	for i := 0; i < len(blockData.Tokens); i++ {
+	
+		var token Token  = blockData.Tokens[i]; 
+		if token.Type == TokenType.NewLine {
+			convertData.NewLineWithTabs()
+			continue
 		}
 		
-	}
-	if token.Text == "switch" {
-		* nestCount++; 
+		convertData.AppendString(token.Text)
+		if token.Type == TokenType.Case || token.Type == TokenType.Comma {
+			convertData.AppendChar(' ')
+			
+		}
+			}
+	
+	convertData.IncrementNestCount()
+	if blockData.Block != nil {
+		ProcessBlock(convertData, blockData.Block, nestCount + 1, false); 
 		
 	}
-	if token.Text == "}" {
-		* nestCount--; 
-		convertData.AppendChar('\r'); 
-		convertData.AddTabs(); 
-		
-	}
-	convertData.AppendString(token.Text); 
+	convertData.DecrementNestCount()
+	
+	convertData.NewLineWithTabs(); 
 	
 }

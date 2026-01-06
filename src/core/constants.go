@@ -26,6 +26,7 @@ const MINUS_MINUS string = "--";
 const NOT string = "!"; 
 const ERRRETURN string = "errreturn"; 
 const CASE string = "case"; 
+const DEFAULT string = "default"; 
 const ERRCHECK string = "errcheck"; 
 const INT string = "int"; 
 const INT8 string = "int8"; 

@@ -1,5 +1,7 @@
 package core
 
+import "fmt"
+
 enumstruct ConvertResult : IntConvertResult {
     Ok,
     Missing_Expected_Type,
@@ -10,6 +12,13 @@ enumstruct ConvertResult : IntConvertResult {
     Invalid_Node_Type,
     Unsupported_Type,
     Internal_Error,
+
+    fn bool IsError() {
+        return self != ConvertResult.Ok
+    }
+    fn Println() {
+        fmt.Println("Errors:", self.ToString())
+    }
 }
 
 enumstruct ParseResult : IntParseResult {
@@ -25,6 +34,13 @@ enumstruct ParseResult : IntParseResult {
     Unterminated_String,
     Unterminated_Comment,
     Infinite_While_Loop,
+
+    fn bool IsError() {
+        return self != ParseResult.Ok
+    }
+    fn Println() {
+        fmt.Println("Errors:", self.ToString())
+    }
 }
 
 enumstruct FormatResult : IntFormatResult {
@@ -37,4 +53,11 @@ enumstruct FormatResult : IntFormatResult {
     Infinite_While_Loop,
     Internal_Error,
     Invalid_Node,
+
+    fn bool IsError() {
+        return self != FormatResult.Ok
+    }
+    fn Println() {
+        fmt.Println("Errors:", self.ToString())
+    }
 }

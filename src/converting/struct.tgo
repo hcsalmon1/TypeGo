@@ -18,6 +18,7 @@ fn ProcessStruct(*ConvertData convertData, *BlockData blockData, int nestCount) 
     string structNameText = blockData.Tokens[0].Text;
 
     convertData.AppendString("type " + structNameText + " struct {");
+    convertData.IncrementNestCount()
     convertData.NewLineWithTabs();
 
     *CodeBlock structVariableBlock = blockData.Block;
@@ -74,8 +75,9 @@ fn ProcessStruct(*ConvertData convertData, *BlockData blockData, int nestCount) 
             convertData.NewLineWithTabs();
         }
     }
-
-    convertData.AppendChar('\r');
+    convertData.DecrementNestCount()
+    
+    convertData.AppendChar('\n');
     EndStruct(convertData);
     PrintStructMethods(convertData, structVariableBlock, nestCount, &varNames, structNameText);
 }

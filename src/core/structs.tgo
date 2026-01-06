@@ -229,7 +229,7 @@ struct BlockData {
             case NodeType.Interface_Declaration:
             case NodeType.Single_Declaration_With_Value:
                 err = validator.ValidateSingleDeclarationWithValue(self)
-                if err != nil {
+                errcheck {
                     formatData.SetError(FormatResult.Invalid_Node, err.Error())
                     return false
                 }
@@ -275,13 +275,18 @@ struct BlockData {
     }
 }
 
+struct ParameterData {
+    Variable TempParameter
+    IntTokenType LastTokenType
+    *[]Variable Parameters
+    IntParameterPhase ParameterPhase
+}
 
 fn BlockData EmptyBlockData() {
     return BlockData {
         NodeType: NodeType.Invalid,
     }
 }
-
 
 struct Variable {
 
@@ -290,17 +295,8 @@ struct Variable {
 
     fn SetToDefaults() {
 
-        if (self.TypeList == nil) {
-            self.TypeList = make([]Token, 0)
-        } else {
-            self.TypeList = nil
-        }
-
-        if (self.NameToken == nil) {
-            self.NameToken = make([]Token, 0);
-        } else {
-            self.NameToken = nil
-        }
+        self.TypeList = make([]Token, 0)
+        self.NameToken = make([]Token, 0);
     }
     fn PrintTypeList() {
 
@@ -732,6 +728,17 @@ struct ConvertData {
             self.AppendChar('\t');
         }
     }
+    fn bool WasNewLine() {
+        int length = len(self.GeneratedCode)
+        if length == 0 {
+            return false
+        }
+        byte character = self.GeneratedCode[length - 1]
+        if character == '\n' {
+            return true
+        }
+        return false
+    }
     fn AddTabs() {
         for  i := 0; i < self.NestCount; i++ {
             self.AppendChar('\t');
@@ -763,6 +770,15 @@ struct ConvertData {
     }
     fn AppendChar(byte input) {
         self.GeneratedCode.append(input);
+    }
+    fn RemoveLastTab() {
+        int length = len(self.GeneratedCode)
+        if length > 0 {
+            if self.GeneratedCode[length - 1] != '\t' {
+                return
+            }
+            self.GeneratedCode = self.GeneratedCode[:len(self.GeneratedCode)-1]
+        }
     }
 
     fn NoTokenError(Token errorToken, string detail) {

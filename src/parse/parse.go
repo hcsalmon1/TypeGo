@@ -21,9 +21,7 @@ func ParseToTokens(err *IntParseResult, code string) []Token {
 	}
 	
 	var while_count int  = 0
-	
 	var MAX_WHILE_ITERATIONS int  = parse_data.CodeLength + 100
-	
 	
 	parse_data.CharacterIndex = 0
 	for parse_data.CharacterIndex < parse_data.CodeLength {
@@ -40,8 +38,7 @@ func ParseToTokens(err *IntParseResult, code string) []Token {
 			return parse_data.TokenList; 
 		}
 		
-		
-	}
+			}
 	
 	//fmt.Println("Done")
 	return parse_data.TokenList; 
@@ -54,11 +51,8 @@ func processCharacter(parse_data *ParseData) {
 	}
 	
 	var previousCharacterIndex int  = parse_data.CharacterIndex; 
-	
 	var success bool  = true
-	
 	var token Token  = getToken( &success, parse_data); 
-	
 	if previousCharacterIndex == parse_data.CharacterIndex {
 		parse_data.CharacterIndex += 1; 
 		
@@ -75,18 +69,14 @@ func processCharacter(parse_data *ParseData) {
 
 func shouldSkip(parse_data *ParseData) bool {
 	
-	parse_data.CharCount += 1; 
-	
 	var current_char byte  = parse_data.Code[parse_data.CharacterIndex]; 
-	
 	if current_char == '\n' {
 		var token Token  = Token{
-		Text:"\\n", 
-		Type:TokenType.NewLine, 
-		LineNumber:parse_data.LineCount, 
-		CharNumber:parse_data.CharCount, 
+			Text:"\\n", 
+			Type:TokenType.NewLine, 
+			LineNumber:parse_data.LineCount, 
+			CharNumber:parse_data.CharCount, 
 		}
-		
 		
 		parse_data.TokenList = append(parse_data.TokenList, token)
 		
@@ -97,14 +87,18 @@ func shouldSkip(parse_data *ParseData) bool {
 		return true; 
 	}
 	var is_special_char bool  = 
-	
 	current_char == '\r' || 
-	
 	current_char == '\t' || 
-	
 	current_char == ' ' || 
-	
 	current_char == '\\'; 
+	if current_char == '\t' {
+		parse_data.CharCount += 8; 
+		
+	} else if current_char == ' ' || current_char == '\\' {
+		parse_data.CharCount += 1; 
+		
+	}
+	
 	
 	if is_special_char == true {
 		parse_data.CharacterIndex += 1; 
@@ -127,9 +121,7 @@ func isInvalid(token Token, success bool, parseData *ParseData) bool {
 func getToken(success *bool, parse_data *ParseData) Token {
 	
 	if parse_data.CharacterIndex + 1 < parse_data.CodeLength {
-		var c1 byte  = parse_data.Code[parse_data.CharacterIndex]; 
-		var c2 byte  = parse_data.Code[parse_data.CharacterIndex + 1]; 
-		
+		var c1 byte  = parse_data.Code[parse_data.CharacterIndex]; var c2 byte  = parse_data.Code[parse_data.CharacterIndex + 1]; 
 		if c1 == '/' && c2 == '/' {
 			return readLineComment(parse_data); 
 		}
@@ -140,7 +132,6 @@ func getToken(success *bool, parse_data *ParseData) Token {
 	}
 	
 	var current_char byte  = parse_data.Code[parse_data.CharacterIndex]; 
-	
 	if current_char == '"' {
 		return readString(success, parse_data); 
 	}
@@ -164,34 +155,28 @@ func readString(success *bool, parseData *ParseData) Token {
 	
 	var string_builder []byte  = make([]byte, 0)
 	
-	
 	string_builder = append(string_builder, parseData.Code[parseData.CharacterIndex])
 	
 	parseData.CharacterIndex += 1; 
 	
 	var lastChar byte  = ' '; 
-	
 	for parseData.CharacterIndex < parseData.CodeLength {
 	
 		var currentChar byte  = parseData.Code[parseData.CharacterIndex]; 
-		
 		var isStringEnd bool  = 
-		
 		currentChar == '"' && 
-		
 		lastChar != '\\'; 
-		
 		if isStringEnd == true {
 			string_builder = append(string_builder, currentChar)
 			
 			parseData.CharacterIndex++; 
 			var token Token  = Token{
-			Text:string(string_builder), 
-			Type:TokenType.StringValue, 
-			LineNumber:parseData.LineCount, 
-			CharNumber:parseData.CharCount, 
+				Text:string(string_builder), 
+				Type:TokenType.StringValue, 
+				LineNumber:parseData.LineCount, 
+				CharNumber:parseData.CharCount, 
 			}
-			
+			parseData.CharCount += len(token.Text); 
 			return token
 		}
 		string_builder = append(string_builder, currentChar)
@@ -200,13 +185,12 @@ func readString(success *bool, parseData *ParseData) Token {
 			lastChar = ' '; 
 			
 		} else  {
-		lastChar = currentChar; 
-		
+			lastChar = currentChar; 
+			
 		}
 		
 		parseData.CharacterIndex++; 
-		
-	}
+			}
 	
 	
 	* success = false
@@ -215,11 +199,16 @@ func readString(success *bool, parseData *ParseData) Token {
 }
 
 func readSeparator(success *bool, parseData *ParseData) Token {
-	var c byte  = parseData.Code[parseData.CharacterIndex]; 
-	parseData.CharacterIndex += 1; 
+	var c byte  = parseData.Code[parseData.CharacterIndex]; parseData.CharacterIndex += 1; 
 	var tokenText string  = string(c)
-	
-	return Token {Text:tokenText, Type:getTokenType(tokenText), LineNumber:parseData.LineCount, CharNumber:parseData.CharCount, }
+	var token Token  = Token{
+		Text:tokenText, 
+		Type:getTokenType(tokenText), 
+		LineNumber:parseData.LineCount, 
+		CharNumber:parseData.CharCount, 
+	}
+	parseData.CharCount += 1; 
+	return token
 }
 
 func readChar(success *bool, parseData *ParseData) Token {
@@ -231,9 +220,7 @@ func readChar(success *bool, parseData *ParseData) Token {
 		return EmptyToken()
 	}
 	
-	var charValue byte  = parseData.Code[parseData.CharacterIndex]; 
-	var charValueSecondPart byte  = ' '; 
-	parseData.CharacterIndex += 1; 
+	var charValue byte  = parseData.Code[parseData.CharacterIndex]; var charValueSecondPart byte  = ' '; parseData.CharacterIndex += 1; 
 	
 	if charValue == '\\' {
 		charValueSecondPart = parseData.Code[parseData.CharacterIndex]; 
@@ -255,26 +242,24 @@ func readChar(success *bool, parseData *ParseData) Token {
 	
 	if charValueSecondPart != ' ' {
 		var token_text string  = "'" +string([]byte {charValue, charValueSecondPart})+"'"
-		
+		parseData.CharCount += len(token_text); 
 		return Token {Text:token_text, Type:TokenType.CharValue, LineNumber:parseData.LineCount, CharNumber:parseData.CharCount}
 	}
+	parseData.CharCount += 3; 
 	return Token {Text:"'" +string(charValue)+"'", Type:TokenType.CharValue, LineNumber:parseData.LineCount, CharNumber:parseData.CharCount}
 }
 
 func readOperator(success *bool, parseData *ParseData) Token {
 	
 	var string_builder []byte  = make([]byte, 0)
-	
-	var c byte  = parseData.Code[parseData.CharacterIndex]; 
-	string_builder = append(string_builder, c)
+	var c byte  = parseData.Code[parseData.CharacterIndex]; string_builder = append(string_builder, c)
 	
 	
 	parseData.CharacterIndex += 1; 
 	
 	// Lookahead for compound operators like "==", "!="
 	if parseData.CharacterIndex < parseData.CodeLength {
-		var next byte  = parseData.Code[parseData.CharacterIndex]; 
-		if isOperator(next) {
+		var next byte  = parseData.Code[parseData.CharacterIndex]; if isOperator(next) {
 			string_builder = append(string_builder, next)
 			
 			parseData.CharacterIndex += 1; 
@@ -284,42 +269,50 @@ func readOperator(success *bool, parseData *ParseData) Token {
 	}
 	
 	var tokenText string  = string(string_builder)
-	
-	return Token {Text:tokenText, Type:getTokenType(tokenText), LineNumber:parseData.LineCount, CharNumber:parseData.CharCount}
+	var token Token  = Token{
+		Text:tokenText, 
+		Type:getTokenType(tokenText), 
+		LineNumber:parseData.LineCount, 
+		CharNumber:parseData.CharCount, 
+	}
+	parseData.CharCount += len(tokenText); 
+	return token
 }
 
 func readWord(success *bool, parseData *ParseData) Token {
 	
 	var string_builder []byte  = make([]byte, 0)
 	
-	
 	for parseData.CharacterIndex < parseData.CodeLength {
 	
 		var c byte  = parseData.Code[parseData.CharacterIndex]; 
-		
 		if isLetterOrDigit(c) || c == '_' {
 			string_builder = append(string_builder, c)
 			
 			parseData.CharacterIndex++; 
 			
 		} else  {
-		break
-		
+			break
+			
 		}
 		
-		
-	}
+			}
 	
 	
 	var word string  = string(string_builder)
-	
-	return Token {Text:word, Type:getTokenType(word), LineNumber:parseData.LineCount, CharNumber:parseData.CharCount}
+	var token Token  = Token{
+		Text:word, 
+		Type:getTokenType(word), 
+		LineNumber:parseData.LineCount, 
+		CharNumber:parseData.CharCount, 
+	}
+	parseData.CharCount += len(word); 
+	return token
 }
 
 func readLineComment(parseData *ParseData) Token {
 	
 	var string_builder []byte  = make([]byte, 0)
-	
 	
 	string_builder = append(string_builder, '/')
 	
@@ -329,24 +322,28 @@ func readLineComment(parseData *ParseData) Token {
 	
 	for parseData.CharacterIndex < parseData.CodeLength {
 	
-		var c byte  = parseData.Code[parseData.CharacterIndex]; 
-		if c == '\n' {
+		var c byte  = parseData.Code[parseData.CharacterIndex]; if c == '\n' {
 			break
 			
 		}
 		string_builder = append(string_builder, c)
 		
 		parseData.CharacterIndex++; 
-		
-	}
+			}
 	
-	return Token {Text:string(string_builder), Type:TokenType.Comment, LineNumber:parseData.LineCount, CharNumber:parseData.CharCount}
+	var token Token  = Token{
+		Text:string(string_builder), 
+		Type:TokenType.Comment, 
+		LineNumber:parseData.LineCount, 
+		CharNumber:parseData.CharCount, 
+	}
+	parseData.CharCount += len(token.Text); 
+	return token
 }
 
 func readBlockComment(parseData *ParseData) Token {
 	
 	var string_builder []byte  = make([]byte, 0)
-	
 	string_builder = append(string_builder, '/')
 	
 	string_builder = append(string_builder, '*')
@@ -355,9 +352,7 @@ func readBlockComment(parseData *ParseData) Token {
 	
 	for parseData.CharacterIndex + 1 < parseData.CodeLength {
 	
-		var c1 byte  = parseData.Code[parseData.CharacterIndex]; 
-		var c2 byte  = parseData.Code[parseData.CharacterIndex + 1]; 
-		string_builder = append(string_builder, c1)
+		var c1 byte  = parseData.Code[parseData.CharacterIndex]; var c2 byte  = parseData.Code[parseData.CharacterIndex + 1]; string_builder = append(string_builder, c1)
 		
 		parseData.CharacterIndex++; 
 		
@@ -373,8 +368,7 @@ func readBlockComment(parseData *ParseData) Token {
 			parseData.CharCount = 0; 
 			
 		}
-		
-	}
+			}
 	
 	
 	parseData.ParseResult = ParseResult.Unterminated_Comment; 
@@ -383,32 +377,26 @@ func readBlockComment(parseData *ParseData) Token {
 
 func ReadMultilineString(parseData *ParseData) Token {
 	
-	var sb []byte  = make([]byte, 0); 
-	sb = append(sb, parseData.Code[parseData.CharacterIndex])
+	var sb []byte  = make([]byte, 0); sb = append(sb, parseData.Code[parseData.CharacterIndex])
 	
 	parseData.CharacterIndex += 1; 
 	
 	var lastChar byte  = ' '; 
-	
 	for parseData.CharacterIndex < len(parseData.Code) {
 	
 		var currentChar byte  = parseData.Code[parseData.CharacterIndex]; 
-		
 		var isStringEnd bool  = 
-		
 		currentChar == '`' && lastChar != '\\'; 
-		
 		if isStringEnd == true {
 			sb = append(sb, currentChar)
 			
 			parseData.CharacterIndex++; 
 			var token Token  = Token{
-			Text:string(sb), 
-			Type:TokenType.StringValue, 
-			LineNumber:parseData.LineCount, 
-			CharNumber:parseData.CharCount, 
+				Text:string(sb), 
+				Type:TokenType.StringValue, 
+				LineNumber:parseData.LineCount, 
+				CharNumber:parseData.CharCount, 
 			}
-			
 			return token; 
 		}
 		sb = append(sb, currentChar)
@@ -417,13 +405,12 @@ func ReadMultilineString(parseData *ParseData) Token {
 			lastChar = ' '; 
 			
 		} else  {
-		lastChar = currentChar; 
-		
+			lastChar = currentChar; 
+			
 		}
 		
 		parseData.CharacterIndex++; 
-		
-	}
+			}
 	
 	
 	parseData.ParseResult = ParseResult.Unterminated_String; 

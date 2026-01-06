@@ -13,10 +13,7 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 	blockData.NodeType = NodeType.Append; 
 	
 	var tempToken Token  = EmptyToken(); 
-	
-	var startingIndex int  = formatData.TokenIndex; 
-	var appendIndex int  = -1; 
-	
+	var startingIndex int  = formatData.TokenIndex; var appendIndex int  = -1; 
 	for formatData.IndexInBounds() {
 	
 		tempToken = formatData.GetToken(); 
@@ -33,8 +30,7 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 			
 		}
 		formatData.Increment(); 
-		
-	}
+			}
 	
 	
 	if appendIndex == -1 {
@@ -47,7 +43,6 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 	nameVariable.TypeList = make([]Token, 0); 
 	
 	var nameTextBuilder []string  = make([]string, 0)
-	
 	
 	for i := startingIndex; i < appendIndex; i++ {
 	
@@ -64,17 +59,15 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 		}
 		nameTextBuilder = append(nameTextBuilder, tempToken.Text)
 		
-		
-	}
+			}
 	
 	
 	var name_token Token  = Token{
-	Text:ConcatStrings(nameTextBuilder), 
-	Type:TokenType.Identifier, 
-	LineNumber:0, 
-	CharNumber:0, 
+		Text:ConcatStrings(nameTextBuilder), 
+		Type:TokenType.Identifier, 
+		LineNumber:0, 
+		CharNumber:0, 
 	}
-	
 	nameVariable.NameToken = append(nameVariable.NameToken, name_token)
 	
 	
@@ -86,7 +79,6 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 	formatData.Increment(); 
 	
 	var openParenthesisCount int  = 1; 
-	
 	for formatData.IndexInBounds() {
 	
 		tempToken = formatData.GetToken(); 
@@ -102,16 +94,16 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 			
 			
 		} else if tempToken.Type == TokenType.RightParenthesis {
-		
-		if openParenthesisCount != 1 {
-			openParenthesisCount -= 1; 
 			
-		} else  {
-		break
-		
-		}
-		
-		
+			if openParenthesisCount != 1 {
+				openParenthesisCount -= 1; 
+				
+			} else  {
+				break
+				
+			}
+			
+			
 		}
 		
 		
@@ -119,8 +111,7 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 		
 		
 		formatData.Increment(); 
-		
-	}
+			}
 	
 	
 	
@@ -144,8 +135,7 @@ func FillAppend(formatData *FormatData, blockData *BlockData) {
 		}
 		
 		formatData.Increment(); 
-		
-	}
+			}
 	
 	formatData.AddToFunctionLog("EXIT FillAppend")
 	

@@ -16,7 +16,6 @@ func ProcessFor(formatData *FormatData, firstToken Token) BlockData {
 	for formatData.IndexInBounds() {
 	
 		var token Token  = formatData.GetToken(); 
-		
 		if token.Type == TokenType.NA {
 			formatData.EndOfFileError(token); 
 			return blockData; 
@@ -30,8 +29,7 @@ func ProcessFor(formatData *FormatData, firstToken Token) BlockData {
 		
 		
 		formatData.Increment(); 
-		
-	}
+			}
 	
 	
 	if formatData.ExpectType(TokenType.LeftBrace, "missing '{' after for loop") == false {
@@ -41,7 +39,6 @@ func ProcessFor(formatData *FormatData, firstToken Token) BlockData {
 	formatData.IncrementIfNewLine(); 
 	
 	var forBody CodeBlock  = FillBody(formatData); 
-	
 	if formatData.IsError() {
 		return blockData; 
 	}

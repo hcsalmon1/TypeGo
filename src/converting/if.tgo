@@ -41,7 +41,9 @@ fn PrintIfStatement(*ConvertData convertData, *BlockData blockData, int nestCoun
     }
     convertData.DecrementNestCount()
 
-    convertData.NewLineWithTabs();
+    if convertData.WasNewLine() == false {
+        convertData.NewLineWithTabs();
+    }
     convertData.AppendChar('}');
 
     convertData.LastNodeType = NodeType.If_Statement;
@@ -64,9 +66,11 @@ fn PrintElseStatement(*ConvertData convertData, *BlockData blockData, int nestCo
 
     convertData.AppendChar(' ');
     convertData.AppendChar('{');
+    convertData.IncrementNestCount()
     if blockData.Block != nil {
         ProcessBlock(convertData, blockData.Block, nestCount + 1, false);
     }
+    convertData.DecrementNestCount()
     convertData.NewLineWithTabs();
     convertData.AppendChar('}');
 

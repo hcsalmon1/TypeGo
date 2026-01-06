@@ -75,6 +75,7 @@ fn IntTokenType getTokenType(string input) {
     if input == TRUE { return TokenType.True; }
     if input == FALSE { return TokenType.False; }
     if input == CASE { return TokenType.Case; }
+    if input == DEFAULT {return TokenType.Default; }
 
     // Types
     if input == INT { return TokenType.Int; }

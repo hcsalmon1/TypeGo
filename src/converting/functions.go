@@ -40,16 +40,19 @@ func ProcessFunction(convertData *ConvertData, function *Function) {
 
 func PrintFunctionNameAndParameters(convertData *ConvertData, function *Function) {
 	switch convertData.MethodType {
-	case MethodType.Struct:
-	convertData.AppendString("func " +"(self *" +convertData.StructName + ") " +function.Name + "(")
-	
-	case MethodType.Enum:
-	convertData.AppendString("func " +"(self " +convertData.StructName + ") " +function.Name + "(")
-	
-	default:
-	convertData.AppendString("func " +function.Name + "(")
-	
-	
+		
+		case MethodType.Struct:
+			convertData.AppendString("func " +"(self *" +convertData.StructName + ") " +function.Name + "(")
+			
+			
+		case MethodType.Enum:
+			convertData.AppendString("func " +"(self " +convertData.StructName + ") " +function.Name + "(")
+			
+			
+		default:
+			convertData.AppendString("func " +function.Name + "(")
+			
+			
 	}
 	
 	
@@ -62,21 +65,18 @@ func PrintFunctionNameAndParameters(convertData *ConvertData, function *Function
 }
 
 func PrintParameters(convertData *ConvertData, function *Function) {
-	var parameters []Variable  = function.Parameters; 
-	if len(parameters) == 0 {
+	var parameters []Variable  = function.Parameters; if len(parameters) == 0 {
 		return; 
 	}
 	
 	for parameterIndex := 0; parameterIndex < len(parameters); parameterIndex++ {
 	
-		var parameter Variable  = parameters[parameterIndex]; 
-		if parameter.NameToken == nil {
+		var parameter Variable  = parameters[parameterIndex]; if parameter.NameToken == nil {
 			convertData.ConvertResult = ConvertResult.Internal_Error; 
 			convertData.ErrorDetail = "name token is null in PrintParameters"; 
 			return; 
 		}
-		var typeAsText string  = JoinTextInListOfTokens( &parameter.TypeList); 
-		if typeAsText == "" {
+		var typeAsText string  = JoinTextInListOfTokens( &parameter.TypeList); if typeAsText == "" {
 			convertData.ConvertResult = ConvertResult.Internal_Error; 
 			convertData.ErrorDetail = "var type text is null in PrintParameters"; 
 			return; 
@@ -94,8 +94,7 @@ func PrintParameters(convertData *ConvertData, function *Function) {
 			return; 
 		}
 		convertData.AppendString(parameter.NameToken[0].Text + " " +typeAsText); 
-		
-	}
+			}
 	
 	
 }

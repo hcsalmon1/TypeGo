@@ -65,8 +65,6 @@ fn processCharacter(*ParseData parse_data) {
 
 fn bool shouldSkip(*ParseData parse_data) {
 
-    parse_data.CharCount += 1;
-
     byte current_char = parse_data.Code[parse_data.CharacterIndex];
 
     if current_char == '\n' {
@@ -90,6 +88,12 @@ fn bool shouldSkip(*ParseData parse_data) {
         current_char == '\t' ||
         current_char == ' ' ||
         current_char == '\\';
+
+    if current_char == '\t' {
+        parse_data.CharCount += 8;
+    } else if current_char == ' ' || current_char == '\\' {
+        parse_data.CharCount += 1;
+    }
 
     if is_special_char == true {
 
@@ -172,6 +176,7 @@ fn Token readString(*bool success, *ParseData parseData) {
                 LineNumber: parseData.LineCount,
                 CharNumber: parseData.CharCount,
             }
+            parseData.CharCount += len(token.Text);
             return token
         }
         string_builder.append(currentChar);
@@ -192,12 +197,14 @@ fn Token readSeparator(*bool success, *ParseData parseData) {
     byte c = parseData.Code[parseData.CharacterIndex];
     parseData.CharacterIndex += 1;
     string tokenText = string(c)
-    return Token {
+    Token token = {
         Text: tokenText,
         Type: getTokenType(tokenText),
         LineNumber: parseData.LineCount,
         CharNumber: parseData.CharCount,
     }
+    parseData.CharCount += 1;
+    return token
 }
 
 fn Token readChar(*bool success, *ParseData parseData) {
@@ -232,6 +239,7 @@ fn Token readChar(*bool success, *ParseData parseData) {
 
     if charValueSecondPart != ' ' {
 		string token_text = "'" + string([]byte{charValue, charValueSecondPart}) + "'"
+        parseData.CharCount += len(token_text);
         return Token{
             Text: token_text,
             Type: TokenType.CharValue,
@@ -239,6 +247,7 @@ fn Token readChar(*bool success, *ParseData parseData) {
             CharNumber: parseData.CharCount
         }
     }
+    parseData.CharCount += 3;
     return Token{
         Text: "'" + string(charValue) + "'",
         Type: TokenType.CharValue,
@@ -266,12 +275,14 @@ fn Token readOperator(*bool success, *ParseData parseData) {
     }
 
     string tokenText = string(string_builder)
-    return Token{
+    Token token = {
         Text: tokenText,
         Type: getTokenType(tokenText),
         LineNumber: parseData.LineCount,
-        CharNumber: parseData.CharCount
+        CharNumber: parseData.CharCount,
     }
+    parseData.CharCount += len(tokenText);
+    return token
 }
 
 fn Token readWord(*bool success, *ParseData parseData) {
@@ -291,12 +302,14 @@ fn Token readWord(*bool success, *ParseData parseData) {
     }
 
     string word = string(string_builder)
-    return Token{
+    Token token = {
         Text: word,
         Type: getTokenType(word),
         LineNumber: parseData.LineCount,
-        CharNumber: parseData.CharCount
+        CharNumber: parseData.CharCount,
     }
+    parseData.CharCount += len(word);
+    return token
 }
 
 fn Token readLineComment(*ParseData parseData) {
@@ -316,12 +329,14 @@ fn Token readLineComment(*ParseData parseData) {
         string_builder.append(c);
         parseData.CharacterIndex++;
     }
-    return Token{
+    Token token = {
         Text: string(string_builder),
         Type: TokenType.Comment,
         LineNumber: parseData.LineCount,
-        CharNumber: parseData.CharCount
+        CharNumber: parseData.CharCount,
     }
+    parseData.CharCount += len(token.Text);
+    return token
 }
 
 fn Token readBlockComment(*ParseData parseData) {

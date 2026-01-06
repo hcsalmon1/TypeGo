@@ -9,14 +9,12 @@ func isOperator(c byte) bool {
 	
 	var operators_len int  = len(OPERATORS)
 	
-	
 	for i := 0; i < operators_len; i++ {
 	
 		if c == OPERATORS[i] {
 			return true; 
 		}
-		
-	}
+			}
 	
 	return false; 
 }
@@ -25,14 +23,12 @@ func isSeparator(c byte) bool {
 	
 	var separator_len int  = len(SEPERATORS)
 	
-	
 	for i := 0; i < separator_len; i++ {
 	
 		if c == SEPERATORS[i] {
 			return true; 
 		}
-		
-	}
+			}
 	
 	return false; 
 }
@@ -41,18 +37,14 @@ func isInteger(input string) bool {
 	
 	var string_len int  = len(input)
 	
-	
 	for i := 0; i < string_len; i++ {
 	
 		var c byte  = input[i]
 		
-		
 		if c >= '0' && c <= '9' {
-			continue 
-			
+			continue
 		}
-		return false
-	}
+		return false	}
 	
 	return true
 }
@@ -115,6 +107,9 @@ func getTokenType(input string) IntTokenType {
 	}
 	if input == CASE {
 		return TokenType.Case; 
+	}
+	if input == DEFAULT {
+		return TokenType.Default; 
 	}
 	
 	// Types

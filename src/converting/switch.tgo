@@ -8,52 +8,63 @@ fn ConvertSwitch(*ConvertData convertData, *BlockData blockData, int nestCount, 
         convertData.NoTokenError(blockData.StartingToken, "no tokens in blockData");
         return;
     }
-    IntTokenType lastType = TokenType.NA;
-    bool addedSpace = false;
 
     for i := 0; i < len(blockData.Tokens); i++ {
 
         Token token = blockData.Tokens[i];
 
         if token.Type == TokenType.NewLine {
-            convertData.NewLineWithTabs();
-            lastType = token.Type;
-            continue;
+            convertData.NewLineWithTabs()
+            continue
         }
-        AddSpaceBefore(convertData, token.Type, lastType, i, addedSpace);
-        HandleTokenSwitch(convertData, token, &nestCount);
-        addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i);
-        lastType = token.Type;
+        convertData.AppendString(token.Text)
+        if token.Type == TokenType.Switch {
+            convertData.AppendChar(' ')
+        }
     }
+    convertData.AppendChar(' ')
+    convertData.AppendChar('{')
+    convertData.IncrementNestCount()
+    convertData.NewLineWithTabs()
+    if blockData.Block != nil {
+        ProcessBlock(convertData, blockData.Block, nestCount + 1, false);
+    }
+    convertData.DecrementNestCount()
+    convertData.RemoveLastTab()
+    convertData.AppendChar('}')
 
-    if lastType != TokenType.NewLine {
-        convertData.NewLineWithTabs();
-    }
     if newLine == true {
         convertData.NewLineWithTabs();
     }
 
-
 }
 
-fn HandleTokenSwitch(*ConvertData convertData, Token token, *int nestCount) {
+fn ConvertSwitchCase(*ConvertData convertData, *BlockData blockData, int nestCount) {
+    
+    if len(blockData.Tokens) == 0 {
+        convertData.NoTokenError(blockData.StartingToken, "no tokens in blockData");
+        return;
+    }
 
-    if token.Type == TokenType.Semicolon {
+    for i := 0; i < len(blockData.Tokens); i++ {
 
-        int codeLength = len(convertData.GeneratedCode)
-        byte lastChar = convertData.GeneratedCode[codeLength - 1]
-        if lastChar == ' ' {
-            convertData.GeneratedCode[codeLength - 1] = ';'
-            return
+        Token token = blockData.Tokens[i];
+
+        if token.Type == TokenType.NewLine {
+            convertData.NewLineWithTabs()
+            continue
+        }
+
+        convertData.AppendString(token.Text)
+        if token.Type == TokenType.Case || token.Type == TokenType.Comma {
+            convertData.AppendChar(' ')
         }
     }
-    if token.Text == "switch" {
-        *nestCount++;
+    convertData.IncrementNestCount()
+    if blockData.Block != nil {
+        ProcessBlock(convertData, blockData.Block, nestCount + 1, false);
     }
-    if token.Text == "}" {
-        *nestCount--;
-        convertData.AppendChar('\r');
-        convertData.AddTabs();
-    }
-    convertData.AppendString(token.Text);
+    convertData.DecrementNestCount()
+
+    convertData.NewLineWithTabs();
 }

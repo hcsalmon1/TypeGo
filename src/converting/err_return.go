@@ -6,15 +6,16 @@ import . "TypeGo/core"
 
 
 func Process(convertData *ConvertData, blockData *BlockData, nestCount int) {
-	convertData.AppendString("if err != nil {{"); 
+	convertData.AppendString("if err != nil {"); 
+	convertData.IncrementNestCount()
 	convertData.NewLineWithTabs(); 
 	convertData.AppendString("return "); 
 	
-	var tokenList []Token  = blockData.Tokens; 
-	if len(tokenList) != 0 {
+	var tokenList []Token  = blockData.Tokens; if len(tokenList) != 0 {
 		PrintTokens(convertData, blockData, nestCount); 
 		
 	}
+	convertData.DecrementNestCount()
 	convertData.NewLineWithTabs(); 
 	convertData.AppendChar('}'); 
 	

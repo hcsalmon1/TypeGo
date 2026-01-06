@@ -3,7 +3,6 @@ package converting
 import (
 	. "TypeGo/core"
 	"strconv"
-	"strings"
 )
 
 fn ProcessEnum(*ConvertData convertData, *BlockData blockData, int nestCount) {
@@ -47,6 +46,7 @@ fn ProcessEnum(*ConvertData convertData, *BlockData blockData, int nestCount) {
 
     int enumCount = 0;
 
+    convertData.IncrementNestCount()
     for blockIndex := 0; blockIndex < len(blockDataList); blockIndex++ {
 
         BlockData varBlock = blockDataList[blockIndex];
@@ -73,7 +73,6 @@ fn ProcessEnum(*ConvertData convertData, *BlockData blockData, int nestCount) {
 
             Token firstToken = varBlock.Tokens[0];
             Token secondToken = varBlock.Tokens[1];
-            //Token thirdToken = varBlock.Tokens[2];
 
             if secondToken.Text != "=" {
                 convertData.MissingTypeError(secondToken, "missing expect '=' in enumstruct");
@@ -93,12 +92,12 @@ fn ProcessEnum(*ConvertData convertData, *BlockData blockData, int nestCount) {
             convertData.NewLineWithTabs();
         }
     }
+    convertData.DecrementNestCount()
 
-    convertData.AppendChar('\r');
+    convertData.AppendChar('\n');
     EndEnum(convertData);
 
-    string enumNameLower = strings.ToLower(enumNameText);
-    convertData.AppendString("func " + enumNameText + "ToString(" + enumNameLower + " int) string {\n\t");
+    convertData.AppendString("func (self " + enumNameText +  ") ToString() string {\n\t");
     convertData.AppendString("switch self {\n\t");
 
     for blockIndex := 0; blockIndex < len(blockDataList); blockIndex++ {
@@ -121,6 +120,7 @@ fn ProcessEnum(*ConvertData convertData, *BlockData blockData, int nestCount) {
     convertData.AppendChar('}');
     convertData.AppendChar('\n');
     convertData.AppendChar('\n');
+    PrintEnumMethods(convertData, enumVariableBlock, nestCount, enumNameText)
 }
 
 fn ProcessEnumstruct(*ConvertData convertData, *BlockData blockData, int nestCount) {
@@ -146,7 +146,7 @@ fn ProcessEnumstruct(*ConvertData convertData, *BlockData blockData, int nestCou
     *CodeBlock enumVariableBlock = blockData.Block;
     if enumVariableBlock == nil {
         convertData.AppendChar('\n');
-        EndEnum(convertData);
+        EndEnumStruct(convertData);
         return;
     }
 
@@ -160,12 +160,13 @@ fn ProcessEnumstruct(*ConvertData convertData, *BlockData blockData, int nestCou
 
     if len(blockDataList) == 0 {
         convertData.AppendChar('\n');
-        EndEnum(convertData);
+        EndEnumStruct(convertData);
         return;
     }
 
     convertData.AppendString("\n\t");
 
+    convertData.IncrementNestCount()
     for blockIndex := 0; blockIndex < len(blockDataList); blockIndex++ {
 
         BlockData varBlock = blockDataList[blockIndex];
@@ -232,6 +233,7 @@ fn ProcessEnumstruct(*ConvertData convertData, *BlockData blockData, int nestCou
             convertData.NewLineWithTabs();
         }
     }
+    convertData.DecrementNestCount()
 
     convertData.AppendChar('\r');
     EndEnumStruct(convertData);

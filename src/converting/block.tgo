@@ -60,6 +60,9 @@ fn ProcessBlockData(*ConvertData convertData, *BlockData blockData, int nestCoun
             
         case NodeType.Switch:
             ConvertSwitch(convertData, blockData, nestCount, false);
+
+        case NodeType.Switch_Case:
+            ConvertSwitchCase(convertData, blockData, nestCount);
             
         case NodeType.Struct_Declaration:
             ProcessStruct(convertData, blockData, nestCount);
@@ -109,12 +112,15 @@ fn ProcessBlockData(*ConvertData convertData, *BlockData blockData, int nestCoun
             
         case NodeType.Break:
             convertData.AppendString("break");
+        
+        case NodeType.Continue:
+            convertData.AppendString("continue");
             
         default:
             convertData.ConvertResult = ConvertResult.Unexpected_Type;
             convertData.ErrorDetail = $"unexpected node type '{nodeType}' in block data";
             convertData.ErrorToken = blockData.StartingToken;
-            break;
+
     }
     
     AddSpaceAfterBlock(convertData, blockData.NodeType, nestCount);

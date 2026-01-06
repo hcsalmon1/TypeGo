@@ -40,8 +40,9 @@ fn ProcessTokenInBody(*FormatData formatData, *CodeBlock block, Token token) {
             
         case TokenType.Continue:
             blockData = BlockData{};
-            blockData.NodeType = NodeType.Other;
+            blockData.NodeType = NodeType.Continue;
             blockData.Tokens = append(blockData.Tokens, token);
+            blockData.StartingToken = token
             formatData.IncrementTwice();
             
         case TokenType.Defer:
@@ -209,5 +210,124 @@ fn CodeBlock FillInterfaceBody(*FormatData formatData) {
         formatData.IncrementIfSame(previousIndex);
     }
     formatData.AddToFunctionLog("EXIT FillStructBody")
+    return block;
+}
+
+fn CodeBlock FillSwitchBody(*FormatData formatData) {
+
+    formatData.ErrorFunction = "FillSwitchBody";
+
+    CodeBlock block = {
+        BlockDataList: make([]BlockData, 0),
+    };
+
+    for formatData.IndexInBounds() {
+
+        int previousIndex = formatData.TokenIndex;
+
+        Token token = formatData.GetToken();
+        if token.Type == TokenType.NA {
+            formatData.EndOfFileError(token);
+            return block;
+        }
+
+        if token.Type == TokenType.RightBrace {
+            break
+        }
+
+        FillSwitchCase(formatData, &block);
+        if formatData.IsError() {
+            return block;
+        }
+
+        formatData.IncrementIfSame(previousIndex);
+    }
+    return block;
+
+}
+
+fn FillSwitchCase(*FormatData formatData, *CodeBlock block) {
+    //Codeblock:
+    //  []BlockData BlockDataList
+    //  []Function MethodList
+
+    //BlockData:
+
+    //  IntNodeType NodeType
+    //  []Token Tokens
+    //  Token StartingToken
+    //  *CodeBlock Block
+    //  []Variable Variables
+    //  string VarName
+
+    Token first_token = formatData.GetToken();
+    if first_token.Type == TokenType.NA {
+        formatData.EndOfFileError(first_token)
+        return
+    }
+
+    BlockData blockData = {
+        NodeType: NodeType.Switch_Case,
+        StartingToken: first_token,
+        Tokens: make([]Token, 0),
+    }
+
+    //finding case condition
+    for formatData.IndexInBounds() {
+        int index_before = formatData.TokenIndex
+
+        Token token = formatData.GetToken()
+        if first_token.Type == TokenType.NA {
+            formatData.EndOfFileError(first_token)
+            return
+        }
+
+        blockData.Tokens.append(token)
+
+        formatData.IncrementIfSame(index_before)
+        if token.Type == TokenType.Colon {
+            break
+        }
+    }
+
+    CodeBlock case_body_block = FillCaseBody(formatData)
+    blockData.Block = &case_body_block
+
+    block.BlockDataList = append(block.BlockDataList, blockData)
+}
+
+fn CodeBlock FillCaseBody(*FormatData formatData) {
+
+    formatData.ErrorFunction = "FillCaseBody";
+
+    CodeBlock block = {
+        BlockDataList: make([]BlockData, 0),
+    };
+
+    for formatData.IndexInBounds() {
+        int previousIndex = formatData.TokenIndex;
+
+        Token token = formatData.GetToken();
+        if token.Type == TokenType.NA {
+            formatData.EndOfFileError(token);
+            return block;
+        }
+
+        bool is_ending_token = 
+            token.Type == TokenType.RightBrace ||
+            token.Type == TokenType.Default ||
+            token.Type == TokenType.Case
+
+        if is_ending_token {
+            break
+        }
+
+        ProcessTokenInBody(formatData, &block, token);
+        if formatData.IsError() {
+            return block;
+        }
+
+        formatData.IncrementIfSame(previousIndex);
+    }
     return block;
 }

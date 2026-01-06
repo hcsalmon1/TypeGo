@@ -5,20 +5,21 @@ import (
     . "TypeGo/core"
     . "TypeGo/parse"
     . "TypeGo/formatting"
+	"TypeGo/language_server"
     "TypeGo/converting"
 	"os"
-	"golang.org/x/sys/windows"
+	//"golang.org/x/sys/windows"
     "strings"
     "path/filepath"
 )
 
-func enableVirtualTerminalProcessing() {
-	windows.Handle stdout = windows.Handle(os.Stdout.Fd());
-	uint32 mode;
-	windows.GetConsoleMode(stdout, &mode);
-	mode = mode | windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-	windows.SetConsoleMode(stdout, mode);
-}
+//func enableVirtualTerminalProcessing() {
+	//windows.Handle stdout = windows.Handle(os.Stdout.Fd());
+	//uint32 mode;
+	//windows.GetConsoleMode(stdout, &mode);
+	//mode = mode | windows.ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	//windows.SetConsoleMode(stdout, mode);
+//}
 
 fn string convertToGo(string code, *bool success, string file_name) {
 
@@ -26,8 +27,8 @@ fn string convertToGo(string code, *bool success, string file_name) {
 
     IntParseResult parse_result = ParseResult.Ok
     []Token token_list = ParseToTokens(&parse_result, code)
-    if parse_result != ParseResult.Ok {
-        fmt.Println("Error:", parse_result.ToString());
+    if parse_result.IsError() {
+		parse_result.Println()
         *success = false
         return ""
     }
@@ -35,16 +36,17 @@ fn string convertToGo(string code, *bool success, string file_name) {
 
     IntFormatResult format_result = FormatResult.Ok
     CodeFormat code_format = FormatCode(token_list, &format_result, code)
-    if format_result != FormatResult.Ok {
-        fmt.Println("Error:", format_result.ToString());
+    if format_result.IsError() {
+        format_result.Println()
         *success = false
         return ""
     }
+	//code_format.Print()
 
     IntConvertResult convert_result = ConvertResult.Ok
     string generated_code = converting.ConvertToGo(&code_format, &convert_result, code)
-    if convert_result != ConvertResult.Ok {
-        fmt.Println("Error:", convert_result.ToString());
+    if convert_result.IsError() {
+		convert_result.Println()
         *success = false
         return ""
     }
@@ -56,41 +58,6 @@ fn string convertToGo(string code, *bool success, string file_name) {
 fn testingInput() {
     string code = `
 
-enumstruct ConvertResult {
-    Ok,
-    Missing_Expected_Type,
-    Unexpected_Type,
-    Unexpected_End_Of_File,
-    No_Token_In_Node,
-    Null_Token,
-    Invalid_Node_Type,
-    Unsupported_Type,
-    Internal_Error,
-
-	fn bool IsError() {
-		return self != ConvertResult.Ok
-	}
-}
-
-enumstruct ConvertResult : IntConvertResult {
-    Ok,
-    Missing_Expected_Type,
-    Unexpected_Type,
-    Unexpected_End_Of_File,
-    No_Token_In_Node,
-    Null_Token,
-    Invalid_Node_Type,
-    Unsupported_Type,
-    Internal_Error,
-
-	fn bool IsError() {
-		return self != ConvertResult.Ok
-	}
-}
-
-fn main() {
-
-}
 
 `
 
@@ -113,14 +80,14 @@ fn main() {
     fmt.Println("Output written to output.txt")
 }
 
-fn ConvertDirectory(string currentDirectory) {
+fn bool ConvertDirectory(string currentDirectory) {
 
 	[]os.DirEntry entries
 	error err
 	entries, err = os.ReadDir(currentDirectory)
-	if err != nil {
+	errcheck {
 		fmt.Println("Error: ", err)
-		return
+		return false
 	}
 
 	for _, entry := range entries {
@@ -129,15 +96,18 @@ fn ConvertDirectory(string currentDirectory) {
 		
 		if entry.IsDir() {
 			 // Recursively walk subdirectories
-			ConvertDirectory(fullPath)
-			
+			bool success = ConvertDirectory(fullPath)
+			if success == false {
+				return false
+			}
+
 		} else  {
 			 // Process file
-			ConvertAndWriteFile(fullPath, entry.Name())
-			
+			_ = ConvertAndWriteFile(fullPath, entry.Name())
 		}
 
 	}
+	return true
 }
 
 fn bool ConvertAndWriteFile(string tgoFilePath, string file_name) {
@@ -184,12 +154,12 @@ fn bool ConvertAndWriteFile(string tgoFilePath, string file_name) {
 	return true
 }
 
-fn ConvertFile(string filePath) {
+fn bool ConvertFile(string filePath) {
 
     bool has_suffix = strings.HasSuffix(filePath, ".tgo")
 
     if has_suffix == false {
-        return
+        return false
     }
 
 	os.FileInfo fileInfo
@@ -198,20 +168,20 @@ fn ConvertFile(string filePath) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			fmt.Println("Error: File not found:", filePath)
-			return
+			return false
 		}
 
 		// Other filesystem error
 		fmt.Println("Error accessing file:", filePath)
-		return
+		return false
 	}
 
 	if fileInfo.IsDir() {
 		fmt.Println("Error: Path is a directory:", filePath)
-		return
+		return false
 	}
 
-	ConvertAndWriteFile(filePath, filePath)
+	return ConvertAndWriteFile(filePath, filePath)
 }
 
 
@@ -220,6 +190,7 @@ const VERSION = "version"
 const CONVERT_DIRECTORY = "convertdir"
 const CONVERT_FILE      = "convertfile"
 const CONVERT_FILE_ABS = "convertfileabs"
+const LSP 		= "start_lsp"
 
 fn ConsoleInput([]string args) {
 
@@ -233,6 +204,7 @@ fn ConsoleInput([]string args) {
 	string current_working_directory
 	error err
     string file_path
+	bool ok = true
 
 	switch command {
 
@@ -245,30 +217,43 @@ fn ConsoleInput([]string args) {
 	case CONVERT_FILE:
 		if len(args) < 2 {
 			fmt.Println("Error: You must specify a filename (e.g. typego convertfile myfile.tgo)")
-			break
+			os.Exit(1)
 		} 
 
 		current_working_directory, err = os.Getwd()
-		if err != nil {
+		errcheck {
 			fmt.Println("Error getting current directory:", err)
-			return
+			os.Exit(1)
 		}
 
 		file_path = filepath.Join(current_working_directory, args[1])
-		ConvertFile(file_path)
+		ok = ConvertFile(file_path)
+		if ok == false {
+			os.Exit(1)
+		}
 
 	case CONVERT_FILE_ABS:
-		ConvertFile(args[1])
+		ok = ConvertFile(args[1])
+		if ok == false {
+			os.Exit(1)
+		}
 
 	case CONVERT_DIRECTORY:
 
 		current_working_directory, err = os.Getwd()
-		if err != nil {
+		errcheck {
 			fmt.Println("Error getting current directory:", err)
 			return
 		}
-		ConvertDirectory(current_working_directory)
+		ok = ConvertDirectory(current_working_directory)
+		if ok == false {
+			fmt.Println("Error, exit 1")
+			os.Exit(1)
+		}
 		fmt.Println("Done")
+
+	case LSP:
+		language_server.Run()
 
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
@@ -283,12 +268,13 @@ fn ShowHelp() {
 	fmt.Println("  tgo version              Show the version of TypeGo");
 	fmt.Println("  tgo convertfile file.tgo   Convert a single .tgo file in the current directory");
 	fmt.Println("  tgo convertdir           Convert all .tgo files in the current directory (recursively)");
-	fmt.Println("  tgo convertfileabs file.tgo - Convert a single .tgo file an absolute directory")
+	fmt.Println("  tgo convertfileabs file.tgo - Convert a single .tgo file with an absolute directory")
+	fmt.Println("  tgo lsp - starts the language server")
 }
 
 fn main() {
 
-    enableVirtualTerminalProcessing()
+    //enableVirtualTerminalProcessing()
     //testingInput()
     []string args = os.Args[1:]
     ConsoleInput(args)

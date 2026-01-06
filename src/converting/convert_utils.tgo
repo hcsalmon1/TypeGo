@@ -233,7 +233,7 @@ fn ProcessSingleDeclarationWithValue(*ConvertData convertData, *BlockData blockD
         }
         PrintTokensDeclaration(convertData, blockData, nestCount, false, varTypeAsText);
     }
-    convertData.NewLineWithTabs()
+    //convertData.NewLineWithTabs()
 }
 
 fn ProcessMultipleDeclarationNoValue(*ConvertData convertData, *BlockData blockData, int nestCount) {
@@ -489,7 +489,9 @@ fn PrintTokensDeclaration(*ConvertData convertData, *BlockData blockData, int ne
         Token token = blockData.Tokens[i];
 
         if token.Type == TokenType.NewLine {
-            convertData.NewLineWithTabs();
+            if lastType != TokenType.NewLine {
+                convertData.NewLineWithTabs();
+            }
             lastType = token.Type;
             continue;
         }
@@ -519,10 +521,18 @@ fn PrintTokensDeclaration(*ConvertData convertData, *BlockData blockData, int ne
             inMake = false;
         }
 
+        if token.Type == TokenType.RightBrace {
+            convertData.DecrementNestCount()
+            convertData.RemoveLastTab()
+        }
+
         AddSpaceBefore(convertData, token.Type, lastType, i, addedSpace);
         convertData.AppendString(token.Text);
         addedSpace = AddSpaceAfter(convertData, token.Type, lastType, i);
         lastType = token.Type;
+        if token.Type == TokenType.LeftBrace {
+            convertData.IncrementNestCount()
+        }
     }
 }
 

@@ -7,18 +7,22 @@ import . "TypeGo/core"
 
 func ConvertToNodetypeWithValue(blockData *BlockData) {
 	switch blockData.NodeType {
-	case NodeType.Single_Declaration_No_Value:
-	blockData.NodeType = NodeType.Single_Declaration_With_Value; 
-	
-	case NodeType.Multiple_Declarations_No_Value:
-	blockData.NodeType = NodeType.Multiple_Declarations_Same_Type_With_Value; 
-	
-	case NodeType.Multiple_Declarations_Same_Type_No_Value:
-	blockData.NodeType = NodeType.Multiple_Declarations_Same_Type_With_Value; 
-	
-	default:
-	
-	
+		
+		case NodeType.Single_Declaration_No_Value:
+			blockData.NodeType = NodeType.Single_Declaration_With_Value; 
+			
+			
+		case NodeType.Multiple_Declarations_No_Value:
+			blockData.NodeType = NodeType.Multiple_Declarations_Same_Type_With_Value; 
+			
+			
+		case NodeType.Multiple_Declarations_Same_Type_No_Value:
+			blockData.NodeType = NodeType.Multiple_Declarations_Same_Type_With_Value; 
+			
+			
+		default:
+			
+			
 	}
 	
 	
@@ -90,10 +94,9 @@ func ProcessAfterVarType(formatData *FormatData, blockData *BlockData, token Tok
 		tempVariable.NameToken = append(tempVariable.NameToken, token)
 		
 		var variable Variable  = Variable{
-		NameToken:CopyTokenList(tempVariable.NameToken), 
-		TypeList:CopyTokenList(tempVariable.TypeList), 
+			NameToken:CopyTokenList(tempVariable.NameToken), 
+			TypeList:CopyTokenList(tempVariable.TypeList), 
 		}
-		
 		blockData.Variables = append(blockData.Variables, variable)
 		
 		* lastType = LastTokenType.Identifier; 
@@ -133,18 +136,15 @@ func ProcessAfterIdentifier(formatData *FormatData, blockData *BlockData, token 
 	}
 	
 	var name_count int  = len(tempVariable.NameToken)
-	
 	var type_count int  = len(tempVariable.TypeList)
-	
 	if token.Type == TokenType.Equals {
 		ConvertToNodetypeWithValue(blockData); 
 		
 		if len(tempVariable.TypeList) != 0 {
 			var variable Variable  = Variable{
-			NameToken:CopyTokenList(tempVariable.TypeList), 
-			TypeList:make([]Token, 0), 
+				NameToken:CopyTokenList(tempVariable.TypeList), 
+				TypeList:make([]Token, 0), 
 			}
-			
 			blockData.Variables = append(blockData.Variables, variable)
 			
 			tempVariable.TypeList = nil; 
@@ -158,10 +158,9 @@ func ProcessAfterIdentifier(formatData *FormatData, blockData *BlockData, token 
 	if token.Type == TokenType.Comma {
 		if name_count == 0 && type_count != 0 {
 			var variable Variable  = Variable{
-			NameToken:CopyTokenList(tempVariable.TypeList), 
-			TypeList:make([]Token, 0), 
+				NameToken:CopyTokenList(tempVariable.TypeList), 
+				TypeList:make([]Token, 0), 
 			}
-			
 			blockData.Variables = append(blockData.Variables, variable)
 			
 			tempVariable.SetToDefaults(); 
@@ -192,10 +191,9 @@ func ProcessAfterIdentifier(formatData *FormatData, blockData *BlockData, token 
 		tempVariable.NameToken = append(tempVariable.NameToken, token)
 		
 		var variable Variable  = Variable{
-		NameToken:CopyTokenList(tempVariable.NameToken), 
-		TypeList:CopyTokenList(tempVariable.TypeList), 
+			NameToken:CopyTokenList(tempVariable.NameToken), 
+			TypeList:CopyTokenList(tempVariable.TypeList), 
 		}
-		
 		blockData.Variables = append(blockData.Variables, variable)
 		
 		* lastType = LastTokenType.Identifier; 
@@ -351,37 +349,37 @@ func convertTokenTypeToLastTokenType(token_type IntTokenType) IntLastTokenType {
 	}
 	
 	switch token_type {
-	case TokenType.Identifier:
-	return LastTokenType.Identifier
-	case TokenType.LeftSquareBracket:
-	return LastTokenType.LeftSqBracket
-	case TokenType.RightSquareBracket:
-	return LastTokenType.RightSqBracket
-	case TokenType.LeftParenthesis:
-	return LastTokenType.LeftParenth
-	case TokenType.RightParenthesis:
-	return LastTokenType.RightParenth
-	case TokenType.Comma:
-	return LastTokenType.Comma
-	case TokenType.Semicolon:
-	return LastTokenType.Semicolon
-	case TokenType.NewLine:
-	return LastTokenType.Newline
-	case TokenType.IntegerValue:
-	return LastTokenType.IntegerValue
-	case TokenType.Map:
-	return LastTokenType.Map
-	case TokenType.Multiply:
-	return LastTokenType.Pointer
-	case TokenType.FullStop:
-	return LastTokenType.FullStop
-	case TokenType.Interface:
-	return LastTokenType.Interface
-	case TokenType.LeftBrace:
-	return LastTokenType.LeftBrace
-	case TokenType.RightBrace:
-	return LastTokenType.RightBrace
-	
+		
+		case TokenType.Identifier:
+			return LastTokenType.Identifier
+		case TokenType.LeftSquareBracket:
+			return LastTokenType.LeftSqBracket
+		case TokenType.RightSquareBracket:
+			return LastTokenType.RightSqBracket
+		case TokenType.LeftParenthesis:
+			return LastTokenType.LeftParenth
+		case TokenType.RightParenthesis:
+			return LastTokenType.RightParenth
+		case TokenType.Comma:
+			return LastTokenType.Comma
+		case TokenType.Semicolon:
+			return LastTokenType.Semicolon
+		case TokenType.NewLine:
+			return LastTokenType.Newline
+		case TokenType.IntegerValue:
+			return LastTokenType.IntegerValue
+		case TokenType.Map:
+			return LastTokenType.Map
+		case TokenType.Multiply:
+			return LastTokenType.Pointer
+		case TokenType.FullStop:
+			return LastTokenType.FullStop
+		case TokenType.Interface:
+			return LastTokenType.Interface
+		case TokenType.LeftBrace:
+			return LastTokenType.LeftBrace
+		case TokenType.RightBrace:
+			return LastTokenType.RightBrace
 	}
 	
 	return LastTokenType.Null
@@ -390,13 +388,9 @@ func convertTokenTypeToLastTokenType(token_type IntTokenType) IntLastTokenType {
 func ProcessAfterFullStop(formatData *FormatData, blockData *BlockData, token Token, lastType *IntLastTokenType, tempVariable *Variable) IntLoopAction {
 	
 	var is_valid bool  = 
-	
 	token.Type == TokenType.Identifier || 
-	
 	token.Type == TokenType.FullStop || 
-	
 	token.Type == TokenType.RightSquareBracket
-	
 	
 	if is_valid == true {
 		* lastType = convertTokenTypeToLastTokenType(token.Type); 
@@ -462,10 +456,9 @@ func ProcessAfterRightBrace(formatData *FormatData, blockData *BlockData, token 
 		tempVariable.NameToken = append(tempVariable.NameToken, token)
 		
 		var variable Variable  = Variable{
-		NameToken:CopyTokenList(tempVariable.NameToken), 
-		TypeList:CopyTokenList(tempVariable.TypeList), 
+			NameToken:CopyTokenList(tempVariable.NameToken), 
+			TypeList:CopyTokenList(tempVariable.TypeList), 
 		}
-		
 		blockData.Variables = append(blockData.Variables, variable)
 		
 		* lastType = LastTokenType.Identifier; 
@@ -480,43 +473,43 @@ func ProcessAfterRightBrace(formatData *FormatData, blockData *BlockData, token 
 }
 
 func ProcessDeclarationToken(formatData *FormatData, blockData *BlockData, token Token, lastType *IntLastTokenType, tempVariable *Variable) IntLoopAction {
-	switch * lastType {
-	case LastTokenType.Null:
-	return ProcessAfterNull(formatData, token, lastType, tempVariable); 
-	case LastTokenType.Identifier:
-	return ProcessAfterIdentifier(formatData, blockData, token, lastType, tempVariable); 
-	case LastTokenType.Vartype:
-	return ProcessAfterVarType(formatData, blockData, token, lastType, tempVariable); 
-	case LastTokenType.Pointer:
-	return ProcessAfterPointer(formatData, blockData, token, lastType, tempVariable); 
-	
-	case LastTokenType.LeftSqBracket:
-	return ProcessAfterLeftSqBracket(formatData, blockData, token, lastType, tempVariable); 
-	case LastTokenType.RightSqBracket:
-	return ProcessAfterRightSqBracket(formatData, blockData, token, lastType, tempVariable); 
-	case LastTokenType.Comma:
-	return ProcessAfterComma(formatData, blockData, token, lastType, tempVariable); 
-	case LastTokenType.IntegerValue:
-	return ProcessAfterIntegerValue(formatData, blockData, token, lastType, tempVariable); 
-	case LastTokenType.FullStop:
-	return ProcessAfterFullStop(formatData, blockData, token, lastType, tempVariable); 
-	
-	case LastTokenType.Map:
-	return ProcessAfterMap(formatData, blockData, token, lastType, tempVariable); 
-	
-	case LastTokenType.Interface:
-	return ProcessAfterInterface(formatData, blockData, token, lastType, tempVariable); 
-	
-	case LastTokenType.LeftBrace:
-	return ProcessAfterLeftBrace(formatData, blockData, token, lastType, tempVariable); 
-	
-	case LastTokenType.RightBrace:
-	return ProcessAfterRightBrace(formatData, blockData, token, lastType, tempVariable); 
-	
-	default:
-	formatData.UnexpectedTypeError(token, "unsupported last type: " +lastType.ToString()+", this type: " +token.Type.ToString())
-	return LoopAction.Error; 
-	
+	switch *lastType {
+		
+		case LastTokenType.Null:
+			return ProcessAfterNull(formatData, token, lastType, tempVariable); 
+		case LastTokenType.Identifier:
+			return ProcessAfterIdentifier(formatData, blockData, token, lastType, tempVariable); 
+		case LastTokenType.Vartype:
+			return ProcessAfterVarType(formatData, blockData, token, lastType, tempVariable); 
+		case LastTokenType.Pointer:
+			return ProcessAfterPointer(formatData, blockData, token, lastType, tempVariable); 
+			
+		case LastTokenType.LeftSqBracket:
+			return ProcessAfterLeftSqBracket(formatData, blockData, token, lastType, tempVariable); 
+		case LastTokenType.RightSqBracket:
+			return ProcessAfterRightSqBracket(formatData, blockData, token, lastType, tempVariable); 
+		case LastTokenType.Comma:
+			return ProcessAfterComma(formatData, blockData, token, lastType, tempVariable); 
+		case LastTokenType.IntegerValue:
+			return ProcessAfterIntegerValue(formatData, blockData, token, lastType, tempVariable); 
+		case LastTokenType.FullStop:
+			return ProcessAfterFullStop(formatData, blockData, token, lastType, tempVariable); 
+			
+		case LastTokenType.Map:
+			return ProcessAfterMap(formatData, blockData, token, lastType, tempVariable); 
+			
+		case LastTokenType.Interface:
+			return ProcessAfterInterface(formatData, blockData, token, lastType, tempVariable); 
+			
+		case LastTokenType.LeftBrace:
+			return ProcessAfterLeftBrace(formatData, blockData, token, lastType, tempVariable); 
+			
+		case LastTokenType.RightBrace:
+			return ProcessAfterRightBrace(formatData, blockData, token, lastType, tempVariable); 
+			
+		default:
+			formatData.UnexpectedTypeError(token, "unsupported last type: " +lastType.ToString()+", this type: " +token.Type.ToString())
+			return LoopAction.Error; 
 	}
 	
 	
@@ -527,41 +520,47 @@ func WriteTokens(formatData *FormatData, blockData *BlockData) {
 	formatData.AddToFunctionLog("ENTER WriteTokens")
 	
 	switch blockData.NodeType {
-	case NodeType.Invalid:
-	break; 
-	case NodeType.Single_Declaration_With_Value:
-	LoopTokensUntilLineEnd(formatData, blockData, true); 
-	if blockData.Validate(formatData) == false {
-	formatData.AddToFunctionLog("ERROR WriteTokens")
-	return 
-	
-	}
-	
-	case NodeType.Single_Declaration_No_Value:
-	LoopTokensUntilLineEnd(formatData, blockData, true); 
-	
-	case NodeType.Multiple_Declarations_One_Type_One_Set_Value:
-	LoopTokensUntilLineEnd(formatData, blockData, true); 
-	
-	case NodeType.Multiple_Declarations_No_Value:
-	LoopTokensUntilLineEnd(formatData, blockData, true); 
-	
-	case NodeType.Multiple_Declarations_With_Value:
-	formatData.UnsupportedFeatureError(blockData.StartingToken, "Multiple declarations with value, not supported yet"); 
-	formatData.AddToFunctionLog("ERROR WriteTokens")
-	return 
-	
-	case NodeType.Multiple_Declarations_Same_Type_No_Value:
-	formatData.UnsupportedFeatureError(blockData.StartingToken, "Multiple same type declarations with no value, not supported yet"); 
-	formatData.AddToFunctionLog("ERROR WriteTokens")
-	return 
-	
-	case NodeType.Multiple_Declarations_Same_Type_With_Value:
-	LoopTokensUntilLineEnd(formatData, blockData, true); 
-	
-	default:
-	break; 
-	
+		
+		case NodeType.Invalid:
+			break
+			
+		case NodeType.Single_Declaration_With_Value:
+			LoopTokensUntilLineEnd(formatData, blockData, true); 
+			if blockData.Validate(formatData) == false {
+				formatData.AddToFunctionLog("ERROR WriteTokens")
+				return 
+			}
+			
+			
+		case NodeType.Single_Declaration_No_Value:
+			LoopTokensUntilLineEnd(formatData, blockData, true); 
+			
+			
+		case NodeType.Multiple_Declarations_One_Type_One_Set_Value:
+			LoopTokensUntilLineEnd(formatData, blockData, true); 
+			
+			
+		case NodeType.Multiple_Declarations_No_Value:
+			LoopTokensUntilLineEnd(formatData, blockData, true); 
+			
+			
+		case NodeType.Multiple_Declarations_With_Value:
+			formatData.UnsupportedFeatureError(blockData.StartingToken, "Multiple declarations with value, not supported yet"); 
+			formatData.AddToFunctionLog("ERROR WriteTokens")
+			return 
+			
+		case NodeType.Multiple_Declarations_Same_Type_No_Value:
+			formatData.UnsupportedFeatureError(blockData.StartingToken, "Multiple same type declarations with no value, not supported yet"); 
+			formatData.AddToFunctionLog("ERROR WriteTokens")
+			return 
+			
+		case NodeType.Multiple_Declarations_Same_Type_With_Value:
+			LoopTokensUntilLineEnd(formatData, blockData, true); 
+			
+			
+		default:
+			break
+			
 	}
 	
 	formatData.AddToFunctionLog("EXIT WriteTokens")

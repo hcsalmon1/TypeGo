@@ -1,0 +1,548 @@
+package language_server
+
+import (
+	"bufio"
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+    "net/url"
+	"os/exec"
+    "path/filepath"
+	"strconv"
+	"strings"
+    "time"
+    "regexp"
+)
+
+*os.File logFile
+
+fn initLogger() {
+
+    string path = "C:\\Users\\Tom\\Desktop\\typego-lsp.log"
+
+    logFile, error err = os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+    errreturn
+
+    log("=== LSP started ===")
+}
+
+fn log(string message) {
+    if logFile != nil {
+        string now = time.Now().Format("15:04:05.000")
+        logFile.WriteString("[" + now + "] " + message + "\n")
+    }
+}
+
+enumstruct MapErrorTag {
+    None,
+    KeyNotFound,
+    IncorrectType,
+    DataIsNull,
+
+    fn bool IsError() {
+        return self != MapErrorTag.None
+    }
+    fn Print() {
+        fmt.Print("Error:", self.ToString())
+    }
+    fn Println() {
+        fmt.Println("Error:", self.ToString())
+    }
+}
+
+struct MapError {
+    IntMapErrorTag ErrorTag
+    string Detail
+
+    fn bool IsError() {
+        return self.ErrorTag.IsError()
+    }
+    fn Print() {
+        fmt.Fprint(os.Stderr, "Error:", self.ErrorTag.ToString(), self.Detail)
+    }
+    fn Println() {
+        fmt.Fprintln(os.Stderr, "Error:", self.ErrorTag.ToString(), self.Detail)
+    }
+    fn Clear() {
+        self.ErrorTag = MapErrorTag.None
+        self.Detail = ""
+    }
+    fn Set(IntMapErrorTag tag, string detail) {
+        self.ErrorTag = tag
+        self.Detail = detail
+    }
+    fn SetTag(IntMapErrorTag tag) {
+        self.ErrorTag = tag
+    }
+    fn SetDetail(string detail) {
+        self.Detail = detail
+    }
+    fn string ToString() {
+        return self.ErrorTag.ToString() + " " + self.Detail
+    }
+}
+
+fn MapError NewMapError() {
+    return MapError {
+        ErrorTag: MapErrorTag.None,
+        Detail: "",
+    }
+}
+
+struct Map {
+
+	map[string]any Data
+
+    // Set adds or updates a key-value pair
+    fn Set(string key, any value) {
+        self.Data[key] = value
+    }
+    fn bool ContainsEntry(string key) {
+        _, bool ok = self.Data[key]
+        return ok
+    }
+
+    fn any Get(string key, *MapError map_error) {
+
+        if self.IsValid() == false {
+            map_error.SetTag(MapErrorTag.DataIsNull)
+            return Map{Data: nil}
+        }
+
+        any val, bool ok = self.Data[key]
+
+        if ok == false {
+            map_error.SetTag(MapErrorTag.KeyNotFound)
+            return 0
+        }
+        return val
+    }
+
+    fn string GetString(string key, *MapError map_error) {
+
+        if self.IsValid() == false {
+            map_error.SetTag(MapErrorTag.DataIsNull)
+            return ""
+        }
+
+        any value, bool ok = self.Data[key]
+        if ok == true {
+            string text, ok = value.(string)
+            if ok == true {
+                return text
+            }
+
+            map_error.SetTag(MapErrorTag.IncorrectType)
+            return ""
+        }
+        map_error.SetTag(MapErrorTag.KeyNotFound)
+        return ""
+    }
+
+    fn int GetInt(string key, *MapError map_error) {
+
+        if self.IsValid() == false {
+            map_error.SetTag(MapErrorTag.DataIsNull)
+            return 0
+        }
+
+        if self.ContainsEntry(key) == false {
+            map_error.SetTag(MapErrorTag.KeyNotFound)
+            return 0
+        }
+        any variable = self.Get(key, map_error)
+        if map_error.IsError() {
+            return 0
+        }
+
+        switch var_type := variable.(type) {
+
+            case float64:
+                return int(var_type)
+
+            case int:
+                return var_type
+
+        }
+        
+        map_error.SetTag(MapErrorTag.IncorrectType)
+        return 0
+    }
+
+    fn Map GetMap(string key, *MapError map_error) {
+
+        if self.IsValid() == false {
+            map_error.SetTag(MapErrorTag.DataIsNull)
+            return Map{Data: nil}
+        }
+
+        any value = self.Get(key, map_error)
+        if map_error.IsError() {
+            return Map{Data: nil}
+        }
+
+        if raw, ok := value.(map[string]any); ok {
+            return Map{Data: raw}
+        }
+        map_error.SetTag(MapErrorTag.IncorrectType)
+        return Map{Data: nil}
+    }
+
+    fn bool IsValid() {
+        return self.Data != nil
+    }
+
+    fn Delete(string key) {
+        delete(self.Data, key)
+    }
+
+    fn int Len() {
+        return len(self.Data)
+    }
+
+    fn Clear() {
+        self.Data = make(map[string]any)
+    }
+
+    fn string ToJSON() {
+        []byte b, error err = json.MarshalIndent(self.Data, "", "  ")
+        errreturn "<json marshal error>"
+
+        return string(b)
+    }
+}
+
+fn Map NewMap() {
+	return Map{
+		Data: make(map[string]any),
+	}
+}
+
+fn Map NewMapFromData(map[string]any input) {
+	return Map{
+		Data: input,
+	}
+}
+
+
+fn (string, error) readMessage(*bufio.Reader reader) {
+
+	int contentLength
+
+	for {
+		string line, error err = reader.ReadString('\n')
+		errcheck {
+            return "", err
+        }
+
+		line = strings.TrimSpace(line)
+		if line == "" {
+			break
+		}
+
+
+		if strings.HasPrefix(line, "Content-Length:") {
+			string value = strings.TrimSpace(strings.TrimPrefix(line, "Content-Length:"))
+			contentLength, _ = strconv.Atoi(value)
+            continue
+		}
+	}
+
+    []byte buffer = make(contentLength)
+    _, error err = io.ReadFull(reader, buffer)
+    errcheck {
+        if err == io.EOF || err == io.ErrUnexpectedEOF {
+            // Valid end-of-stream
+            return string(buffer), nil
+        }
+        return "", err
+    }
+    return string(buffer), nil
+}
+
+fn Map parseJSON(string raw) {
+    raw = strings.TrimRight(raw, "\x00\r\n\t ")
+	map[string]any obj
+	error err = json.Unmarshal([]byte(raw), &obj)
+    errcheck {
+        return NewMap()
+    }
+	return NewMapFromData(obj)
+}
+
+fn sendResponse(int id, any result) {
+	[]byte body, _ = json.Marshal(map[string]any{
+		"jsonrpc": "2.0",
+		"id":      id,
+		"result":  result,
+	})
+
+    os.Stdout.WriteString(
+        fmt.Sprintf("Content-Length: %d\r\n\r\n%s", len(body), body),
+    )
+}
+
+fn handleInitialize(Map message_data_map, *MapError map_error) {
+	int id = message_data_map.GetInt("id", map_error)
+	if map_error.IsError() {
+		map_error.SetDetail("Error getting id, handleInitialize")
+		return
+	}
+
+	sendResponse(id, map[string]any{
+		"capabilities": map[string]any{
+			"textDocumentSync": map[string]any{
+				"openClose": true,
+				"change": 1,
+				"save": map[string]any{
+					"includeText": true,
+				},
+			},
+		},
+	})
+}
+
+fn (int, int) extractLineCol(string error_message) {
+
+    log("Error message: " + error_message)
+
+    int index = strings.Index(error_message, "Error on line ")
+    if index == -1 {
+        return 0, 1
+    }
+
+    string remaining_error_message = error_message[index+len("Error on line "):]
+    []string error_parts = strings.SplitN(remaining_error_message, ":", 2)
+    if len(error_parts) < 1 {
+        return 0, 1
+    }
+
+    []string numbers_as_text = strings.Split(error_parts[0], ",")
+    if len(numbers_as_text) != 2 {
+        return 0, 1
+    }
+
+    int line_number, error err = strconv.Atoi(strings.TrimSpace(numbers_as_text[0]))
+    errreturn 0, 1
+
+    int column_number, err = strconv.Atoi(strings.TrimSpace(numbers_as_text[1]))
+    errreturn 0, 1
+
+    return line_number, column_number
+}
+
+func sendDiagnostics(string uri, string message) {
+
+    // Clear diagnostics
+    if message == "" {
+        []byte payload, _ = json.Marshal(map[string]any{
+            "jsonrpc": "2.0",
+            "method": "textDocument/publishDiagnostics",
+            "params": map[string]any{
+                "uri": uri,
+                "diagnostics": []any{},
+            },
+        })
+
+        os.Stdout.WriteString(
+            fmt.Sprintf("Content-Length: %d\r\n\r\n%s", len(payload), payload),
+        )
+        return
+    }
+
+    int line_number, int column_number = extractLineCol(message)
+
+    string clean = stripAnsi(string(message))
+    string cleaned_message = extractUserError(clean)
+
+    map[string]any diag = {
+        "uri": uri,
+        "diagnostics": []any{
+            map[string]any{
+                "range": map[string]any{
+                    "start": map[string]int{
+                        "line": line_number,
+                        "character": column_number,
+                    },
+                    "end": map[string]int{
+                        "line": line_number,
+                        "character": column_number + 1,
+                    },
+                },
+                "severity": 1,
+                "source": "typego",
+                "message": cleaned_message,
+            },
+        },
+    }
+
+    []byte payload, _ = json.Marshal(map[string]any{
+        "jsonrpc": "2.0",
+        "method": "textDocument/publishDiagnostics",
+        "params": diag,
+    })
+
+    os.Stdout.WriteString(
+        fmt.Sprintf("Content-Length: %d\r\n\r\n%s", len(payload), payload),
+    )
+}
+
+func string stripAnsi(string input) {
+	// matches ESC[ ... m
+	*regexp.Regexp regex, error err = regexp.Compile("\x1b\\[[0-9;]*m")
+	errreturn ""
+	
+	return regex.ReplaceAllString(input, "")
+}
+
+fn string extractUserError(string output) {
+    []string lines = strings.Split(output, "\n")
+
+    for i := 0; i < len(lines); i++ {
+
+        string line = lines[i]
+
+        if strings.Contains(line, "Error on line") {
+
+            int index = strings.Index(line, ":")
+            if index != -1 {
+                return strings.TrimSpace(line[index+1:])
+            }
+        }
+    }
+
+    return "Compilation failed"
+}
+
+fn handleDidSave(Map json_data_map, *MapError map_error) {
+	
+    Map parameters = json_data_map.GetMap("params", map_error)
+    if map_error.IsError() {
+        map_error.Detail = "Error getting parameters from map"
+        return
+    }
+	Map doc = parameters.GetMap("textDocument", map_error)
+    if map_error.IsError() {
+        map_error.Detail = "Error getting textDocument from map"
+        return
+    }
+	string uri = doc.GetString("uri", map_error)
+    if map_error.IsError() {
+        map_error.Detail = "Error getting uri from map"
+        return
+    }
+
+    string path = strings.TrimPrefix(uri, "file://")
+
+    string decoded_path, error err = url.PathUnescape(path)
+    errcheck {
+        log("failed to decode uri: " + err.Error())
+        return
+    }
+
+    // Windows: strip leading slash from /C:/...
+    if len(decoded_path) > 2 && decoded_path[0] == '/' && decoded_path[2] == ':' {
+        decoded_path = decoded_path[1:]
+    }
+
+    string final_path = filepath.FromSlash(decoded_path)
+
+    *exec.Cmd cmd = exec.Command("tgo", "convertfileabs", final_path)
+    []byte output, err = cmd.CombinedOutput()
+
+    errcheck {
+        log("sending diagnostics with:" + string(output))
+        sendDiagnostics(uri, string(output))
+        return
+    }
+
+    // clear diagnostics on success
+    log("sending empty diagnostics")
+    sendDiagnostics(uri, "")
+}
+
+fn Run() {
+
+    initLogger()
+    log("Started")
+
+	*bufio.Reader reader = bufio.NewReader(os.Stdin)
+
+    MapError map_error = NewMapError()
+    bool shuttingDown = false
+
+	for {
+
+        map_error.Clear()
+
+		string raw, error err = readMessage(reader)
+        errcheck {
+            if err == io.EOF {
+                log("Error: end of file, exit")
+                return
+            }
+            string error_message = fmt.Sprintf("read error: %s", err)
+            log(error_message)
+            fmt.Fprintln(os.Stderr, "Read error:", err)
+            return
+        }
+        string raw_log = fmt.Sprintf("Received: %s", raw)
+        log(raw_log)
+
+        Map json_data_map = parseJSON(raw)
+        if json_data_map.Data == nil {
+            log("Error: json data is nil")
+            fmt.Fprintln(os.Stderr, "Error: json data is nil")
+            continue
+        }
+
+        string method = json_data_map.GetString("method", &map_error)
+        if map_error.IsError() {
+            log(map_error.ToString())
+            continue
+        }
+
+        int id = 0
+        bool hasID = false
+        if json_data_map.ContainsEntry("id") {
+            id = json_data_map.GetInt("id", &map_error)
+            if map_error.IsError() {
+                log(map_error.ToString())
+                continue
+            }
+            hasID = true
+        }
+
+        switch method {
+
+            case "initialized":
+                log("Initialized")
+
+            case "initialize":
+                if hasID {
+                    log("Handle initialize")
+                    handleInitialize(json_data_map, &map_error)
+                }
+
+            case "shutdown":
+                shuttingDown = true
+                if hasID {
+                    log("send response")
+                    sendResponse(id, nil)
+                }
+
+            case "exit":
+                if shuttingDown == false {
+                    log("Error exit, code 1")
+                    os.Exit(1)
+                }
+                log("successful exit, code 0")
+                os.Exit(0)
+
+            case "textDocument/didSave":
+                log("Handle did save")
+                handleDidSave(json_data_map, &map_error)
+        }
+	}
+}

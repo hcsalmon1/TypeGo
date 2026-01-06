@@ -19,12 +19,11 @@ func ProcessStruct(convertData *ConvertData, blockData *BlockData, nestCount int
 		return; 
 	}
 	var structNameText string  = blockData.Tokens[0].Text; 
-	
 	convertData.AppendString("type " +structNameText + " struct {"); 
+	convertData.IncrementNestCount()
 	convertData.NewLineWithTabs(); 
 	
-	var structVariableBlock *CodeBlock  = blockData.Block; 
-	if structVariableBlock == nil {
+	var structVariableBlock *CodeBlock  = blockData.Block; if structVariableBlock == nil {
 		convertData.AppendChar('\n'); 
 		EndStruct(convertData); 
 		return; 
@@ -38,7 +37,6 @@ func ProcessStruct(convertData *ConvertData, blockData *BlockData, nestCount int
 	}
 	
 	var blockDataList []BlockData  = structVariableBlock.BlockDataList; 
-	
 	if len(blockDataList) == 0 {
 		convertData.AppendChar('\n'); 
 		EndStruct(convertData); 
@@ -46,52 +44,43 @@ func ProcessStruct(convertData *ConvertData, blockData *BlockData, nestCount int
 	}
 	
 	var varNames []string  = make([]string, 0); 
-	
 	for blockIndex := 0; blockIndex < len(blockDataList); blockIndex++ {
 	
 		var varBlock BlockData  = blockDataList[blockIndex]; 
-		
 		if varBlock.NodeType != NodeType.Single_Declaration_No_Value {
 			PrintOther(convertData, &varBlock, nestCount); 
 			if convertData.IsError() {
 				return 
 			}
-			continue 
-			
+			continue
 			
 		}
 		
 		for i := 0; i < len(varBlock.Variables); i++ {
 		
-			var variable Variable  = varBlock.Variables[i]; 
-			if variable.NameToken == nil {
-				continue 
-				
+			var variable Variable  = varBlock.Variables[i]; if variable.NameToken == nil {
+				continue
 				
 			}
 			if len(variable.NameToken) == 0 {
-				continue 
-				
+				continue
 				
 			}
 			varNames = append(varNames, variable.NameToken[0].Text)
 			
-			var varTypeAsText string  = JoinTextInListOfTokens( &variable.TypeList); 
-			if varTypeAsText == "" {
-				continue 
-				
+			var varTypeAsText string  = JoinTextInListOfTokens( &variable.TypeList); if varTypeAsText == "" {
+				continue
 				
 			}
 			convertData.AppendString(variable.NameToken[0].Text + " " +varTypeAsText); 
 			convertData.NewLineWithTabs(); 
-			
-		}
+					}
 		
-		
-	}
+			}
 	
+	convertData.DecrementNestCount()
 	
-	convertData.AppendChar('\r'); 
+	convertData.AppendChar('\n'); 
 	EndStruct(convertData); 
 	PrintStructMethods(convertData, structVariableBlock, nestCount, &varNames, structNameText); 
 	
@@ -99,8 +88,7 @@ func ProcessStruct(convertData *ConvertData, blockData *BlockData, nestCount int
 
 func PrintStructMethods(convertData *ConvertData, structBlock *CodeBlock, nestCount int, varName *[]string, structName string) {
 	
-	var functions []Function  = structBlock.MethodList; 
-	if functions == nil {
+	var functions []Function  = structBlock.MethodList; if functions == nil {
 		return; 
 	}
 	if len(functions) == 0 {
@@ -113,8 +101,7 @@ func PrintStructMethods(convertData *ConvertData, structBlock *CodeBlock, nestCo
 	for i := 0; i < len(functions); i++ {
 	
 		ProcessFunction(convertData, &functions[i]); 
-		
-	}
+			}
 	
 	convertData.MethodType = MethodType.None; 
 	convertData.MethodVarNames = nil
@@ -141,15 +128,12 @@ func PrintOther(convertData *ConvertData, varBlock *BlockData, nestCount int) {
 	for i := 0; i < len(varBlock.Tokens); i++ {
 	
 		var token Token  = varBlock.Tokens[i]; 
-		
 		if token.Type == TokenType.NewLine {
-			continue 
-			
+			continue
 			
 		}
 		convertData.AppendString(varBlock.Tokens[i].Text); 
-		
-	}
+			}
 	
 	
 }

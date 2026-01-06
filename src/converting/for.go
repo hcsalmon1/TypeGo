@@ -18,8 +18,7 @@ func PrintFor(convertData *ConvertData, blockData *BlockData, nestCount int) {
 	convertData.NewLineWithTabs(); 
 	
 	convertData.IncrementNestCount()
-	var forBlock *CodeBlock  = blockData.Block; 
-	ProcessBlock(convertData, forBlock, nestCount + 1, false); 
+	var forBlock *CodeBlock  = blockData.Block; ProcessBlock(convertData, forBlock, nestCount + 1, false); 
 	convertData.DecrementNestCount()
 	
 	convertData.AppendChar('\r'); 
