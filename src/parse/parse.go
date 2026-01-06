@@ -38,7 +38,8 @@ func ParseToTokens(err *IntParseResult, code string) []Token {
 			return parse_data.TokenList; 
 		}
 		
-			}
+		
+	}
 	
 	//fmt.Println("Done")
 	return parse_data.TokenList; 
@@ -190,7 +191,8 @@ func readString(success *bool, parseData *ParseData) Token {
 		}
 		
 		parseData.CharacterIndex++; 
-			}
+		
+	}
 	
 	
 	* success = false
@@ -296,7 +298,8 @@ func readWord(success *bool, parseData *ParseData) Token {
 			
 		}
 		
-			}
+		
+	}
 	
 	
 	var word string  = string(string_builder)
@@ -329,7 +332,8 @@ func readLineComment(parseData *ParseData) Token {
 		string_builder = append(string_builder, c)
 		
 		parseData.CharacterIndex++; 
-			}
+		
+	}
 	
 	var token Token  = Token{
 		Text:string(string_builder), 
@@ -368,7 +372,8 @@ func readBlockComment(parseData *ParseData) Token {
 			parseData.CharCount = 0; 
 			
 		}
-			}
+		
+	}
 	
 	
 	parseData.ParseResult = ParseResult.Unterminated_Comment; 
@@ -410,7 +415,8 @@ func ReadMultilineString(parseData *ParseData) Token {
 		}
 		
 		parseData.CharacterIndex++; 
-			}
+		
+	}
 	
 	
 	parseData.ParseResult = ParseResult.Unterminated_String; 
