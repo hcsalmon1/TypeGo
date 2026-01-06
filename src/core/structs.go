@@ -28,7 +28,8 @@ func (self *CodeFormat) Print() {
 	
 		var function Function  = self.Functions[i]
 		function.Print(indent)
-			}
+		
+	}
 	
 	
 }
@@ -41,7 +42,8 @@ func (self *CodeFormat) PrintFunctions() {
 	
 		var function Function  = self.Functions[i]
 		function.PrintData(); 
-			}
+		
+	}
 	
 	
 }
@@ -55,7 +57,8 @@ func (self *CodeFormat) PrintNodeData() {
 	
 		var function Function  = self.Functions[i]
 		function.PrintData()
-			}
+		
+	}
 	
 	
 }
@@ -69,7 +72,8 @@ func (self *CodeFormat) PrintNodeType() {
 	
 		var function Function  = self.Functions[i]
 		function.PrintNodeTypes()
-			}
+		
+	}
 	
 	
 }
@@ -95,7 +99,8 @@ func (self *CodeBlock) Print(indent int) {
 			fmt.Print(addTabs(indent))
 			
 			block_data.Print(indent + 1)
-					}
+			
+		}
 		
 		
 	}
@@ -107,7 +112,8 @@ func (self *CodeBlock) Print(indent int) {
 			fmt.Println()
 			var function Function  = self.MethodList[i]
 			function.Print(indent)
-					}
+			
+		}
 		
 		
 	}
@@ -127,7 +133,8 @@ func (self *CodeBlock) PrintData() {
 	
 		self.BlockDataList[i].Print(0); 
 		fmt.Println(); 
-			}
+		
+	}
 	
 	fmt.Println(); 
 	
@@ -154,12 +161,14 @@ func (self *BlockData) Print(indent int) {
 	for i := 0; i < len(self.Variables); i++ {
 	
 		self.Variables[i].Print()
-			}
+		
+	}
 	
 	for i := 0; i < token_count; i++ {
 	
 		fmt.Printf("%s ", self.Tokens[i].Text)
-			}
+		
+	}
 	
 	if self.Block != nil {
 		self.Block.Print(indent + 1)
@@ -221,7 +230,8 @@ func (self *BlockData) PrintTokens(newLine bool) {
 	for i := 0; i < count; i++ {
 	
 		fmt.Print("'{Tokens[i].Text}' "); 
-			}
+		
+	}
 	
 	self.AddNewLine(newLine); 
 	
@@ -262,7 +272,8 @@ func (self *BlockData) PrintVariables(newLine bool) {
 	for i := 0; i < count; i++ {
 	
 		self.Variables[i].Print(); 
-			}
+		
+	}
 	
 	self.AddNewLine(newLine); 
 	
@@ -404,7 +415,8 @@ func (self *Variable) PrintTypeList() {
 	for i := 0; i < count; i++ {
 	
 		fmt.Print(" '{TypeList[i].Text}', "); 
-			}
+		
+	}
 	
 	
 }
@@ -435,7 +447,8 @@ func (self *Variable) Print() {
 	for i := 0; i < type_list_count; i++ {
 	
 		fmt.Printf("%s", self.TypeList[i].Text)
-			}
+		
+	}
 	
 	fmt.Printf(" %s\n", self.NameToken[0].Text)
 	
@@ -458,7 +471,8 @@ func (self *Variable) ConvertToString() string {
 		
 			sb = append(sb, input[i])
 			
-					}
+			
+		}
 		
 		
 	}
@@ -466,7 +480,8 @@ func (self *Variable) ConvertToString() string {
 	
 		var token Token  = self.TypeList[i]
 		AppendStringToSlice( &sb, token.Text)
-			}
+		
+	}
 	
 	sb = append(sb, ' ')
 	
@@ -477,7 +492,8 @@ func (self *Variable) ConvertToString() string {
 		
 			sb = append(sb, input[i])
 			
-					}
+			
+		}
 		
 		
 	} else  {
@@ -487,7 +503,8 @@ func (self *Variable) ConvertToString() string {
 		
 			sb = append(sb, input[i])
 			
-					}
+			
+		}
 		
 		
 	}
@@ -532,7 +549,8 @@ func (self *Function) Print(indent int) {
 		var parameter Variable  = self.Parameters[i]
 		parameter.Print()
 		fmt.Print(", ")
-			}
+		
+	}
 	
 	
 	fmt.Printf("%c %c", ')', '{')
@@ -551,7 +569,8 @@ func (self *Function) PrintData() {
 		var parameter Variable  = self.Parameters[i]
 		parameter.Print(); 
 		fmt.Print(", "); 
-			}
+		
+	}
 	
 	fmt.Println(')'); 
 	self.InnerBlock.PrintData(); 
@@ -575,7 +594,8 @@ func (self *Function) PrintNodeTypes() {
 	for i := 0; i < count; i++ {
 	
 		var blockData BlockData  = block.BlockDataList[i]; fmt.Printf("\t%s\n", blockData.NodeType.ToString()); 
-			}
+		
+	}
 	
 	
 }
@@ -809,7 +829,8 @@ func (self *FormatData) PrintProcessLog() {
 	
 		var log string  = self.ProcessLog[i]
 		fmt.Printf("\t%s\n", log)
-			}
+		
+	}
 	
 	fmt.Println()
 	
@@ -837,7 +858,8 @@ func (self *FormatData) PrintFunctionLog() {
 	
 		fmt.Print("\t")
 		fmt.Println(self.FunctionLog[i])
-			}
+		
+	}
 	
 	fmt.Println()
 	
@@ -912,7 +934,8 @@ func (self *ConvertData) NewLineWithTabs() {
 	for i := 0; i < self.NestCount; i++ {
 	
 		self.AppendChar('\t'); 
-			}
+		
+	}
 	
 	
 }
@@ -933,7 +956,8 @@ func (self *ConvertData) AddTabs() {
 	for i := 0; i < self.NestCount; i++ {
 	
 		self.AppendChar('\t'); 
-			}
+		
+	}
 	
 	
 }
@@ -968,7 +992,8 @@ func (self *ConvertData) AppendString(input string) {
 	for i := 0; i < len(input); i++ {
 	
 		self.GeneratedCode = append(self.GeneratedCode, input[i])
-			}
+		
+	}
 	
 	
 }
