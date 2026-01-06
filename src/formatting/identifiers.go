@@ -35,7 +35,8 @@ func ProcessIdentifier(formatData *FormatData, firstToken Token) BlockData {
 		
 		formatData.Increment(); 
 		lastTokenType = thisToken.Type; 
-			}
+		
+	}
 	
 	
 	if loopAction == IdentLoopAction.Error {
