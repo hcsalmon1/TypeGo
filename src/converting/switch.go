@@ -24,7 +24,8 @@ func ConvertSwitch(convertData *ConvertData, blockData *BlockData, nestCount int
 			convertData.AppendChar(' ')
 			
 		}
-			}
+		
+	}
 	
 	convertData.AppendChar(' ')
 	convertData.AppendChar('{')
@@ -66,7 +67,8 @@ func ConvertSwitchCase(convertData *ConvertData, blockData *BlockData, nestCount
 			convertData.AppendChar(' ')
 			
 		}
-			}
+		
+	}
 	
 	convertData.IncrementNestCount()
 	if blockData.Block != nil {
