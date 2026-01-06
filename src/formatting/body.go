@@ -153,7 +153,8 @@ func FillBody(formatData *FormatData) CodeBlock {
 		}
 		
 		formatData.IncrementIfSame(previousIndex); 
-			}
+		
+	}
 	
 	formatData.AddToFunctionLog("EXIT ProcessTokenInBody")
 	return block; 
@@ -196,7 +197,8 @@ func FillStructBody(formatData *FormatData) CodeBlock {
 		}
 		
 		formatData.IncrementIfSame(previousIndex); 
-			}
+		
+	}
 	
 	formatData.AddToFunctionLog("EXIT FillStructBody")
 	return block; 
@@ -230,7 +232,8 @@ func FillInterfaceBody(formatData *FormatData) CodeBlock {
 		}
 		ProcessInterfaceFunction(formatData, &block.MethodList, token); 
 		formatData.IncrementIfSame(previousIndex); 
-			}
+		
+	}
 	
 	formatData.AddToFunctionLog("EXIT FillStructBody")
 	return block; 
@@ -261,7 +264,8 @@ func FillSwitchBody(formatData *FormatData) CodeBlock {
 		}
 		
 		formatData.IncrementIfSame(previousIndex); 
-			}
+		
+	}
 	
 	return block; 
 	
@@ -310,7 +314,8 @@ func FillSwitchCase(formatData *FormatData, block *CodeBlock) {
 		if token.Type == TokenType.Colon {
 			break
 		}
-			}
+		
+	}
 	
 	
 	var case_body_block CodeBlock  = FillCaseBody(formatData)
@@ -350,7 +355,8 @@ func FillCaseBody(formatData *FormatData) CodeBlock {
 		}
 		
 		formatData.IncrementIfSame(previousIndex); 
-			}
+		
+	}
 	
 	return block; 
 }
