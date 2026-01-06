@@ -23,12 +23,14 @@ var MapErrorTag = struct {
 	KeyNotFound IntMapErrorTag
 	IncorrectType IntMapErrorTag
 	DataIsNull IntMapErrorTag
-	}{
+	
+}{
 	None: 0,
 	KeyNotFound: 1,
 	IncorrectType: 2,
 	DataIsNull: 3,
-	}
+	
+}
 
 func (self IntMapErrorTag) ToString() string {
 	switch self {
@@ -43,7 +45,8 @@ func (self IntMapErrorTag) ToString() string {
 	default:
 		return "Unknown"
 	}
-}
+
+}
 
 
 func (self IntMapErrorTag) IsError() bool {
@@ -310,7 +313,8 @@ func readMessage(reader *bufio.Reader) (string,error) {
 			contentLength, _ = strconv.Atoi(value)
 			continue
 		}
-			}
+		
+	}
 	
 	
 	var buffer []byte  = make([]byte, contentLength)
@@ -485,7 +489,8 @@ func extractUserError(output string) string {
 			}
 			
 		}
-			}
+		
+	}
 	
 	
 	return "Compilation failed"
@@ -642,7 +647,8 @@ func Run() {
 				
 		}
 		
-			}
+		
+	}
 	
 	
 }
