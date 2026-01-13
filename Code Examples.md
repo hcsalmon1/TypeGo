@@ -112,7 +112,7 @@ Structs object names will always be self.
     }
 
     fn main() {
-        int os_type = OsType.Windows
+        IntOsType os_type = OsType.Windows
     }
 
 ```
