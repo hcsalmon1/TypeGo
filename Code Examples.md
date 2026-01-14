@@ -60,7 +60,7 @@ The type is optional in constants.
 To avoid repetition, the type is not needed to be written after the equals or in make().  
 The type is only require with 'make()' when it's never written:
 
-```
+```go
 
 	struct MessageHolder {
 		[]string Messages
@@ -77,7 +77,7 @@ The type is only require with 'make()' when it's never written:
 
 Errors:
 
-```
+```go
 
 	fn openFile(string path) error {
 
@@ -93,18 +93,18 @@ Errors:
 
 ```
 If you want to write:  
-```
+```go
 	if err != nil {
 		return err
 	}
 ```
 In TypeGo you can just write:
-```
+```go
 	errreturn err
 ```
 They are completely identical. You can put put any return value there:
 
-```
+```go
 
 	errreturn 0, ""
 	errreturn DefaultUser()
