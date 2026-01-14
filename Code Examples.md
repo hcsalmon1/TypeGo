@@ -44,6 +44,7 @@ The type is optional in constants.
 
     []int numbers = make(0)
     numbers.append(10)
+	numbers = append(numbers, 20) //.append() is optional
 
     map[string]int scores = {
         "alice": 100,
@@ -56,7 +57,23 @@ The type is optional in constants.
 
 ```
 
-To avoid repetition, the type is not needed to be written after the equals or in make().
+To avoid repetition, the type is not needed to be written after the equals or in make().  
+The type is only require with 'make()' when it's never written:
+
+```
+
+	struct MessageHolder {
+		[]string Messages
+	}
+
+	fn main() {
+
+		MessageHolder holder = {
+			Messages: make([]string, 0) //has to be written here
+		}
+	}
+
+```
 
 Structs:
 
@@ -144,24 +161,6 @@ ToString() methods are generated automatically.
     }
 
 ```
-
-**Make and Append**:
-
-```
-
-    []int slice = make(0)
-    slice.append(1)
-    slice.append(2)
-    slice.append(3)
-    slice = append(slice, 4)
-
-    for i := 0; i < 3; i++ {
-		fmt.Println(slice[0])
-	}
-
-```
-You only need to write the type in 'make()' when it isn't written at all.  
-'.append()' shortcut is also completely optional and the long form is still possible.  
 
 **Unchanged List:**  
 -Switches  
