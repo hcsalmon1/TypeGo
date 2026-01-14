@@ -75,6 +75,44 @@ The type is only require with 'make()' when it's never written:
 
 ```
 
+Errors:
+
+```
+
+	fn openFile(string path) error {
+
+        []byte data, error err := os.ReadFile(path)
+    	errreturn err
+		*os.File file, err = os.Open(path)
+		errcheck {
+			return fmt.Errorf("Error opening %s, %s", path, err.Err())
+			return err
+		}
+		return nil
+    }
+
+```
+If you want to write:  
+```
+	if err != nil {
+		return err
+	}
+```
+In TypeGo you can just write:
+```
+	errreturn err
+```
+They are completely identical. You can put put any return value there:
+
+```
+
+	errreturn 0, ""
+	errreturn DefaultUser()
+	erreturn 0, err
+
+```
+'errcheck' is used similarly, but to create a block instead.  
+
 Structs:
 
 ```go
@@ -142,6 +180,24 @@ Structs object names will always be self.
 Enums can also have methods. The self parameter will be passed by value and not pointer.  
 ToString() methods are generated automatically.
 
+```
+
+	enumstruct UserType : UType {
+		Regular, Admin, Guest
+	}
+
+	fn main() {
+
+		UType u_type = UserType.Regular
+		//...
+	}
+
+```
+
+The default alias for enumstructs is Int+Name. For example:
+enumstruct OsType, alias = IntOsType.  
+To specify the alias use:' : Name '
+ 
 **Interfaces**
 
 ```go
