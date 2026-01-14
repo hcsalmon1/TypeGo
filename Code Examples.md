@@ -102,7 +102,8 @@ In TypeGo you can just write:
 ```go
 	errreturn err
 ```
-They are completely identical. You can put put any return value there:
+They are completely identical.  
+You can also put any return value there:  
 
 ```go
 
@@ -180,7 +181,7 @@ Structs object names will always be self.
 Enums can also have methods. The self parameter will be passed by value and not pointer.  
 ToString() methods are generated automatically.
 
-```
+```go
 
 	enumstruct UserType : UType {
 		Regular, Admin, Guest
