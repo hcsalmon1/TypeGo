@@ -109,15 +109,21 @@ Structs object names will always be self.
         Windows
         Mac
         Linux
+        fn bool IsWindows() {
+            return self == OsType.Windows
+        }
     }
 
     fn main() {
         IntOsType os_type = OsType.Windows
+        fmt.Println("Os type:", os_type.ToString())
     }
 
 ```
 'enum' creates an iota based integer.  
 'enumstruct' creates a struct with those members as integers.  
+Enums can also have methods. The self parameter will be passed by value and not pointer.  
+ToString() methods are generated automatically.
 
 **Interfaces**
 
@@ -138,6 +144,24 @@ Structs object names will always be self.
     }
 
 ```
+
+**Make and Append**:
+
+```
+
+    []int slice = make(0)
+    slice.append(1)
+    slice.append(2)
+    slice.append(3)
+    slice = append(slice, 4)
+
+    for i := 0; i < 3; i++ {
+		fmt.Println(slice[0])
+	}
+
+```
+You only need to write the type in 'make()' when it isn't written at all.  
+'.append()' shortcut is also completely optional and the long form is still possible.  
 
 **Unchanged List:**  
 -Switches  
