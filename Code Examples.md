@@ -75,7 +75,7 @@ The type is only require with 'make()' when it's never written:
 
 ```
 
-Errors:
+**Errors:**
 
 ```go
 
@@ -114,7 +114,7 @@ You can also put any return value there:
 ```
 'errcheck' is used similarly, but to create a block instead.  
 
-Structs:
+**Structs:**
 
 ```go
 
