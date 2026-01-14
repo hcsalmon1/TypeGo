@@ -143,7 +143,7 @@ Structs:
 
 Methods are written inside the struct.  
 Again the Struct name can be omitted after '='  
-Structs object names will always be self.  
+Structs object names will always be self and passed by pointer in structs.  
 
 **Enums:**
 
